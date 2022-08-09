@@ -13,7 +13,7 @@ namespace MlemApiClientTests.RegModelTests
         public void Setup()
         {
             var configurationMock = new Mock<IMlemApiConfiguration>();
-            configurationMock.Setup(c => c.ConnectionString).Returns("http://127.0.0.1:8080");
+            configurationMock.Setup(c => c.Url).Returns("http://127.0.0.1:8080");
             _mlemApiConfiguration = configurationMock.Object;
 
             using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());

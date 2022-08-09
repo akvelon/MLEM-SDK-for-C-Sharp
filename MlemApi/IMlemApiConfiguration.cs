@@ -8,6 +8,6 @@
         /// <summary>
         /// Address to connect to mlem API
         /// </summary>
-        public string ConnectionString { get; set; }
+        public string Url { get; set; }
     }
 }

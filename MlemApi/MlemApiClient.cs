@@ -26,7 +26,7 @@ namespace MlemApi
             _configuraion = configuraion;
             _logger = logger;
 
-            _httpClient.BaseAddress = new Uri(_configuraion.ConnectionString);
+            _httpClient.BaseAddress = new Uri(_configuraion.Url);
         }
 
         /// <summary>

@@ -72,10 +72,18 @@ namespace MlemApi
         private void Validate(List<incomeT> values)
         {
             if (values == null)
+            {
+                _logger.LogError($"Input value is null: {nameof(values)}");
+
                 throw new ArgumentNullException(nameof(values));
+            }
 
             if (!values.Any())
+            {
+                _logger.LogError($"Input value is empty: {nameof(values)}");
+
                 throw new ArgumentException($"{nameof(values)} cannot be empty");
+            }
         }
 
         private async Task<T> DoCommonMlemRequest<T>(string command, List<incomeT> values)
@@ -106,8 +114,6 @@ namespace MlemApi
                 });
 
             _logger.LogInformation($"Request command: {command}");
-
-            _logger.LogDebug($"Request uri: {_configuraion.ConnectionString}");
 
             string responseMessage;
             try
@@ -144,9 +150,9 @@ namespace MlemApi
                     throw;
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                _logger.LogError($"API request error");
+                _logger.LogError(ex, $"API request error");
 
                 throw;
             }

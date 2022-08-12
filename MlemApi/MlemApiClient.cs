@@ -9,8 +9,10 @@ namespace MlemApi
     /// <summary>
     /// Client to access to mlem API
     /// </summary>
-    public class MlemApiClient<incomeT, outcomeT> : IMlemApiClient<incomeT, outcomeT>
+    public class MlemApiClient : IMlemApiClient
     {
+        private const string PREDICT_METHOD = "predict";
+
         private readonly HttpClient _httpClient;
         private readonly IMlemApiConfiguration _configuraion;
         private readonly ILogger _logger;
@@ -22,7 +24,7 @@ namespace MlemApi
         /// </summary>
         /// <param name="httpClient"></param>
         /// <param name="configuraion"></param>
-        public MlemApiClient(HttpClient httpClient, IMlemApiConfiguration configuraion, ILogger<MlemApiClient<incomeT, outcomeT>> logger)
+        public MlemApiClient(HttpClient httpClient, IMlemApiConfiguration configuraion, ILogger<MlemApiClient> logger)
         {
             _httpClient = httpClient;
             _configuraion = configuraion;
@@ -33,37 +35,32 @@ namespace MlemApi
             _apiDescription = GetDescription();
         }
 
-        private ApiDescription GetDescription()
+        /// <summary>
+        /// Call predict API method
+        /// </summary>
+        /// <typeparam name="incomeT"></typeparam>
+        /// <typeparam name="outcomeT"></typeparam>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        public async Task<outcomeT> PredictAsync<incomeT, outcomeT>(List<incomeT> values)
         {
-            var requestTask = _httpClient.GetStringAsync("interface.json");
-            requestTask.Wait();
-
-            var response = requestTask.Result;
-
-            return DescriptionParser.GetApiDescription(response);
+            return await DoMlemRequest<incomeT, outcomeT>(PREDICT_METHOD, values);
         }
 
         /// <summary>
-        /// Predict method
+        /// Call methodName API method
         /// </summary>
-        /// <param name="request"></param>
+        /// <typeparam name="incomeT"></typeparam>
+        /// <typeparam name="outcomeT"></typeparam>
+        /// <param name="methodName"></param>
+        /// <param name="values"></param>
         /// <returns></returns>
-        public async Task<List<outcomeT>> GetPredictAsync(string methodName, List<incomeT> values)
+        public async Task<outcomeT> CallAsync<incomeT, outcomeT>(string methodName, List<incomeT> values)
         {
-            return await DoMlemRequest<List<outcomeT>>(methodName, values);
+            return await DoMlemRequest<incomeT, outcomeT>(methodName, values);
         }
 
-        /// <summary>
-        /// Predict probability method
-        /// </summary>
-        /// <param name="request"></param>
-        /// <returns></returns>
-        public async Task<List<List<double>>> GetProbabilityAsync(string methodName, List<incomeT> values)
-        {
-            return await DoMlemRequest<List<List<double>>>(methodName, values);
-        }
-
-        private async Task<T> DoMlemRequest<T>(string methodName, List<incomeT> values)
+        private async Task<outcomeT> DoMlemRequest<incomeT, outcomeT>(string methodName, List<incomeT> values)
         {
             ValidateMethod(methodName);
 
@@ -73,7 +70,7 @@ namespace MlemApi
 
             var jsonRequest = RequestBuilder<incomeT>.BuildRequest(argsName, values);
 
-            return await DoPostRequest<T>(methodName, jsonRequest);
+            return await DoPostRequest<outcomeT>(methodName, jsonRequest);
         }
 
         private async Task<T> DoPostRequest<T>(string command, string requestJsonString)
@@ -124,6 +121,16 @@ namespace MlemApi
             }
         }
 
+        private ApiDescription GetDescription()
+        {
+            var requestTask = _httpClient.GetStringAsync("interface.json");
+            requestTask.Wait();
+
+            var response = requestTask.Result;
+
+            return DescriptionParser.GetApiDescription(response);
+        }
+
         private void ValidateMethod(string methodName)
         {
             if (!_apiDescription.Methods.Any(m => m.MethodName == methodName))
@@ -136,7 +143,7 @@ namespace MlemApi
             }
         }
 
-        private void ValidateValues(List<incomeT> values)
+        private void ValidateValues<incomeT>(List<incomeT> values)
         {
             if (values == null)
             {

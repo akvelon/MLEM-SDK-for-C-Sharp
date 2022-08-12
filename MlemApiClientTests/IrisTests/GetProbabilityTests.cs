@@ -5,7 +5,7 @@ namespace MlemApiClientTests.IrisTests
         [Test]
         public async Task PositiveTest()
         {
-            var result = await _client.GetProbabilityAsync("predict_proba",
+            var result = await _client.CallAsync<Iris, List<List<double>>>("predict_proba",
                 new List<Iris>
                 {
                     new Iris
@@ -34,19 +34,19 @@ namespace MlemApiClientTests.IrisTests
         [Test]
         public void NullValueTest()
         {
-            Assert.ThrowsAsync<ArgumentNullException>(() => _client.GetProbabilityAsync("predict_proba", null));
+            Assert.ThrowsAsync<ArgumentNullException>(() => _client.CallAsync<Iris, List<List<double>>>("predict_proba", null));
         }
 
         [Test]
         public void EmptyValueTest()
         {
-            Assert.ThrowsAsync<ArgumentException>(() => _client.GetProbabilityAsync("predict_proba", new List<Iris>()));
+            Assert.ThrowsAsync<ArgumentException>(() => _client.CallAsync<Iris, List<List<double>>>("predict_proba", new List<Iris>()));
         }
 
         [Test]
         public void IncorrectMethodTest()
         {
-            Assert.ThrowsAsync<InvalidOperationException>(() => _client.GetPredictAsync("predict_proba_2", new List<Iris>()));
+            Assert.ThrowsAsync<InvalidOperationException>(() => _client.CallAsync<Iris, List<List<double>>>("predict_proba_2", new List<Iris>()));
         }
     }
 }

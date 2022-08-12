@@ -1,7 +1,7 @@
 namespace MlemApiClientTests.TorchTensorTests
 {
     public class PredictTests : BaseTests
-    {
+    {/*
         [Test]
         public async Task PositiveTest()
         {
@@ -31,6 +31,6 @@ namespace MlemApiClientTests.TorchTensorTests
         public void EmptyValueTest()
         {
             Assert.ThrowsAsync<ArgumentException>(() => _client.GetPredictAsync("predict", new List<List<List<float>>>()));
-        }
+        }*/
     }
 }

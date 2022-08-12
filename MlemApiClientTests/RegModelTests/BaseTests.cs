@@ -6,7 +6,7 @@ namespace MlemApiClientTests.RegModelTests
 {
     public abstract class BaseTests
     {
-        protected MlemApiClient<RegModel, double> _client;
+        protected MlemApiClient _client;
         protected IMlemApiConfiguration _mlemApiConfiguration;
 
         [SetUp]
@@ -17,9 +17,9 @@ namespace MlemApiClientTests.RegModelTests
             _mlemApiConfiguration = configurationMock.Object;
 
             using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
-            var logger = loggerFactory.CreateLogger<MlemApiClient<RegModel, double>>();
+            var logger = loggerFactory.CreateLogger<MlemApiClient>();
 
-            _client = new MlemApiClient<RegModel, double>(new HttpClient(), _mlemApiConfiguration, logger);
+            _client = new MlemApiClient(new HttpClient(), _mlemApiConfiguration, logger);
         }
     }
 }

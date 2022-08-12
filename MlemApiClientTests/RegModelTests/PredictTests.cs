@@ -1,11 +1,11 @@
 namespace MlemApiClientTests.RegModelTests
 {
     public class PredictTests : BaseTests
-    {/*
+    {
         [Test]
         public async Task PositiveTest()
         {
-            var result = await _client.PredictAsync(
+            var result = await _client.PredictAsync<RegModel, List<double>>(
                 new List<RegModel>
                 {
                     new RegModel
@@ -22,13 +22,19 @@ namespace MlemApiClientTests.RegModelTests
         [Test]
         public void NullValueTest()
         {
-            Assert.ThrowsAsync<ArgumentNullException>(() => _client.PredictAsync(null));
+            Assert.ThrowsAsync<ArgumentNullException>(() => _client.PredictAsync<RegModel, List<double>>(null));
         }
 
         [Test]
         public void EmptyValueTest()
         {
-            Assert.ThrowsAsync<ArgumentException>(() => _client.PredictAsync(new List<RegModel>()));
-        }*/
+            Assert.ThrowsAsync<ArgumentException>(() => _client.PredictAsync<RegModel, List<double>>(new List<RegModel>()));
+        }
+
+        [Test]
+        public void IncorrectMethodTest()
+        {
+            Assert.ThrowsAsync<InvalidOperationException>(() => _client.CallAsync<Iris, List<long>>("predict_1", new List<Iris>()));
+        }
     }
 }

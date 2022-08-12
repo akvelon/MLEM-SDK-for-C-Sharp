@@ -6,7 +6,7 @@ namespace MlemApiClientTests.TorchTensorTests
 {
     public abstract class BaseTests
     {
-        protected MlemApiClient<List<List<float>>, double> _client;
+        protected MlemApiClient _client;
         protected IMlemApiConfiguration _mlemApiConfiguration;
 
         [SetUp]
@@ -17,9 +17,9 @@ namespace MlemApiClientTests.TorchTensorTests
             _mlemApiConfiguration = configurationMock.Object;
 
             using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
-            var logger = loggerFactory.CreateLogger<MlemApiClient<List<List<float>>, double>>();
+            var logger = loggerFactory.CreateLogger<MlemApiClient>();
 
-            _client = new MlemApiClient<List<List<float>>, double>(new HttpClient(), _mlemApiConfiguration, logger);
+            _client = new MlemApiClient(new HttpClient(), _mlemApiConfiguration, logger);
         }
     }
 }

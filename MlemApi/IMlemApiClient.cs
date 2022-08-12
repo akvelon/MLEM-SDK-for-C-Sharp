@@ -1,8 +1,9 @@
 ﻿namespace MlemApi
 {
-    public interface IMlemApiClient<incomeT, outcomeT>
+    public interface IMlemApiClient
     {
-        Task<List<outcomeT>> GetPredictAsync(string methodName, List<incomeT> values);
-        Task<List<List<double>>> GetProbabilityAsync(string methodName, List<incomeT> values);
+        Task<outcomeT> PredictAsync<incomeT, outcomeT>(List<incomeT> values);
+
+        Task<outcomeT> CallAsync<incomeT, outcomeT>(string methodName, List<incomeT> values);
     }
 }

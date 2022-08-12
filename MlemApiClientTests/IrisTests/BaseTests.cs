@@ -7,7 +7,7 @@ namespace MlemApiClientTests.IrisTests
 {
     public abstract class BaseTests
     {
-        protected MlemApiClient<Iris, long> _client;
+        protected MlemApiClient _client;
 
         [SetUp]
         public void Setup()
@@ -16,9 +16,9 @@ namespace MlemApiClientTests.IrisTests
             configurationMock.Setup(c => c.Url).Returns("https://example-mlem-get-started-app.herokuapp.com");
 
             using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
-            var logger = loggerFactory.CreateLogger<MlemApiClient<Iris, long>>();
+            var logger = loggerFactory.CreateLogger<MlemApiClient>();
 
-            _client = new MlemApiClient<Iris, long>(new HttpClient(), configurationMock.Object, logger);
+            _client = new MlemApiClient(new HttpClient(), configurationMock.Object, logger);
         }
     }
 }

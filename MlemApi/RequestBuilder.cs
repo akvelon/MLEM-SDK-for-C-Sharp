@@ -1,17 +1,25 @@
-﻿using Newtonsoft.Json.Linq;
-
-namespace MlemApi
+﻿namespace MlemApi
 {
-    internal static class RequestBuilder<T>
+    internal class RequestBuilder
     {
-        public static string BuildRequest(string argsName, List<T> values)
-        {
-            var jsonRequest = new JObject(
-                    new JProperty($"{argsName}", new JObject(
-                        new JProperty("values", JArray.FromObject(values))))
-                );
+        private readonly IRequestValueSerializer _requestValueSerializer;
 
-            return jsonRequest.ToString();
+        public RequestBuilder(IRequestValueSerializer requestValueSerializer)
+        {
+            _requestValueSerializer = requestValueSerializer;
+        }
+
+        public string BuildRequest<T>(string argsName, List<T> values)
+        {
+            var stringRequest = $"{{\"{argsName}\": " +
+                "{\"values\": " +
+                    "[" +
+                        string.Join(',', _requestValueSerializer.Serialize(values)) +
+                    "]" +
+                "}" +
+            "}";
+
+            return stringRequest;
         }
     }
 }

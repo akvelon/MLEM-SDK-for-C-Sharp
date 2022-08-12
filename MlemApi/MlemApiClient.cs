@@ -16,6 +16,7 @@ namespace MlemApi
         private readonly HttpClient _httpClient;
         private readonly IMlemApiConfiguration _configuraion;
         private readonly ILogger _logger;
+        private readonly RequestBuilder _requestBuilder;
 
         private ApiDescription _apiDescription;
 
@@ -24,13 +25,15 @@ namespace MlemApi
         /// </summary>
         /// <param name="httpClient"></param>
         /// <param name="configuraion"></param>
-        public MlemApiClient(HttpClient httpClient, IMlemApiConfiguration configuraion, ILogger<MlemApiClient> logger)
+        public MlemApiClient(HttpClient httpClient, IMlemApiConfiguration configuraion, IRequestValueSerializer requestSerializer, ILogger<MlemApiClient> logger)
         {
             _httpClient = httpClient;
             _configuraion = configuraion;
             _logger = logger;
 
             _httpClient.BaseAddress = new Uri(_configuraion.Url);
+
+            _requestBuilder = new RequestBuilder(requestSerializer);
 
             _apiDescription = GetDescription();
         }
@@ -68,7 +71,7 @@ namespace MlemApi
 
             var argsName = _apiDescription.Methods.First(m => m.MethodName == methodName).ArgsName;
 
-            var jsonRequest = RequestBuilder<incomeT>.BuildRequest(argsName, values);
+            var jsonRequest = _requestBuilder.BuildRequest(argsName, values);
 
             return await DoPostRequest<outcomeT>(methodName, jsonRequest);
         }

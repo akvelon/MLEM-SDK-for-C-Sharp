@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using Moq;
-using Moq.Protected;
 using MlemApi;
 
 namespace MlemApiClientTests.IrisTests
@@ -18,7 +17,7 @@ namespace MlemApiClientTests.IrisTests
             using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
             var logger = loggerFactory.CreateLogger<MlemApiClient>();
 
-            _client = new MlemApiClient(new HttpClient(), configurationMock.Object, logger);
+            _client = new MlemApiClient(new HttpClient(), configurationMock.Object, new NewtonsoftRequestValueSerializer(), logger);
         }
     }
 }

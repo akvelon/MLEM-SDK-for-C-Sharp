@@ -19,7 +19,7 @@ namespace MlemApiClientTests.RegModelTests
             using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
             var logger = loggerFactory.CreateLogger<MlemApiClient>();
 
-            _client = new MlemApiClient(new HttpClient(), _mlemApiConfiguration, logger);
+            _client = new MlemApiClient(new HttpClient(), _mlemApiConfiguration, new NewtonsoftRequestValueSerializer(), logger);
         }
     }
 }

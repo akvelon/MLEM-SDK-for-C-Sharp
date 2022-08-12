@@ -1,11 +1,11 @@
 namespace MlemApiClientTests.IrisTests
 {
-    public class PredictProbabilityTests : BaseTests
+    public class GetPredictTests : BaseTests
     {
         [Test]
         public async Task PositiveTest()
         {
-            var result = await _client.PredictProbabilityAsync(
+            var result = await _client.GetPredictAsync("predict",
                 new List<Iris>
                 {
                     new Iris
@@ -27,20 +27,24 @@ namespace MlemApiClientTests.IrisTests
             Assert.NotNull(result);
             Assert.IsNotEmpty(result);
             Assert.AreEqual(result.Count, 2);
-            Assert.AreEqual(result[0].Count, 3);
-            Assert.AreEqual(result[1].Count, 3);
         }
 
         [Test]
         public void NullValueTest()
         {
-            Assert.ThrowsAsync<ArgumentNullException>(() => _client.PredictProbabilityAsync(null));
+            Assert.ThrowsAsync<ArgumentNullException>(() => _client.GetPredictAsync("predict", null));
         }
 
         [Test]
         public void EmptyValueTest()
         {
-            Assert.ThrowsAsync<ArgumentException>(() => _client.PredictProbabilityAsync(new List<Iris>()));
+            Assert.ThrowsAsync<ArgumentException>(() => _client.GetPredictAsync("predict", new List<Iris>()));
+        }
+
+        [Test]
+        public void IncorrectMethodTest()
+        {
+            Assert.ThrowsAsync<InvalidOperationException>(() => _client.GetPredictAsync("predict_1", new List<Iris>()));
         }
     }
 }

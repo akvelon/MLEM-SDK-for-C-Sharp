@@ -1,19 +1,19 @@
-﻿using System.Text.Json.Serialization;
+﻿using Newtonsoft.Json;
 
 namespace MlemApiClientTests.IrisTests
 {
     public class Iris
     {
-        [JsonPropertyName("sepal length (cm)")]
+        [JsonProperty("sepal length (cm)")]
         public double SepalLength { get; set; }
 
-        [JsonPropertyName("sepal width (cm)")]
+        [JsonProperty("sepal width (cm)")]
         public double SepalWidth { get; set; }
 
-        [JsonPropertyName("petal length (cm)")]
+        [JsonProperty("petal length (cm)")]
         public double PetalLength { get; set; }
 
-        [JsonPropertyName("petal width (cm)")]
+        [JsonProperty("petal width (cm)")]
         public double PetalWidth { get; set; }
     }
 }

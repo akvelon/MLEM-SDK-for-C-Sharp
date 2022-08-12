@@ -1,8 +1,8 @@
-﻿using System.Net.Mime;
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
-using MlemApi.Dto;
+using System.Net.Mime;
 using Microsoft.Extensions.Logging;
+using MlemApi.Dto;
 
 namespace MlemApi
 {
@@ -14,6 +14,8 @@ namespace MlemApi
         private readonly HttpClient _httpClient;
         private readonly IMlemApiConfiguration _configuraion;
         private readonly ILogger _logger;
+
+        private ApiDescription _apiDescription;
 
         /// <summary>
         /// Constructor
@@ -27,6 +29,18 @@ namespace MlemApi
             _logger = logger;
 
             _httpClient.BaseAddress = new Uri(_configuraion.Url);
+
+            _apiDescription = GetDescription();
+        }
+
+        private ApiDescription GetDescription()
+        {
+            var requestTask = _httpClient.GetStringAsync("interface.json");
+            requestTask.Wait();
+
+            var response = requestTask.Result;
+
+            return DescriptionParser.GetApiDescription(response);
         }
 
         /// <summary>
@@ -34,9 +48,9 @@ namespace MlemApi
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        public async Task<List<outcomeT>> PredictAsync(List<incomeT> values)
+        public async Task<List<outcomeT>> GetPredictAsync(string methodName, List<incomeT> values)
         {
-            return await DoCommonMlemRequest<List<outcomeT>>("predict", values);
+            return await DoMlemRequest<List<outcomeT>>(methodName, values);
         }
 
         /// <summary>
@@ -44,74 +58,26 @@ namespace MlemApi
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        public async Task<List<List<double>>> PredictProbabilityAsync(List<incomeT> values)
+        public async Task<List<List<double>>> GetProbabilityAsync(string methodName, List<incomeT> values)
         {
-            return await DoCommonMlemRequest<List<List<double>>>("predict_proba", values);
+            return await DoMlemRequest<List<List<double>>>(methodName, values);
         }
 
-        /// <summary>
-        /// Sklearn predict method
-        /// </summary>
-        /// <param name="request"></param>
-        /// <returns></returns>
-        public async Task<List<outcomeT>> SklearnPredictAsync(List<incomeT> values)
+        private async Task<T> DoMlemRequest<T>(string methodName, List<incomeT> values)
         {
-            return await DoSklearnMlemRequest<List<outcomeT>>("sklearn_predict", values);
+            ValidateMethod(methodName);
+
+            ValidateValues(values);
+
+            var argsName = _apiDescription.Methods.First(m => m.MethodName == methodName).ArgsName;
+
+            var jsonRequest = RequestBuilder<incomeT>.BuildRequest(argsName, values);
+
+            return await DoPostRequest<T>(methodName, jsonRequest);
         }
 
-        /// <summary>
-        /// Sklearn predict probability method
-        /// </summary>
-        /// <param name="request"></param>
-        /// <returns></returns>
-        public async Task<List<List<double>>> SklearnPredictProbabilityAsync(List<incomeT> values)
+        private async Task<T> DoPostRequest<T>(string command, string requestJsonString)
         {
-            return await DoSklearnMlemRequest<List<List<double>>>("sklearn_predict_proba", values);
-        }
-
-        private void Validate(List<incomeT> values)
-        {
-            if (values == null)
-            {
-                _logger.LogError($"Input value is null: {nameof(values)}");
-
-                throw new ArgumentNullException(nameof(values));
-            }
-
-            if (!values.Any())
-            {
-                _logger.LogError($"Input value is empty: {nameof(values)}");
-
-                throw new ArgumentException($"{nameof(values)} cannot be empty");
-            }
-        }
-
-        private async Task<T> DoCommonMlemRequest<T>(string command, List<incomeT> values)
-        {
-            Validate(values);
-
-            var request = new CommonPredictRequest<incomeT> { Data = new Data<incomeT> { Values = values } };
-
-            return await DoRequest<CommonPredictRequest<incomeT>, T>(command, request);
-        }
-
-        private async Task<T> DoSklearnMlemRequest<T>(string command, List<incomeT> values)
-        {
-            Validate(values);
-
-            var request = new SklearnPredictRequest<incomeT> { Data = new Data<incomeT> { Values = values } };
-
-            return await DoRequest<SklearnPredictRequest<incomeT>, T>(command, request);
-        }
-
-        private async Task<outT> DoRequest<inT, outT>(string command, inT value)
-        {
-            var requestJsonString = JsonSerializer.Serialize(
-                value,
-                new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
 
             _logger.LogInformation($"Request command: {command}");
 
@@ -122,7 +88,7 @@ namespace MlemApi
                     command,
                     new StringContent(requestJsonString, Encoding.UTF8, MediaTypeNames.Application.Json));
 
-                _logger.LogInformation($"Response status: {response.StatusCode}");
+                _logger.LogInformation($"Response status: {response.StatusCode}.");
 
                 responseMessage = await response.Content.ReadAsStringAsync();
 
@@ -133,28 +99,57 @@ namespace MlemApi
 
                 try
                 {
-                    var result = JsonSerializer.Deserialize<outT>(responseMessage);
+                    var result = JsonSerializer.Deserialize<T>(responseMessage);
 
                     if (result == null)
                     {
 
-                        _logger.LogWarning($"Response deserialization result is null");
+                        _logger.LogWarning($"Response deserialization result is null.");
                     }
 
                     return result;
                 }
                 catch
                 {
-                    _logger.LogError($"Response deserialization error");
+                    _logger.LogError($"Response deserialization error.");
 
                     throw;
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"API request error");
+                _logger.LogError(ex, $"API request error.");
 
                 throw;
+            }
+        }
+
+        private void ValidateMethod(string methodName)
+        {
+            if (!_apiDescription.Methods.Any(m => m.MethodName == methodName))
+            {
+                var message = $"No method {methodName} in API.";
+
+                _logger.LogError(message);
+
+                throw new InvalidOperationException(message);
+            }
+        }
+
+        private void ValidateValues(List<incomeT> values)
+        {
+            if (values == null)
+            {
+                _logger.LogError($"Input value is null: {nameof(values)}.");
+
+                throw new ArgumentNullException(nameof(values));
+            }
+
+            if (!values.Any())
+            {
+                _logger.LogError($"Input value is empty: {nameof(values)}.");
+
+                throw new ArgumentException($"{nameof(values)} cannot be empty.");
             }
         }
     }

@@ -1,7 +1,7 @@
 namespace MlemApiClientTests.RegModelTests
 {
     public class PredictTests : BaseTests
-    {
+    {/*
         [Test]
         public async Task PositiveTest()
         {
@@ -29,6 +29,6 @@ namespace MlemApiClientTests.RegModelTests
         public void EmptyValueTest()
         {
             Assert.ThrowsAsync<ArgumentException>(() => _client.PredictAsync(new List<RegModel>()));
-        }
+        }*/
     }
 }

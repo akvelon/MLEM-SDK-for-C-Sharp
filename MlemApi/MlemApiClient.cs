@@ -47,7 +47,7 @@ namespace MlemApi
         /// <returns></returns>
         public async Task<outcomeT> PredictAsync<incomeT, outcomeT>(List<incomeT> values)
         {
-            return await DoMlemRequest<incomeT, outcomeT>(PREDICT_METHOD, values);
+            return await CallAsync<incomeT, outcomeT>(PREDICT_METHOD, values);
         }
 
         /// <summary>

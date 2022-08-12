@@ -34,7 +34,7 @@ namespace MlemApiClientTests.RegModelTests
         [Test]
         public void IncorrectMethodTest()
         {
-            Assert.ThrowsAsync<InvalidOperationException>(() => _client.CallAsync<Iris, List<long>>("predict_1", new List<Iris>()));
+            Assert.ThrowsAsync<InvalidOperationException>(() => _client.CallAsync<RegModel, List<long>>("predict_1", new List<RegModel>()));
         }
     }
 }

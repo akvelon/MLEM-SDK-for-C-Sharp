@@ -1,5 +1,8 @@
 ﻿namespace MlemApi
 {
+    /// <summary>
+    /// 
+    /// </summary>
     internal class RequestBuilder
     {
         private readonly IRequestValueSerializer _requestValueSerializer;

@@ -9,7 +9,7 @@ namespace MlemApi
     /// <summary>
     /// Client to access to mlem API
     /// </summary>
-    public class MlemApiClient : IMlemApiClient
+    public class MlemApiClient
     {
         private const string PREDICT_METHOD = "predict";
 
@@ -126,6 +126,8 @@ namespace MlemApi
 
         private ApiDescription GetDescription()
         {
+            _logger.LogInformation("Request command: interface.json");
+
             var requestTask = _httpClient.GetStringAsync("interface.json");
             requestTask.Wait();
 

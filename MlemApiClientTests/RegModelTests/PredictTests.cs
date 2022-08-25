@@ -16,7 +16,7 @@ namespace MlemApiClientTests.RegModelTests
 
             Assert.NotNull(result);
             Assert.IsNotEmpty(result);
-            Assert.AreEqual(result.Count, 1);
+            Assert.That(result.Count, Is.EqualTo(1));
         }
 
         [Test]

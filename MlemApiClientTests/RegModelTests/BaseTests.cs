@@ -30,7 +30,7 @@ namespace MlemApiClientTests.RegModelTests
             
             mockedProtected.Setup<Task<HttpResponseMessage>>(
                     "SendAsync",
-                    ItExpr.Is<HttpRequestMessage>(m => m.RequestUri.Equals(_baseAddress + "/predict")),
+                    ItExpr.Is<HttpRequestMessage>(m => Equals(m.RequestUri, _baseAddress + "/predict")),
                     ItExpr.IsAny<CancellationToken>()
                 )
                 .ReturnsAsync(new HttpResponseMessage()
@@ -41,7 +41,7 @@ namespace MlemApiClientTests.RegModelTests
 
             mockedProtected.Setup<Task<HttpResponseMessage>>(
                     "SendAsync",
-                    ItExpr.Is<HttpRequestMessage>(m => m.RequestUri.Equals(_baseAddress + "/interface.json")),
+                    ItExpr.Is<HttpRequestMessage>(m => Equals(m.RequestUri, _baseAddress + "/interface.json")),
                     ItExpr.IsAny<CancellationToken>()
                 )
                 .ReturnsAsync(new HttpResponseMessage()

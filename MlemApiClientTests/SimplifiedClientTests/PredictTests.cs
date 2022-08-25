@@ -1,11 +1,11 @@
-namespace MlemApiClientTests.IrisTests
+namespace MlemApiClientTests.SimplifiedClientTests
 {
-    public class GetProbabilityTests : BaseTests
+    public class PredictTests : BaseTests
     {
         [Test]
         public async Task PositiveTest()
         {
-            var result = await _client.CallAsync<Iris, List<List<double>>>("predict_proba",
+            var result = await _client.PredictAsync<Iris, List<long>>(
                 new List<Iris>
                 {
                     new Iris
@@ -26,27 +26,25 @@ namespace MlemApiClientTests.IrisTests
 
             Assert.NotNull(result);
             Assert.IsNotEmpty(result);
-            Assert.AreEqual(result.Count, 2);
-            Assert.AreEqual(result[0].Count, 3);
-            Assert.AreEqual(result[1].Count, 3);
+            Assert.That(result.Count, Is.EqualTo(2));
         }
 
         [Test]
         public void NullValueTest()
         {
-            Assert.ThrowsAsync<ArgumentNullException>(() => _client.CallAsync<Iris, List<List<double>>>("predict_proba", null));
+            Assert.ThrowsAsync<ArgumentNullException>(() => _client.PredictAsync<Iris, List<long>>(null));
         }
 
         [Test]
         public void EmptyValueTest()
         {
-            Assert.ThrowsAsync<ArgumentException>(() => _client.CallAsync<Iris, List<List<double>>>("predict_proba", new List<Iris>()));
+            Assert.ThrowsAsync<ArgumentException>(() => _client.PredictAsync<Iris, List<long>>(new List<Iris>()));
         }
 
         [Test]
         public void IncorrectMethodTest()
         {
-            Assert.ThrowsAsync<InvalidOperationException>(() => _client.CallAsync<Iris, List<List<double>>>("predict_proba_2", new List<Iris>()));
+            Assert.ThrowsAsync<InvalidOperationException>(() => _client.CallAsync<Iris, List<long>>("predict_1", new List<Iris>()));
         }
     }
 }

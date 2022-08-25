@@ -1,6 +1,6 @@
-namespace MlemApiClientTests.SimplifiedClientTests
+namespace MlemApiClientTests.IrisTests
 {
-    public class GetPredictTests : BaseTests
+    public class PredictTests : BaseTests
     {
         [Test]
         public async Task PositiveTest()
@@ -26,7 +26,7 @@ namespace MlemApiClientTests.SimplifiedClientTests
 
             Assert.NotNull(result);
             Assert.IsNotEmpty(result);
-            Assert.AreEqual(result.Count, 2);
+            Assert.That(result.Count, Is.EqualTo(2));
         }
 
         [Test]

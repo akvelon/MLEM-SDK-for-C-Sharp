@@ -1,6 +1,6 @@
 namespace MlemApiClientTests.SimplifiedClientTests
 {
-    public class GetProbabilityTests : BaseTests
+    public class CallTests : BaseTests
     {
         [Test]
         public async Task PositiveTest()

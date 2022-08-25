@@ -14,7 +14,6 @@ namespace MlemApi
         private const string PREDICT_METHOD = "predict";
 
         private readonly HttpClient _httpClient;
-        private readonly IMlemApiConfiguration _configuraion;
         private readonly ILogger _logger;
         private readonly RequestBuilder _requestBuilder;
 
@@ -25,15 +24,14 @@ namespace MlemApi
         /// </summary>
         /// <param name="httpClient"></param>
         /// <param name="configuraion"></param>
-        public MlemApiClient(HttpClient httpClient, IMlemApiConfiguration configuraion, IRequestValueSerializer requestSerializer, ILogger<MlemApiClient> logger)
+        public MlemApiClient(string url, ILogger<MlemApiClient> logger = null, HttpClient httpClient = null, IRequestValueSerializer requestSerializer = null)
         {
-            _httpClient = httpClient;
-            _configuraion = configuraion;
+            _httpClient = httpClient ?? new HttpClient();
             _logger = logger;
 
-            _httpClient.BaseAddress = new Uri(_configuraion.Url);
+            _httpClient.BaseAddress = new Uri(url);
 
-            _requestBuilder = new RequestBuilder(requestSerializer);
+            _requestBuilder = new RequestBuilder(requestSerializer ?? new DefaultRequestValueSerializer());
 
             _apiDescription = GetDescription();
         }
@@ -45,7 +43,7 @@ namespace MlemApi
         /// <typeparam name="outcomeT"></typeparam>
         /// <param name="values"></param>
         /// <returns></returns>
-        public async Task<outcomeT> PredictAsync<incomeT, outcomeT>(List<incomeT> values)
+        public async Task<outcomeT> PredictAsync<incomeT, outcomeT>(IEnumerable<incomeT> values)
         {
             return await CallAsync<incomeT, outcomeT>(PREDICT_METHOD, values);
         }
@@ -58,12 +56,12 @@ namespace MlemApi
         /// <param name="methodName"></param>
         /// <param name="values"></param>
         /// <returns></returns>
-        public async Task<outcomeT> CallAsync<incomeT, outcomeT>(string methodName, List<incomeT> values)
+        public async Task<outcomeT> CallAsync<incomeT, outcomeT>(string methodName, IEnumerable<incomeT> values)
         {
             return await DoMlemRequest<incomeT, outcomeT>(methodName, values);
         }
 
-        private async Task<outcomeT> DoMlemRequest<incomeT, outcomeT>(string methodName, List<incomeT> values)
+        private async Task<outcomeT> DoMlemRequest<incomeT, outcomeT>(string methodName, IEnumerable<incomeT> values)
         {
             ValidateMethod(methodName);
 
@@ -79,7 +77,7 @@ namespace MlemApi
         private async Task<T> DoPostRequest<T>(string command, string requestJsonString)
         {
 
-            _logger.LogInformation($"Request command: {command}");
+            _logger?.LogInformation($"Request command: {command}");
 
             string responseMessage;
             try
@@ -88,7 +86,7 @@ namespace MlemApi
                     command,
                     new StringContent(requestJsonString, Encoding.UTF8, MediaTypeNames.Application.Json));
 
-                _logger.LogInformation($"Response status: {response.StatusCode}.");
+                _logger?.LogInformation($"Response status: {response.StatusCode}.");
 
                 responseMessage = await response.Content.ReadAsStringAsync();
 
@@ -104,21 +102,21 @@ namespace MlemApi
                     if (result == null)
                     {
 
-                        _logger.LogWarning($"Response deserialization result is null.");
+                        _logger?.LogWarning($"Response deserialization result is null.");
                     }
 
                     return result;
                 }
                 catch
                 {
-                    _logger.LogError($"Response deserialization error.");
+                    _logger?.LogError($"Response deserialization error.");
 
                     throw;
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"API request error.");
+                _logger?.LogError(ex, $"API request error.");
 
                 throw;
             }
@@ -126,7 +124,7 @@ namespace MlemApi
 
         private ApiDescription GetDescription()
         {
-            _logger.LogInformation("Request command: interface.json");
+            _logger?.LogInformation("Request command: interface.json");
 
             var requestTask = _httpClient.GetStringAsync("interface.json");
             requestTask.Wait();
@@ -142,24 +140,24 @@ namespace MlemApi
             {
                 var message = $"No method {methodName} in API.";
 
-                _logger.LogError(message);
+                _logger?.LogError(message);
 
                 throw new InvalidOperationException(message);
             }
         }
 
-        private void ValidateValues<incomeT>(List<incomeT> values)
+        private void ValidateValues<incomeT>(IEnumerable<incomeT> values)
         {
             if (values == null)
             {
-                _logger.LogError($"Input value is null: {nameof(values)}.");
+                _logger?.LogError($"Input value is null: {nameof(values)}.");
 
                 throw new ArgumentNullException(nameof(values));
             }
 
             if (!values.Any())
             {
-                _logger.LogError($"Input value is empty: {nameof(values)}.");
+                _logger?.LogError($"Input value is empty: {nameof(values)}.");
 
                 throw new ArgumentException($"{nameof(values)} cannot be empty.");
             }

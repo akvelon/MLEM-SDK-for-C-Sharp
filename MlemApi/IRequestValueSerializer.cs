@@ -17,6 +17,6 @@ namespace MlemApi
         /// <typeparam name="T"></typeparam>
         /// <param name="values"></param>
         /// <returns></returns>
-        List<string> Serialize<T>(List<T> values);
+        IEnumerable<string> Serialize<T>(IEnumerable<T> values);
     }
 }

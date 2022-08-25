@@ -8,9 +8,9 @@ namespace Example
     /// </summary>
     internal class NewtonsoftRequestValueSerializer : IRequestValueSerializer
     {
-        public List<string> Serialize<T>(List<T> values)
+        public IEnumerable<string> Serialize<T>(IEnumerable<T> values)
         {
-            return values.Select(v => JObject.FromObject(v).ToString()).ToList();
+            return values.Select(v => JObject.FromObject(v).ToString());
         }
     }
 }

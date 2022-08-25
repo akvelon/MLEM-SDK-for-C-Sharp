@@ -11,13 +11,10 @@ namespace MlemApiClientTests.IrisTests
         [SetUp]
         public void Setup()
         {
-            var configurationMock = new Mock<IMlemApiConfiguration>();
-            configurationMock.Setup(c => c.Url).Returns("https://example-mlem-get-started-app.herokuapp.com");
-
             using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
             var logger = loggerFactory.CreateLogger<MlemApiClient>();
 
-            _client = new MlemApiClient(new HttpClient(), configurationMock.Object, new NewtonsoftRequestValueSerializer(), logger);
+            _client = new MlemApiClient("https://example-mlem-get-started-app.herokuapp.com", logger, new HttpClient(), new NewtonsoftRequestValueSerializer());
         }
     }
 }

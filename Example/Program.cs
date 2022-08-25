@@ -14,7 +14,6 @@ var builder = new HostBuilder()
 
         services.AddTransient<MyApplication>();
         services.AddTransient<IRequestValueSerializer>(sp => new NewtonsoftRequestValueSerializer());
-        services.AddTransient<IMlemApiConfiguration>(sp => new MlemApiConfiguration());
 
         services.AddTransient<LoggingDelegatingHandler>();
 

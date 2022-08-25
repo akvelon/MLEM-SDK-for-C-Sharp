@@ -12,7 +12,7 @@
             _requestValueSerializer = requestValueSerializer;
         }
 
-        public string BuildRequest<T>(string argsName, List<T> values)
+        public string BuildRequest<T>(string argsName, IEnumerable<T> values)
         {
             var stringRequest = $"{{\"{argsName}\": " +
                 "{\"values\": " +

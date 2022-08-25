@@ -7,9 +7,9 @@ namespace Example
     {
         private readonly MlemApiClient _mlemApiClient;
 
-        public MyApplication(IHttpClientFactory httpClientFactory, IMlemApiConfiguration configuraion, IRequestValueSerializer requestSerializer, ILogger<MlemApiClient> logger)
+        public MyApplication(IHttpClientFactory httpClientFactory, IRequestValueSerializer requestSerializer, ILogger<MlemApiClient> logger)
         {
-            _mlemApiClient = new MlemApiClient(httpClientFactory.CreateClient("MlemApiClient"), configuraion, requestSerializer, logger);
+            _mlemApiClient = new MlemApiClient("https://example-mlem-get-started-app.herokuapp.com", logger, httpClientFactory.CreateClient("MlemApiClient"), requestSerializer);
         }
 
         public async Task<List<long>> Run()

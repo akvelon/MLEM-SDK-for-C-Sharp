@@ -9,7 +9,6 @@ namespace MlemApiClientTests.RegModelTests
     public abstract class BaseTests
     {
         protected MlemApiClient _client;
-        protected IMlemApiConfiguration _mlemApiConfiguration;
         protected const string _baseAddress = "http://127.0.0.1:8080";
 
         protected const string interface_json =
@@ -21,9 +20,6 @@ namespace MlemApiClientTests.RegModelTests
         [SetUp]
         public void Setup()
         {
-            var configurationMock = new Mock<IMlemApiConfiguration>();
-            configurationMock.Setup(c => c.Url).Returns(_baseAddress);
-            _mlemApiConfiguration = configurationMock.Object;
 
             using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
             var logger = loggerFactory.CreateLogger<MlemApiClient>();
@@ -57,7 +53,7 @@ namespace MlemApiClientTests.RegModelTests
 
             var httpClient = new HttpClient(_msgHandler.Object);
 
-            _client = new MlemApiClient(httpClient, _mlemApiConfiguration, new NewtonsoftRequestValueSerializer(), logger);
+            _client = new MlemApiClient(_baseAddress, logger, httpClient, new NewtonsoftRequestValueSerializer());
         }
     }
 }

@@ -126,12 +126,21 @@ namespace MlemApi
         {
             _logger?.LogInformation("Request command: interface.json");
 
-            var requestTask = _httpClient.GetStringAsync("interface.json");
-            requestTask.Wait();
+            try
+            {
+                var requestTask = _httpClient.GetStringAsync("interface.json");
+                requestTask.Wait();
 
-            var response = requestTask.Result;
+                var response = requestTask.Result;
 
-            return DescriptionParser.GetApiDescription(response);
+                return DescriptionParser.GetApiDescription(response);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError("Exception of getting API description", ex);
+
+                throw;
+            }
         }
 
         private void ValidateMethod(string methodName)

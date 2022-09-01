@@ -26,9 +26,9 @@ namespace MlemApiClientTests.SimplifiedClientTests
 
             Assert.NotNull(result);
             Assert.IsNotEmpty(result);
-            Assert.AreEqual(result.Count, 2);
-            Assert.AreEqual(result[0].Count, 3);
-            Assert.AreEqual(result[1].Count, 3);
+            Assert.That(result.Count, Is.EqualTo(2));
+            Assert.That(result[0].Count, Is.EqualTo(3));
+            Assert.That(result[1].Count, Is.EqualTo(3));
         }
 
         [Test]

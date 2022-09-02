@@ -29,9 +29,14 @@ using (var serviceScope = host.Services.CreateScope())
     try
     {
         var myService = services.GetRequiredService<MyApplication>();
-        var result = await myService.Run();
 
-        Console.WriteLine(result);
+        var resultIris = await myService.RunIris();
+        Console.WriteLine(resultIris);
+
+        Console.WriteLine("-----------------------------------------------------------------------------------------");
+
+        var resultSvm = await myService.RunSvm();
+        Console.WriteLine(String.Join(',', resultSvm));
     }
     catch (Exception ex)
     {

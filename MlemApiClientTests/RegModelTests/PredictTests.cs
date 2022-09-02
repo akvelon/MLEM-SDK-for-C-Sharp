@@ -10,7 +10,7 @@ namespace MlemApiClientTests.RegModelTests
                 {
                     new RegModel
                     {
-                        Zero = 0
+                        Value = 0
                     }
                 });
 

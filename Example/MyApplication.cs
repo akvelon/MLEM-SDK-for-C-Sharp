@@ -44,7 +44,7 @@ namespace Example
                 {
                     new SvmModel
                     {
-                        Zero = 0
+                        Value = 0
                     }
                 });
         }

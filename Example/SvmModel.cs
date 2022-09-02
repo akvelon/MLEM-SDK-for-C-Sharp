@@ -5,6 +5,6 @@ namespace Example
     public class SvmModel
     {
         [JsonPropertyName("0")]
-        public double Zero { get; set; }
+        public double Value { get; set; }
     }
 }

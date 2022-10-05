@@ -1,5 +1,6 @@
 ﻿using MlemApi;
 using Microsoft.Extensions.Logging;
+using ModelGenerator.Example;
 
 namespace Example
 {
@@ -15,7 +16,7 @@ namespace Example
             _mlemApiClientSvm = new MlemApiClient("http://127.0.0.1:8080/", logger);
         }
 
-        public async Task<List<long>?> RunIris()
+        public async Task<List<long>?> RunMultipleIrisCase()
         {
             List<Iris> testData = new()
             {
@@ -35,12 +36,25 @@ namespace Example
                 }
             };
 
-            return await _mlemApiClientIris.PredictAsync<Iris, List<long>>(testData);
+            return await _mlemApiClientIris.PredictAsync<List<long>>(testData);
+        }
+
+        public async Task<List<long>?> RunSingleIrisCase()
+        {
+            Iris item = new()
+            {
+                SepalLength = -69639435.20838484,
+                SepalWidth = 64887767.01179123,
+                PetalLength = -76043679.89193763,
+                PetalWidth = 20142568.61724788
+            };
+
+            return await _mlemApiClientIris.PredictAsync<List<long>>(item);
         }
 
         public async Task<List<double>?> RunSvm()
         {
-            return await _mlemApiClientSvm.PredictAsync<SvmModel, List<double>>(
+            return await _mlemApiClientSvm.PredictAsync<List<double>>(
                 new List<SvmModel>
                 {
                     new SvmModel

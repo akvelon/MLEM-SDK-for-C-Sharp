@@ -1,3 +1,6 @@
+using ModelGenerator.Example;
+using ModelGenerator;
+
 namespace MlemApiClientTests.SimplifiedClientTests
 {
     public class CallTests : BaseTests
@@ -5,7 +8,7 @@ namespace MlemApiClientTests.SimplifiedClientTests
         [Test]
         public async Task PositiveTest()
         {
-            var result = await _client.CallAsync<Iris, List<List<double>>>("predict_proba",
+            var result = await _client.CallAsync<List<List<double>>>("predict_proba",
                 new List<Iris>
                 {
                     new Iris
@@ -34,19 +37,19 @@ namespace MlemApiClientTests.SimplifiedClientTests
         [Test]
         public void NullValueTest()
         {
-            Assert.ThrowsAsync<ArgumentNullException>(() => _client.CallAsync<Iris, List<List<double>>>("predict_proba", null));
+            Assert.ThrowsAsync<ArgumentNullException>(() => _client.CallAsync<List<List<double>>>("predict_proba", (RequestModelType?)null));
         }
 
         [Test]
         public void EmptyValueTest()
         {
-            Assert.ThrowsAsync<ArgumentException>(() => _client.CallAsync<Iris, List<List<double>>>("predict_proba", new List<Iris>()));
+            Assert.ThrowsAsync<ArgumentException>(() => _client.CallAsync<List<List<double>>>("predict_proba", new List<Iris>()));
         }
 
         [Test]
         public void IncorrectMethodTest()
         {
-            Assert.ThrowsAsync<InvalidOperationException>(() => _client.CallAsync<Iris, List<List<double>>>("predict_proba_2", new List<Iris>()));
+            Assert.ThrowsAsync<InvalidOperationException>(() => _client.CallAsync<List<List<double>>>("predict_proba_2", new List<Iris>()));
         }
     }
 }

@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json;
 
-namespace Example
+namespace ModelGenerator.Example
 {
-    public class Iris
+    internal class Iris : Model
     {
         [JsonProperty("sepal length (cm)")]
         public double SepalLength { get; set; }

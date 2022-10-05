@@ -4,7 +4,7 @@ using Moq;
 using Moq.Protected;
 using MlemApi;
 
-namespace MlemApiClientTests.RegModelTests
+namespace MlemApiClientTests.SvmModelTests
 {
     public abstract class BaseTests
     {

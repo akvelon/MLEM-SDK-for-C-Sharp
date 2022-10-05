@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Net.Mime;
 using Microsoft.Extensions.Logging;
 using MlemApi.Dto;
+using ModelGenerator;
 
 namespace MlemApi
 {
@@ -42,9 +43,21 @@ namespace MlemApi
         /// <typeparam name="outcomeT"></typeparam>
         /// <param name="values"></param>
         /// <returns></returns>
-        public async Task<ResultType?> PredictAsync<ModelType, ResultType>(IEnumerable<ModelType> values)
+        public async Task<ResultType?> PredictAsync<ResultType>(Model value)
         {
-            return await CallAsync<ModelType, ResultType>(PREDICT_METHOD, values);
+            return await CallAsync<ResultType>(PREDICT_METHOD, new List<Model> { value });
+        }
+
+        /// <summary>
+        /// Call predict API method
+        /// </summary>
+        /// <typeparam name="incomeT"></typeparam>
+        /// <typeparam name="outcomeT"></typeparam>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        public async Task<ResultType?> PredictAsync<ResultType>(IEnumerable<Model> values)
+        {
+            return await CallAsync<ResultType>(PREDICT_METHOD, values);
         }
 
         /// <summary>
@@ -55,7 +68,20 @@ namespace MlemApi
         /// <param name="methodName"></param>
         /// <param name="values"></param>
         /// <returns></returns>
-        public async Task<ResultType?> CallAsync<ModelType, ResultType>(string methodName, IEnumerable<ModelType> values)
+        public async Task<ResultType?> CallAsync<ResultType>(string methodName, Model value)
+        {
+            return await CallAsync<ResultType>(methodName, new List<Model> { value });
+        }
+
+        /// <summary>
+        /// Call methodName API method
+        /// </summary>
+        /// <typeparam name="incomeT"></typeparam>
+        /// <typeparam name="outcomeT"></typeparam>
+        /// <param name="methodName"></param>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        public async Task<ResultType?> CallAsync<ResultType>(string methodName, IEnumerable<Model> values)
         {
             ValidateMethod(methodName);
 

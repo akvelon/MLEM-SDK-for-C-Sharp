@@ -30,7 +30,7 @@ using (var serviceScope = host.Services.CreateScope())
     {
         MyApplication myService = services.GetRequiredService<MyApplication>();
 
-        List<long>? resultIris = await myService.RunIris();
+        List<long>? resultIris = await myService.RunMultipleIrisCase();
         if (resultIris is null)
         {
             Console.WriteLine("resultIris is null");
@@ -38,6 +38,18 @@ using (var serviceScope = host.Services.CreateScope())
         else
         {
             Console.WriteLine("Iris case result: " + string.Join(",", resultIris));
+        }
+
+        Console.WriteLine("-----------------------------------------------------------------------------------------");
+
+        List<long>? resultIris2 = await myService.RunSingleIrisCase();
+        if (resultIris2 is null)
+        {
+            Console.WriteLine("resultIris2 is null");
+        }
+        else
+        {
+            Console.WriteLine("Iris case 2 result: " + string.Join(",", resultIris2));
         }
 
         Console.WriteLine("-----------------------------------------------------------------------------------------");

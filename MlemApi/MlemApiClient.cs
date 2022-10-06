@@ -14,17 +14,16 @@ namespace MlemApi
         private const string PREDICT_METHOD = "predict";
 
         private readonly HttpClient _httpClient;
-        private readonly ILogger _logger;
+        private readonly ILogger? _logger;
         private readonly RequestBuilder _requestBuilder;
-
-        private ApiDescription _apiDescription;
+        private readonly ApiDescription _apiDescription;
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="httpClient"></param>
         /// <param name="configuraion"></param>
-        public MlemApiClient(string url, ILogger<MlemApiClient> logger = null, HttpClient httpClient = null, IRequestValueSerializer requestSerializer = null)
+        public MlemApiClient(string url, ILogger<MlemApiClient>? logger = null, HttpClient? httpClient = null, IRequestValueSerializer? requestSerializer = null)
         {
             _httpClient = httpClient ?? new HttpClient();
             _logger = logger;
@@ -43,9 +42,9 @@ namespace MlemApi
         /// <typeparam name="outcomeT"></typeparam>
         /// <param name="values"></param>
         /// <returns></returns>
-        public async Task<outcomeT> PredictAsync<incomeT, outcomeT>(IEnumerable<incomeT> values)
+        public async Task<ResultType?> PredictAsync<ModelType, ResultType>(IEnumerable<ModelType> values)
         {
-            return await CallAsync<incomeT, outcomeT>(PREDICT_METHOD, values);
+            return await CallAsync<ModelType, ResultType>(PREDICT_METHOD, values);
         }
 
         /// <summary>
@@ -56,12 +55,7 @@ namespace MlemApi
         /// <param name="methodName"></param>
         /// <param name="values"></param>
         /// <returns></returns>
-        public async Task<outcomeT> CallAsync<incomeT, outcomeT>(string methodName, IEnumerable<incomeT> values)
-        {
-            return await DoMlemRequest<incomeT, outcomeT>(methodName, values);
-        }
-
-        private async Task<outcomeT> DoMlemRequest<incomeT, outcomeT>(string methodName, IEnumerable<incomeT> values)
+        public async Task<ResultType?> CallAsync<ModelType, ResultType>(string methodName, IEnumerable<ModelType> values)
         {
             ValidateMethod(methodName);
 
@@ -71,37 +65,36 @@ namespace MlemApi
 
             var jsonRequest = _requestBuilder.BuildRequest(argsName, values);
 
-            return await DoPostRequest<outcomeT>(methodName, jsonRequest);
+            return await SendPostRequestAsync<ResultType?>(methodName, jsonRequest);
         }
 
-        private async Task<T> DoPostRequest<T>(string command, string requestJsonString)
+        private async Task<T?> SendPostRequestAsync<T>(string command, string requestJsonString)
         {
-
             _logger?.LogInformation($"Request command: {command}");
 
-            string responseMessage;
             try
             {
-                var response = await _httpClient.PostAsync(
+                HttpResponseMessage httpResponse = await _httpClient.PostAsync(
                     command,
                     new StringContent(requestJsonString, Encoding.UTF8, MediaTypeNames.Application.Json));
 
-                _logger?.LogInformation($"Response status: {response.StatusCode}.");
+                _logger?.LogInformation($"Response status: {httpResponse.StatusCode}.");
 
-                responseMessage = await response.Content.ReadAsStringAsync();
+                string response = await httpResponse.Content.ReadAsStringAsync();
 
-                if (response.StatusCode != System.Net.HttpStatusCode.OK)
+                // MLEM server sends 500 Internal Server Error for any exception case
+                // so handle only 200 OK responses
+                if (httpResponse.StatusCode != System.Net.HttpStatusCode.OK)
                 {
-                    throw new HttpRequestException(responseMessage, null, response.StatusCode);
+                    throw new HttpRequestException(response, null, httpResponse.StatusCode);
                 }
 
                 try
                 {
-                    var result = JsonSerializer.Deserialize<T>(responseMessage);
+                    T? result = JsonSerializer.Deserialize<T>(response);
 
                     if (result == null)
                     {
-
                         _logger?.LogWarning($"Response deserialization result is null.");
                     }
 

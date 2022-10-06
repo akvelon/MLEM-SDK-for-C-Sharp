@@ -28,15 +28,29 @@ using (var serviceScope = host.Services.CreateScope())
 
     try
     {
-        var myService = services.GetRequiredService<MyApplication>();
+        MyApplication myService = services.GetRequiredService<MyApplication>();
 
-        var resultIris = await myService.RunIris();
-        Console.WriteLine(resultIris);
+        List<long>? resultIris = await myService.RunIris();
+        if (resultIris is null)
+        {
+            Console.WriteLine("resultIris is null");
+        }
+        else
+        {
+            Console.WriteLine("Iris case result: " + string.Join(",", resultIris));
+        }
 
         Console.WriteLine("-----------------------------------------------------------------------------------------");
 
-        var resultSvm = await myService.RunSvm();
-        Console.WriteLine(String.Join(',', resultSvm));
+        List<double>? resultSvm = await myService.RunSvm();
+        if (resultSvm is null)
+        {
+            Console.WriteLine("resultSvm is null");
+        }
+        else
+        {
+            Console.WriteLine("SVM case result: " + string.Join(',', resultSvm));
+        }
     }
     catch (Exception ex)
     {

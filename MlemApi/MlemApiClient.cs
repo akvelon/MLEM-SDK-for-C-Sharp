@@ -97,6 +97,7 @@ namespace MlemApi
         private async Task<T?> SendPostRequestAsync<T>(string command, string requestJsonString)
         {
             _logger?.LogInformation($"Request command: {command}");
+            _logger?.LogInformation($"Request JSON string: {requestJsonString}");
 
             try
             {

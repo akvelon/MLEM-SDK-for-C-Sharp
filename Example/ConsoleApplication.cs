@@ -86,8 +86,7 @@ namespace Example
         public async Task RunSingleWineCase()
         {
             string url = "http://127.0.0.1:8080/";
-            HttpClient httpClient = _httpClientFactory.CreateClient("MlemApiClient");
-            MlemApiClient mlemClient = new(url, _logger, httpClient, _requestSerializer);
+            MlemApiClient mlemClient = new(url, _logger);
 
             Wine input = new()
             {

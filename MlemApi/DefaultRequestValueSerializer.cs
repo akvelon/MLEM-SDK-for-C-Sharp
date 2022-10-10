@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+﻿using Newtonsoft.Json.Linq;
 
 namespace MlemApi
 {
@@ -9,7 +9,7 @@ namespace MlemApi
     {
         public IEnumerable<string> Serialize<T>(IEnumerable<T> values)
         {
-            return values.Select(v => JsonSerializer.Serialize(v));
+            return values.Select(v => JObject.FromObject(v).ToString());
         }
     }
 }

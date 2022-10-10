@@ -1,8 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Example
+namespace ModelGenerator.Example
 {
-    public class SvmModel
+    internal class SvmModel : RequestModelType
     {
         [JsonPropertyName("0")]
         public double Value { get; set; }

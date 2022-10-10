@@ -1,14 +1,17 @@
-namespace MlemApiClientTests.RegModelTests
+using ModelGenerator.Example;
+using ModelGenerator;
+
+namespace MlemApiClientTests.SvmModelTests
 {
     public class PredictTests : BaseTests
     {
         [Test]
         public async Task PositiveTest()
         {
-            var result = await _client.PredictAsync<RegModel, List<double>>(
-                new List<RegModel>
+            var result = await _client.PredictAsync<List<double>>(
+                new List<SvmModel>
                 {
-                    new RegModel
+                    new SvmModel
                     {
                         Value = 0
                     }
@@ -22,19 +25,19 @@ namespace MlemApiClientTests.RegModelTests
         [Test]
         public void NullValueTest()
         {
-            Assert.ThrowsAsync<ArgumentNullException>(() => _client.PredictAsync<RegModel, List<double>>(null));
+            Assert.ThrowsAsync<ArgumentNullException>(() => _client.PredictAsync<List<double>>((RequestModelType?)null));
         }
 
         [Test]
         public void EmptyValueTest()
         {
-            Assert.ThrowsAsync<ArgumentException>(() => _client.PredictAsync<RegModel, List<double>>(new List<RegModel>()));
+            Assert.ThrowsAsync<ArgumentException>(() => _client.PredictAsync<List<double>>(new List<SvmModel>()));
         }
 
         [Test]
         public void IncorrectMethodTest()
         {
-            Assert.ThrowsAsync<InvalidOperationException>(() => _client.CallAsync<RegModel, List<long>>("predict_1", new List<RegModel>()));
+            Assert.ThrowsAsync<InvalidOperationException>(() => _client.CallAsync<List<long>>("predict_1", new List<SvmModel>()));
         }
     }
 }

@@ -1,3 +1,6 @@
+using ModelGenerator.Example;
+using ModelGenerator;
+
 namespace MlemApiClientTests.SimplifiedClientTests
 {
     public class PredictTests : BaseTests
@@ -5,7 +8,7 @@ namespace MlemApiClientTests.SimplifiedClientTests
         [Test]
         public async Task PositiveTest()
         {
-            var result = await _client.PredictAsync<Iris, List<long>>(
+            var result = await _client.PredictAsync<List<long>>(
                 new List<Iris>
                 {
                     new Iris
@@ -32,19 +35,19 @@ namespace MlemApiClientTests.SimplifiedClientTests
         [Test]
         public void NullValueTest()
         {
-            Assert.ThrowsAsync<ArgumentNullException>(() => _client.PredictAsync<Iris, List<long>>(null));
+            Assert.ThrowsAsync<ArgumentNullException>(() => _client.PredictAsync<List<long>>((RequestModelType?)null));
         }
 
         [Test]
         public void EmptyValueTest()
         {
-            Assert.ThrowsAsync<ArgumentException>(() => _client.PredictAsync<Iris, List<long>>(new List<Iris>()));
+            Assert.ThrowsAsync<ArgumentException>(() => _client.PredictAsync<List<long>>(new List<Iris>()));
         }
 
         [Test]
         public void IncorrectMethodTest()
         {
-            Assert.ThrowsAsync<InvalidOperationException>(() => _client.CallAsync<Iris, List<long>>("predict_1", new List<Iris>()));
+            Assert.ThrowsAsync<InvalidOperationException>(() => _client.CallAsync<List<long>>("predict_1", new List<Iris>()));
         }
     }
 }

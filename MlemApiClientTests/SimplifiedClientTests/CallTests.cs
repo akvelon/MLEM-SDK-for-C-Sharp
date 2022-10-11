@@ -1,5 +1,6 @@
 using ModelGenerator.Example;
 using ModelGenerator;
+using System.Collections.Generic;
 
 namespace MlemApiClientTests.SimplifiedClientTests
 {
@@ -37,7 +38,7 @@ namespace MlemApiClientTests.SimplifiedClientTests
         [Test]
         public void NullValueTest()
         {
-            Assert.ThrowsAsync<ArgumentNullException>(() => _client.CallAsync<List<List<double>>>("predict_proba", (RequestModelType?)null));
+            Assert.ThrowsAsync<ArgumentNullException>(() => _client.CallAsync<List<List<double>>>("predict_proba", (IEnumerable<RequestModelType>?)null));
         }
 
         [Test]

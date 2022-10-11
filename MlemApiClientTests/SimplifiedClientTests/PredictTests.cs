@@ -35,7 +35,7 @@ namespace MlemApiClientTests.SimplifiedClientTests
         [Test]
         public void NullValueTest()
         {
-            Assert.ThrowsAsync<ArgumentNullException>(() => _client.PredictAsync<List<long>>((RequestModelType?)null));
+            Assert.ThrowsAsync<ArgumentNullException>(() => _client.PredictAsync<List<long>>((IEnumerable<RequestModelType>?)null));
         }
 
         [Test]

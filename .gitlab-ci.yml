@@ -1,0 +1,24 @@
+image: mcr.microsoft.com/dotnet/sdk:latest
+
+variables:
+  DLL_RELEASE_FOLDER: 'MlemApi\bin\Release\net6.0'
+
+stages:
+  - build
+  - test
+
+build:
+  stage: build
+  script: 
+    - echo "Compiling the code..."
+    - dotnet build -c Release
+  artifacts:
+    expire_in: 1 week 
+    paths:
+      - '$env:DLL_RELEASE_FOLDER\MlemApi.dll'
+
+test:
+  stage: test
+  script:
+    - dotnet test -c Release /p:CollectCoverage=true
+  coverage: /\|\s*Total\s*\|\s*(\d+[,.]\d+%)/

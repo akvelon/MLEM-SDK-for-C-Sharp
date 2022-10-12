@@ -52,7 +52,10 @@ namespace Example
                 PetalWidth = 20142568.61724788
             };
 
-            ShowResult(await mlemClient.PredictAsync<List<long>>(input));
+            ShowResult(await mlemClient.PredictAsync<List<long>>(
+                input,
+                ModelGenerator.Sample_models.ValidationMaps.irisColumnsMap
+            ));
         }
 
 
@@ -60,7 +63,7 @@ namespace Example
         {
             string url = "https://example-mlem-get-started-app.herokuapp.com";
             HttpClient httpClient = _httpClientFactory.CreateClient("MlemApiClient");
-            MlemApiClient mlemClient = new(url, _logger, httpClient, _requestSerializer);
+            MlemApiClient mlemClient = new(url, _logger, httpClient, _requestSerializer, null, true);
 
             List<Iris> inputData = new()
             {
@@ -80,7 +83,10 @@ namespace Example
                 }
             };
 
-            ShowResult(await mlemClient.PredictAsync<List<long>>(inputData));
+            ShowResult(await mlemClient.PredictAsync<List<long>>(
+                inputData,
+                ModelGenerator.Sample_models.ValidationMaps.irisColumnsMap
+            ));
         }
 
         public async Task RunSingleWineCase()
@@ -105,7 +111,10 @@ namespace Example
                 Proline = 365.0
             };
 
-            ShowResult(await mlemClient.PredictAsync<List<int>>(input));
+            ShowResult(await mlemClient.PredictAsync<List<int>>(
+                input,
+                ModelGenerator.Sample_models.ValidationMaps.wineModelMap
+            ));
         }
 
         public async Task RunSvmCase()
@@ -121,7 +130,10 @@ namespace Example
                 }
             };
 
-            ShowResult(await mlemClient.PredictAsync<List<double>>(inputData));
+            ShowResult(await mlemClient.PredictAsync<List<double>>(
+                inputData,
+                ModelGenerator.Sample_models.ValidationMaps.svmModelMap
+            ));
         }
 
         private void ShowResult<T>(List<T>? result)

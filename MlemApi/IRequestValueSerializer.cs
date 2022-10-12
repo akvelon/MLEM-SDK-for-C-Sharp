@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MlemApi
+﻿namespace MlemApi
 {
     /// <summary>
     /// Interface for class witch serialize input values to json string

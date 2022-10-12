@@ -25,7 +25,9 @@ namespace MlemApiClientTests.SimplifiedClientTests
                         PetalLength = 64042930.90411937,
                         PetalWidth = -69196204.98948716
                     }
-                });
+                },
+                ModelGenerator.Sample_models.ValidationMaps.irisColumnsMap
+            );
 
             Assert.NotNull(result);
             Assert.IsNotEmpty(result);
@@ -41,13 +43,20 @@ namespace MlemApiClientTests.SimplifiedClientTests
         [Test]
         public void EmptyValueTest()
         {
-            Assert.ThrowsAsync<ArgumentException>(() => _client.PredictAsync<List<long>>(new List<Iris>()));
+            Assert.ThrowsAsync<ArgumentException>(() => _client.PredictAsync<List<long>>(
+                new List<Iris>(),
+                ModelGenerator.Sample_models.ValidationMaps.irisColumnsMap
+            ));
         }
 
         [Test]
         public void IncorrectMethodTest()
         {
-            Assert.ThrowsAsync<InvalidOperationException>(() => _client.CallAsync<List<long>>("predict_1", new List<Iris>()));
+            Assert.ThrowsAsync<InvalidOperationException>(() => _client.CallAsync<List<long>>(
+                "predict_1",
+                new List<Iris>(),
+                ModelGenerator.Sample_models.ValidationMaps.irisColumnsMap
+            ));
         }
     }
 }

@@ -18,17 +18,43 @@ namespace MlemApi
 
             foreach (var jsonMethodElement in jsonMethodElementsEnumerator)
             {
+                var argsObject = jsonMethodElement.Value
+                        .EnumerateObject().First(e => e.Name == "args").Value
+                        .EnumerateArray().First()
+                        .EnumerateObject();
+
                 description.Methods.Add(new MethodDescription
                 {
                     MethodName = jsonMethodElement.Name,
-                    ArgsName = jsonMethodElement.Value
-                        .EnumerateObject().First(e => e.Name == "args").Value
-                        .EnumerateArray().First()
-                        .EnumerateObject().First(e => e.Name == "name").Value.GetString()
+                    ArgsName = argsObject.First(e => e.Name == "name").Value.GetString(),
+                    ArgsData = DescriptionParser.GetArgsData(argsObject),
+
                 });
             }
 
             return description;
+        }
+
+        private static IEnumerable<MethodArgumentData> GetArgsData(JsonElement.ObjectEnumerator argsObjectEnumerator)
+        {
+            var typesDataObject = argsObjectEnumerator.First(e => e.Name == "type_")
+                .Value.EnumerateObject();
+
+            var argumentNames = typesDataObject.First(e => e.Name == "columns")
+                .Value.EnumerateArray()
+                .Select(element => element.GetString())
+                .ToList();
+
+            var argumentTypes = typesDataObject.First(e => e.Name == "dtypes")
+                .Value.EnumerateArray()
+                .Select(element => element.GetString())
+                .ToList();
+
+            return argumentNames.Select((argumentName, index) => new MethodArgumentData
+            {
+                ArgumentName = argumentName,
+                ArgumentType = argumentTypes[index]
+            });
         }
     }
 }

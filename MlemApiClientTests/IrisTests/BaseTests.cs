@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using Moq;
 using MlemApi;
 
 namespace MlemApiClientTests.IrisTests
@@ -15,6 +14,12 @@ namespace MlemApiClientTests.IrisTests
             var logger = loggerFactory.CreateLogger<MlemApiClient>();
 
             _client = new MlemApiClient("https://example-mlem-get-started-app.herokuapp.com", logger, new HttpClient(), new NewtonsoftRequestValueSerializer());
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            _client.ArgumentTypesValidationIsOn = false;
         }
     }
 }

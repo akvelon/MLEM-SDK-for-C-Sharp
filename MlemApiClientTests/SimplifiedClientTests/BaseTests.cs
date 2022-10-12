@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Moq;
-using MlemApi;
+﻿using MlemApi;
 
 namespace MlemApiClientTests.SimplifiedClientTests
 {

@@ -4,7 +4,8 @@
     {
         SingleIris,
         MultipleIris,
+        IrisFileLogger,
         SvmModel,
-        Wine
+        Wine,
     }
 }

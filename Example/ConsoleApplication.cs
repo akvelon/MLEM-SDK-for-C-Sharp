@@ -27,6 +27,9 @@ namespace Example
                 case TestCases.MultipleIris:
                     await RunMultipleIrisCase();
                     break;
+                case TestCases.IrisFileLogger:
+                    await RunIrisFileLoggerCase();
+                    break;
                 case TestCases.Wine:
                     await RunSingleWineCase();
                     break;
@@ -58,7 +61,6 @@ namespace Example
             ));
         }
 
-
         public async Task RunMultipleIrisCase()
         {
             string url = "https://example-mlem-get-started-app.herokuapp.com";
@@ -85,6 +87,27 @@ namespace Example
 
             ShowResult(await mlemClient.PredictAsync<List<long>>(
                 inputData,
+                ModelGenerator.Sample_models.ValidationMaps.irisColumnsMap
+            ));
+        }
+
+        public async Task RunIrisFileLoggerCase()
+        {
+            string url = "https://example-mlem-get-started-app.herokuapp.com";
+            HttpClient httpClient = _httpClientFactory.CreateClient("MlemApiClient");
+            var fileLogger = new FileLogger("./iris-log.txt");
+            MlemApiClient mlemClient = new(url, fileLogger, httpClient, _requestSerializer);
+
+            Iris input = new()
+            {
+                SepalLength = -69639435.20838484,
+                SepalWidth = 64887767.01179123,
+                PetalLength = -76043679.89193763,
+                PetalWidth = 20142568.61724788
+            };
+
+            ShowResult(await mlemClient.PredictAsync<List<long>>(
+                input,
                 ModelGenerator.Sample_models.ValidationMaps.irisColumnsMap
             ));
         }

@@ -56,5 +56,24 @@ namespace MlemApiClientTests.IrisTests
 
             return new MlemApiClient("https://example-mlem-get-started-app.herokuapp.com", logger, httpClient, new NewtonsoftRequestValueSerializer());
         }
+
+        public MlemApiClient GetClientWithCustomLogger(ILogger<MlemApiClient> logger)
+        {
+            return new MlemApiClient("https://example-mlem-get-started-app.herokuapp.com", logger, new HttpClient(), new NewtonsoftRequestValueSerializer());
+        }
+
+        public string ConvertStringToUniformEndline(string value, bool alignEscapedCharacters = true)
+        {
+            var withAlignedEndlines = value.Replace(@"\n", Environment.NewLine);
+
+            if (alignEscapedCharacters)
+            {
+                return withAlignedEndlines.Replace(@"\\r\\n", @"\\n");
+            }
+            else
+            {
+                return withAlignedEndlines;
+            }
+        }
     }
 }

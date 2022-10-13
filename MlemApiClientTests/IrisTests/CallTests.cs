@@ -186,5 +186,124 @@ namespace MlemApiClientTests.IrisTests
                ModelGenerator.Sample_models.ValidationMaps.irisColumnsMap
            ));
         }
+
+        [Test]
+        public void ResponseValidationWrongNestingLevel()
+        {
+            var client = GetClientWithMockedHttpClient("[1,2]");
+            client.ResponseValidationIsOn = true;
+
+            var exception = Assert.ThrowsAsync<ArgumentException>(() => client.CallAsync<List<List<double>>>("predict_proba", new List<Iris>
+                {
+                    new Iris
+                    {
+                        SepalLength = 6343387.454046518,
+                        SepalWidth = 64887767.01179123,
+                        PetalLength = -76043679.89193763,
+                        PetalWidth = 20142568.61724788,
+                    },
+                    new Iris
+                    {
+                        SepalLength = 6343387.454046518,
+                        SepalWidth = -30195626.60490367,
+                        PetalLength = 64042930.90411937,
+                        PetalWidth = 20142568.61724788,
+                    }
+                },
+               ModelGenerator.Sample_models.ValidationMaps.irisColumnsMap
+           ));
+
+            Assert.That(exception.Message, Is.EqualTo("Primitive values on nesting level 1 appeared, but expected on 2 level only"));
+        }
+
+        [Test]
+        public async Task ResponseValidationPositive()
+        {
+            var client = GetClientWithMockedHttpClient("[[1,2,3]]");
+            client.ResponseValidationIsOn = true;
+
+            var result = await client.CallAsync<List<List<double>>>("predict_proba", new List<Iris>
+                {
+                    new Iris
+                    {
+                        SepalLength = 6343387.454046518,
+                        SepalWidth = 64887767.01179123,
+                        PetalLength = -76043679.89193763,
+                        PetalWidth = 20142568.61724788,
+                    },
+                    new Iris
+                    {
+                        SepalLength = 6343387.454046518,
+                        SepalWidth = -30195626.60490367,
+                        PetalLength = 64042930.90411937,
+                        PetalWidth = 20142568.61724788,
+                    }
+                },
+               ModelGenerator.Sample_models.ValidationMaps.irisColumnsMap
+           );
+
+            Assert.NotNull(result);
+            Assert.IsNotEmpty(result);
+            Assert.That(result.Count, Is.EqualTo(1));
+            Assert.That(result[0].Count, Is.EqualTo(3));
+        }
+
+        [Test]
+        public void ResponseValidationWrongValueType()
+        {
+            var client = GetClientWithMockedHttpClient("[1,\"text\"]");
+            client.ResponseValidationIsOn = true;
+
+            var exception = Assert.ThrowsAsync<FormatException>(() => client.CallAsync<List<List<double>>>("predict", new List<Iris>
+                {
+                    new Iris
+                    {
+                        SepalLength = 6343387.454046518,
+                        SepalWidth = 64887767.01179123,
+                        PetalLength = -76043679.89193763,
+                        PetalWidth = 20142568.61724788,
+                    },
+                    new Iris
+                    {
+                        SepalLength = 6343387.454046518,
+                        SepalWidth = -30195626.60490367,
+                        PetalLength = 64042930.90411937,
+                        PetalWidth = 20142568.61724788,
+                    }
+                },
+               ModelGenerator.Sample_models.ValidationMaps.irisColumnsMap
+           ));
+
+            Assert.That(exception.Message, Is.EqualTo("Value 'text' is not compatible with expected type - Int64"));
+        }
+
+        [Test]
+        public void ResponseValidationWrongArraySize()
+        {
+            var client = GetClientWithMockedHttpClient("[[1,4,10,2]]");
+            client.ResponseValidationIsOn = true;
+
+            var exception = Assert.ThrowsAsync<ArgumentException>(() => client.CallAsync<List<List<double>>>("predict_proba", new List<Iris>
+                {
+                    new Iris
+                    {
+                        SepalLength = 6343387.454046518,
+                        SepalWidth = 64887767.01179123,
+                        PetalLength = -76043679.89193763,
+                        PetalWidth = 20142568.61724788,
+                    },
+                    new Iris
+                    {
+                        SepalLength = 6343387.454046518,
+                        SepalWidth = -30195626.60490367,
+                        PetalLength = 64042930.90411937,
+                        PetalWidth = 20142568.61724788,
+                    }
+                },
+               ModelGenerator.Sample_models.ValidationMaps.irisColumnsMap
+           ));
+
+            Assert.That(exception.Message.Contains("does not have expected length - actual is 4, but 3 expected"), Is.EqualTo(true));
+        }
     }
 }

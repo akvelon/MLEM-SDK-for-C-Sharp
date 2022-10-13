@@ -8,5 +8,6 @@
             bool argumentTypesValidationIsOn = true,
             Dictionary<string, string> modelColumnToPropNamesMap = null
         );
+        void ValidateJsonResponse(string response, string methodName);
     }
 }

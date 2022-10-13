@@ -24,4 +24,14 @@
     <ProjectReference Include="..\ModelGenerator\ModelGenerator.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="IrisTests\TestData\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Assets\Iris_test_schema.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

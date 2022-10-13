@@ -1,4 +1,4 @@
-﻿namespace MlemApi.Dto
+namespace MlemApi.Dto
 {
     internal class MethodArgumentData
     {

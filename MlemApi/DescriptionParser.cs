@@ -6,7 +6,7 @@ namespace MlemApi
     internal static class DescriptionParser
     {
         public static ApiDescription GetApiDescription(string jsonStringDescription)
-        { 
+        {
             using var jsonDocument = JsonDocument.Parse(jsonStringDescription);
             var jsonMethodElements = jsonDocument.RootElement.GetProperty("methods");
 
@@ -23,13 +23,16 @@ namespace MlemApi
                         .EnumerateArray().First()
                         .EnumerateObject();
 
+                var returnDataObject = jsonMethodElement.Value
+                        .EnumerateObject().First(e => e.Name == "returns").Value.EnumerateObject();
+
                 description.Methods.Add(new MethodDescription
                 {
                     MethodName = jsonMethodElement.Name,
                     ArgsName = argsObject.First(e => e.Name == "name").Value.GetString(),
                     ArgsData = DescriptionParser.GetArgsData(argsObject),
-
-                });
+                    ReturnData = DescriptionParser.GetReturnData(returnDataObject),
+                }) ;
             }
 
             return description;
@@ -55,6 +58,28 @@ namespace MlemApi
                 ArgumentName = argumentName,
                 ArgumentType = argumentTypes[index]
             });
+        }
+
+        private static MethodReturnData GetReturnData(JsonElement.ObjectEnumerator returnObjectEnumerator)
+        {
+            var shapeArray = returnObjectEnumerator.First(e => e.Name == "shape")
+                .Value.EnumerateArray();
+
+            var valueType = returnObjectEnumerator.First(e => e.Name == "dtype")
+                .Value.GetString();
+
+            return new MethodReturnData() {
+                Shape = shapeArray.Select<JsonElement, int?>(shapeElement =>
+                {
+                    if (!Int32.TryParse(shapeElement.ToString(), out int shapeNumericValue))
+                    {
+                        return null;
+                    }
+
+                    return shapeNumericValue;
+                }).ToList(),
+                ValueType = valueType,
+            };
         }
     }
 }

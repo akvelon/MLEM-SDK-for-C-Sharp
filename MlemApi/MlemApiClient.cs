@@ -21,6 +21,7 @@ namespace MlemApi
         private readonly ApiDescription _apiDescription;
 
         public bool ArgumentTypesValidationIsOn { get; set; }
+        public bool ResponseValidationIsOn { get; set; } = true;
 
         /// <summary>
         /// Constructor
@@ -122,6 +123,11 @@ namespace MlemApi
                 if (httpResponse.StatusCode != System.Net.HttpStatusCode.OK)
                 {
                     throw new HttpRequestException(response, null, httpResponse.StatusCode);
+                }
+
+                if (ResponseValidationIsOn)
+                {
+                    this._validator?.ValidateJsonResponse(response, command);
                 }
 
                 try

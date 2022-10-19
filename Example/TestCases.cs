@@ -13,5 +13,6 @@
         IrisResponseCheckNestingLevel,
         IrisResponseCheckIncorrectType,
         IrisResponseCheckWrongArraySize,
+        DigitsRandomForest,
     }
 }

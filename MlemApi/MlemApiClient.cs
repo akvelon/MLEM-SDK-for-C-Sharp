@@ -52,9 +52,9 @@ namespace MlemApi
         /// <typeparam name="outcomeT"></typeparam>
         /// <param name="values"></param>
         /// <returns></returns>
-        public async Task<ResultType?> PredictAsync<ResultType>(RequestModelType value, Dictionary<string, string> modelColumnNamesMap = null)
+        public async Task<ResultType?> PredictAsync<ResultType, RequestType>(RequestType value, Dictionary<string, string> modelColumnNamesMap = null)
         {
-            return await CallAsync<ResultType>(PREDICT_METHOD, new List<RequestModelType> { value }, modelColumnNamesMap);
+            return await CallAsync<ResultType, RequestType>(PREDICT_METHOD, new List<RequestType> { value }, modelColumnNamesMap);
         }
 
         /// <summary>
@@ -64,9 +64,9 @@ namespace MlemApi
         /// <typeparam name="outcomeT"></typeparam>
         /// <param name="values"></param>
         /// <returns></returns>
-        public async Task<ResultType?> PredictAsync<ResultType>(IEnumerable<RequestModelType> values, Dictionary<string, string > modelColumnNamesMap = null)
+        public async Task<ResultType?> PredictAsync<ResultType, RequestType>(IEnumerable<RequestType> values, Dictionary<string, string > modelColumnNamesMap = null)
         {
-            return await CallAsync<ResultType>(PREDICT_METHOD, values, modelColumnNamesMap);
+            return await CallAsync<ResultType, RequestType>(PREDICT_METHOD, values, modelColumnNamesMap);
         }
 
         /// <summary>
@@ -77,9 +77,9 @@ namespace MlemApi
         /// <param name="methodName"></param>
         /// <param name="values"></param>
         /// <returns></returns>
-        public async Task<ResultType?> CallAsync<ResultType>(string methodName, RequestModelType value, Dictionary<string, string> modelColumnNamesMap = null)
+        public async Task<ResultType?> CallAsync<ResultType, RequestType>(string methodName, RequestType value, Dictionary<string, string> modelColumnNamesMap = null)
         {
-            return await CallAsync<ResultType>(methodName, new List<RequestModelType> { value }, modelColumnNamesMap);
+            return await CallAsync<ResultType, RequestType>(methodName, new List<RequestType> { value }, modelColumnNamesMap);
         }
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace MlemApi
         /// <param name="methodName"></param>
         /// <param name="values"></param>
         /// <returns></returns>
-        public async Task<ResultType?> CallAsync<ResultType>(string methodName, IEnumerable<RequestModelType> values, Dictionary<string, string> modelColumnNamesMap = null)
+        public async Task<ResultType?> CallAsync<ResultType, RequestType>(string methodName, IEnumerable<RequestType> values, Dictionary<string, string> modelColumnNamesMap = null)
         {
             this._validator?.ValidateMethod(methodName);
 

@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace Example
 {
-    public class IrisWithInvalidArgumentType : RequestModelType
+    public class IrisWithInvalidArgumentType
     {
         [JsonProperty("sepal length (cm)")]
         public byte SepalLength { get; set; }

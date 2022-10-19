@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace Example
 {
-    internal class IrisWIthMissingColumn: RequestModelType
+    internal class IrisWIthMissingColumn
     {
         [JsonProperty("sepal length (cm)")]
         public double SepalLength { get; set; }

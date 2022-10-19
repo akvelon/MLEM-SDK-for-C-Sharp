@@ -45,6 +45,9 @@ namespace Example
                 case TestCases.IrisRequestCheckInvalidArgument:
                     await IrisRequestCheckInvalidArgument();
                     break;
+                case TestCases.DigitsRandomForest:
+                    await RunDigitsRandomForest();
+                    break;
                 default:
                     throw new NotImplementedException();
             }
@@ -64,7 +67,7 @@ namespace Example
                 PetalWidth = 20142568.61724788
             };
 
-            ShowResult(await mlemClient.PredictAsync<List<long>>(
+            ShowResult(await mlemClient.PredictAsync<List<long>, Iris>(
                 input,
                 ModelGenerator.Sample_models.ValidationMaps.irisColumnsMap
             ));
@@ -94,7 +97,7 @@ namespace Example
                 }
             };
 
-            ShowResult(await mlemClient.PredictAsync<List<long>>(
+            ShowResult(await mlemClient.PredictAsync<List<long>, Iris>(
                 inputData,
                 ModelGenerator.Sample_models.ValidationMaps.irisColumnsMap
             ));
@@ -115,7 +118,7 @@ namespace Example
                 PetalWidth = 20142568.61724788
             };
 
-            ShowResult(await mlemClient.PredictAsync<List<long>>(
+            ShowResult(await mlemClient.PredictAsync<List<long>, Iris>(
                 input,
                 ModelGenerator.Sample_models.ValidationMaps.irisColumnsMap
             ));
@@ -143,7 +146,7 @@ namespace Example
                 Proline = 365.0
             };
 
-            ShowResult(await mlemClient.PredictAsync<List<int>>(
+            ShowResult(await mlemClient.PredictAsync<List<int>, Wine>(
                 input,
                 ModelGenerator.Sample_models.ValidationMaps.wineModelMap
             ));
@@ -162,7 +165,7 @@ namespace Example
                 }
             };
 
-            ShowResult(await mlemClient.PredictAsync<List<double>>(
+            ShowResult(await mlemClient.PredictAsync<List<double>, SvmModel>(
                 inputData,
                 ModelGenerator.Sample_models.ValidationMaps.svmModelMap
             ));
@@ -172,7 +175,7 @@ namespace Example
         {
             var client = GetIrisClient();
 
-            await client.CallAsync<List<List<double>>>("predict_proba", new List<IrisWithInvalidArgumentType>
+            await client.CallAsync<List<List<double>>, IrisWithInvalidArgumentType>("predict_proba", new List<IrisWithInvalidArgumentType>
                 {
                     new IrisWithInvalidArgumentType
                     {
@@ -198,7 +201,7 @@ namespace Example
             var client = GetIrisClient();
             client.ArgumentTypesValidationIsOn = true;
 
-            await client.CallAsync<List<List<double>>>("predict_proba", new List<IrisWIthMissingColumn>
+            await client.CallAsync<List<List<double>>, IrisWIthMissingColumn>("predict_proba", new List<IrisWIthMissingColumn>
                 {
                     new IrisWIthMissingColumn
                     {
@@ -220,7 +223,7 @@ namespace Example
         public async Task IrisRequestCheckUnknownColumn()
         {
             var client = GetIrisClient();
-            await client.CallAsync<List<List<double>>>("predict_proba", new List<IrisWithUnknownColumnName>
+            await client.CallAsync<List<List<double>>, IrisWithUnknownColumnName>("predict_proba", new List<IrisWithUnknownColumnName>
                 {
                     new IrisWithUnknownColumnName
                     {
@@ -239,6 +242,23 @@ namespace Example
                 },
                ModelGenerator.Sample_models.ValidationMaps.irisColumnsMap
            );
+        }
+    
+        public async Task RunDigitsRandomForest()
+        {
+            string url = "http://127.0.0.1:8080/";
+            MlemApiClient mlemClient = new(url, _logger);
+            mlemClient.ArgumentTypesValidationIsOn = false;
+            Random rand = new Random();
+            List<double> inputData = new();
+            for (var i = 0; i < 64; ++i)
+            {
+                inputData.Add(rand.NextDouble());
+            }
+
+            ShowResult(await mlemClient.PredictAsync<List<double>, List<double>>(
+                inputData
+            ));
         }
 
         private MlemApiClient GetIrisClient()

@@ -8,7 +8,7 @@ namespace MlemApiClientTests.SvmModelTests
         [Test]
         public async Task PositiveTest()
         {
-            var result = await _client.PredictAsync<List<double>>(
+            var result = await _client.PredictAsync<List<double>, SvmModel>(
                 new List<SvmModel>
                 {
                     new SvmModel
@@ -27,13 +27,13 @@ namespace MlemApiClientTests.SvmModelTests
         [Test]
         public void NullValueTest()
         {
-            Assert.ThrowsAsync<ArgumentNullException>(() => _client.PredictAsync<List<double>>((RequestModelType?)null));
+            Assert.ThrowsAsync<ArgumentNullException>(() => _client.PredictAsync<List<double>, SvmModel?>((SvmModel?)null));
         }
 
         [Test]
         public void EmptyValueTest()
         {
-            Assert.ThrowsAsync<ArgumentException>(() => _client.PredictAsync<List<double>>(
+            Assert.ThrowsAsync<ArgumentException>(() => _client.PredictAsync<List<double>, SvmModel>(
                 new List<SvmModel>(), ModelGenerator.Sample_models.ValidationMaps.irisColumnsMap
             ));
         }
@@ -41,7 +41,7 @@ namespace MlemApiClientTests.SvmModelTests
         [Test]
         public void IncorrectMethodTest()
         {
-            Assert.ThrowsAsync<InvalidOperationException>(() => _client.CallAsync<List<long>>(
+            Assert.ThrowsAsync<InvalidOperationException>(() => _client.CallAsync<List<long>, SvmModel>(
                 "predict_1",
                 new List<SvmModel>(),
                 ModelGenerator.Sample_models.ValidationMaps.svmModelMap

@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace MlemApiClientTests.IrisTests.TestClasses
 {
-    internal class IrisWIthMissingColumn: RequestModelType
+    internal class IrisWithMissingColumn
     {
         [JsonProperty("sepal length (cm)")]
         public double SepalLength { get; set; }

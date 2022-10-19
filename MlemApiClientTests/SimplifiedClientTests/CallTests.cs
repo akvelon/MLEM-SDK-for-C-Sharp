@@ -9,7 +9,7 @@ namespace MlemApiClientTests.SimplifiedClientTests
         [Test]
         public async Task PositiveTest()
         {
-            var result = await _client.CallAsync<List<List<double>>>("predict_proba",
+            var result = await _client.CallAsync<List<List<double>>, Iris>("predict_proba",
                 new List<Iris>
                 {
                     new Iris
@@ -40,13 +40,13 @@ namespace MlemApiClientTests.SimplifiedClientTests
         [Test]
         public void NullValueTest()
         {
-            Assert.ThrowsAsync<ArgumentNullException>(() => _client.CallAsync<List<List<double>>>("predict_proba", (IEnumerable<RequestModelType>?)null));
+            Assert.ThrowsAsync<ArgumentNullException>(() => _client.CallAsync<List<List<double>>, Iris>("predict_proba", (IEnumerable<Iris>?)null));
         }
 
         [Test]
         public void EmptyValueTest()
         {
-            Assert.ThrowsAsync<ArgumentException>(() => _client.CallAsync<List<List<double>>>(
+            Assert.ThrowsAsync<ArgumentException>(() => _client.CallAsync<List<List<double>>, Iris>(
                 "predict_proba",
                 new List<Iris>(),
                 ModelGenerator.Sample_models.ValidationMaps.irisColumnsMap
@@ -56,7 +56,7 @@ namespace MlemApiClientTests.SimplifiedClientTests
         [Test]
         public void IncorrectMethodTest()
         {
-            Assert.ThrowsAsync<InvalidOperationException>(() => _client.CallAsync<List<List<double>>>(
+            Assert.ThrowsAsync<InvalidOperationException>(() => _client.CallAsync<List<List<double>>, Iris>(
                 "predict_proba_2",
                 new List<Iris>(),
                 ModelGenerator.Sample_models.ValidationMaps.irisColumnsMap

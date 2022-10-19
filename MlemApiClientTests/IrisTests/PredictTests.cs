@@ -8,7 +8,7 @@ namespace MlemApiClientTests.IrisTests
         [Test]
         public async Task PositiveTest()
         {
-            var result = await _client.PredictAsync<List<long>>(
+            var result = await _client.PredictAsync<List<long>, Iris>(
                 new List<Iris>
                 {
                     new Iris
@@ -37,13 +37,13 @@ namespace MlemApiClientTests.IrisTests
         [Test]
         public void NullValueTest()
         {
-            Assert.ThrowsAsync<ArgumentNullException>(() => _client.PredictAsync<List<long>>((RequestModelType?)null));
+            Assert.ThrowsAsync<ArgumentNullException>(() => _client.PredictAsync<List<long>, Iris?>((Iris?)null));
         }
 
         [Test]
         public void EmptyValueTest()
         {
-            Assert.ThrowsAsync<ArgumentException>(() => _client.PredictAsync<List<long>>(
+            Assert.ThrowsAsync<ArgumentException>(() => _client.PredictAsync<List<long>, Iris>(
                 new List<Iris>(),
                 ModelGenerator.Sample_models.ValidationMaps.irisColumnsMap
             ));
@@ -52,7 +52,7 @@ namespace MlemApiClientTests.IrisTests
         [Test]
         public void IncorrectMethodTest()
         {
-            Assert.ThrowsAsync<InvalidOperationException>(() => _client.CallAsync<List<long>>(
+            Assert.ThrowsAsync<InvalidOperationException>(() => _client.CallAsync<List<long>, Iris>(
                 "predict_1",
                 new List<Iris>(),
                 ModelGenerator.Sample_models.ValidationMaps.irisColumnsMap

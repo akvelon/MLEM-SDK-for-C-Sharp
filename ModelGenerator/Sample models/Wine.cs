@@ -2,7 +2,7 @@
 
 namespace ModelGenerator.Example
 {
-    internal class Wine : RequestModelType
+    internal class Wine
     {
         [JsonProperty("alcohol")]
         public double Alcohol { get; set; }

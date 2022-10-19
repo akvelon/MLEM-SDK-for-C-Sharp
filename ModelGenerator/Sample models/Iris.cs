@@ -2,7 +2,7 @@
 
 namespace ModelGenerator.Example
 {
-    internal class Iris : RequestModelType
+    internal class Iris
     {
         [JsonProperty("sepal length (cm)")]
         public double SepalLength { get; set; }

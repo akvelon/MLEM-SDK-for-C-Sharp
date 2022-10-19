@@ -67,25 +67,25 @@ namespace MlemApiClientTests.Benchmark
             [Benchmark]
             public async Task TestSingleRequest()
             {
-                await _mlemClient.PredictAsync<List<long>>(irises12);
+                await _mlemClient.PredictAsync<List<long>, Iris>(irises12);
             }
 
             [Benchmark]
             public async Task TestMultithreadRequest()
             {
                 // Use the variables to avoid extra performance drops when using a List of Tasks
-                Task task1 = _mlemClient.PredictAsync<List<long>>(_irisItem);
-                Task task2 = _mlemClient.PredictAsync<List<long>>(_irisItem);
-                Task task3 = _mlemClient.PredictAsync<List<long>>(_irisItem);
-                Task task4 = _mlemClient.PredictAsync<List<long>>(_irisItem);
-                Task task5 = _mlemClient.PredictAsync<List<long>>(_irisItem);
-                Task task6 = _mlemClient.PredictAsync<List<long>>(_irisItem);
-                Task task7 = _mlemClient.PredictAsync<List<long>>(_irisItem);
-                Task task8 = _mlemClient.PredictAsync<List<long>>(_irisItem);
-                Task task9 = _mlemClient.PredictAsync<List<long>>(_irisItem);
-                Task task10 = _mlemClient.PredictAsync<List<long>>(_irisItem);
-                Task task11 = _mlemClient.PredictAsync<List<long>>(_irisItem);
-                Task task12 = _mlemClient.PredictAsync<List<long>>(_irisItem);
+                Task task1 = _mlemClient.PredictAsync<List<long>, Iris>(_irisItem);
+                Task task2 = _mlemClient.PredictAsync<List<long>, Iris>(_irisItem);
+                Task task3 = _mlemClient.PredictAsync<List<long>, Iris>(_irisItem);
+                Task task4 = _mlemClient.PredictAsync<List<long>, Iris>(_irisItem);
+                Task task5 = _mlemClient.PredictAsync<List<long>, Iris>(_irisItem);
+                Task task6 = _mlemClient.PredictAsync<List<long>, Iris>(_irisItem);
+                Task task7 = _mlemClient.PredictAsync<List<long>, Iris>(_irisItem);
+                Task task8 = _mlemClient.PredictAsync<List<long>, Iris>(_irisItem);
+                Task task9 = _mlemClient.PredictAsync<List<long>, Iris>(_irisItem);
+                Task task10 = _mlemClient.PredictAsync<List<long>, Iris>(_irisItem);
+                Task task11 = _mlemClient.PredictAsync<List<long>, Iris>(_irisItem);
+                Task task12 = _mlemClient.PredictAsync<List<long>, Iris>(_irisItem);
 
                 await Task.WhenAll(task1, task2, task3, task4, task5, task6, task7, task8, task9, task10, task11, task12);
             }
@@ -93,9 +93,9 @@ namespace MlemApiClientTests.Benchmark
             [Benchmark]
             public async Task TestTripleRequest()
             {
-                Task task1 = _mlemClient.PredictAsync<List<long>>(irises4_1);
-                Task task2 = _mlemClient.PredictAsync<List<long>>(irises4_2);
-                Task task3 = _mlemClient.PredictAsync<List<long>>(irises4_3);
+                Task task1 = _mlemClient.PredictAsync<List<long>, Iris>(irises4_1);
+                Task task2 = _mlemClient.PredictAsync<List<long>, Iris>(irises4_2);
+                Task task3 = _mlemClient.PredictAsync<List<long>, Iris>(irises4_3);
 
                 await Task.WhenAll(task1, task2, task3);
             }

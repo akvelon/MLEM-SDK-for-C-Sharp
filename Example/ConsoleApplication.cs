@@ -36,6 +36,15 @@ namespace Example
                 case TestCases.SvmModel:
                     await RunSvmCase();
                     break;
+                case TestCases.IrisRequestCheckMissingColumn:
+                    await IrisRequestCheckMissingColumn();
+                    break;
+                case TestCases.IrisRequestCheckUnknownColumn:
+                    await IrisRequestCheckUnknownColumn();
+                    break;
+                case TestCases.IrisRequestCheckInvalidArgument:
+                    await IrisRequestCheckInvalidArgument();
+                    break;
                 default:
                     throw new NotImplementedException();
             }
@@ -157,6 +166,86 @@ namespace Example
                 inputData,
                 ModelGenerator.Sample_models.ValidationMaps.svmModelMap
             ));
+        }
+
+        public async Task IrisRequestCheckInvalidArgument()
+        {
+            var client = GetIrisClient();
+
+            await client.CallAsync<List<List<double>>>("predict_proba", new List<IrisWithInvalidArgumentType>
+                {
+                    new IrisWithInvalidArgumentType
+                    {
+                        SepalLength = 1,
+                        SepalWidth = 64887767.01179123,
+                        PetalLength = -76043679.89193763,
+                        PetalWidth = 20142568.61724788
+                    },
+                    new IrisWithInvalidArgumentType
+                    {
+                        SepalLength = 1,
+                        SepalWidth = -30195626.60490367,
+                        PetalLength = 64042930.90411937,
+                        PetalWidth = -69196204.98948716
+                    }
+                },
+               ModelGenerator.Sample_models.ValidationMaps.irisColumnsMap
+           );
+        }
+
+        public async Task IrisRequestCheckMissingColumn()
+        {
+            var client = GetIrisClient();
+            client.ArgumentTypesValidationIsOn = true;
+
+            await client.CallAsync<List<List<double>>>("predict_proba", new List<IrisWIthMissingColumn>
+                {
+                    new IrisWIthMissingColumn
+                    {
+                        SepalLength = 6343387.454046518,
+                        SepalWidth = 64887767.01179123,
+                        PetalLength = -76043679.89193763,
+                    },
+                    new IrisWIthMissingColumn
+                    {
+                        SepalLength = 6343387.454046518,
+                        SepalWidth = -30195626.60490367,
+                        PetalLength = 64042930.90411937,
+                    }
+                },
+               ModelGenerator.Sample_models.ValidationMaps.irisColumnsMap
+           );
+        }
+
+        public async Task IrisRequestCheckUnknownColumn()
+        {
+            var client = GetIrisClient();
+            await client.CallAsync<List<List<double>>>("predict_proba", new List<IrisWithUnknownColumnName>
+                {
+                    new IrisWithUnknownColumnName
+                    {
+                        SepalLength = 6343387.454046518,
+                        SepalWidth = 64887767.01179123,
+                        PetalLength = -76043679.89193763,
+                        Unknown = 3.5,
+                    },
+                    new IrisWithUnknownColumnName
+                    {
+                        SepalLength = 6343387.454046518,
+                        SepalWidth = -30195626.60490367,
+                        PetalLength = 64042930.90411937,
+                        Unknown = 3.5,
+                    }
+                },
+               ModelGenerator.Sample_models.ValidationMaps.irisColumnsMap
+           );
+        }
+
+        private MlemApiClient GetIrisClient()
+        {
+            string url = "https://example-mlem-get-started-app.herokuapp.com";
+            HttpClient httpClient = _httpClientFactory.CreateClient("MlemApiClient");
+            return new(url, _logger, httpClient, _requestSerializer);
         }
 
         private void ShowResult<T>(List<T>? result)

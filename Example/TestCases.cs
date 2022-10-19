@@ -7,5 +7,11 @@
         IrisFileLogger,
         SvmModel,
         Wine,
+        IrisRequestCheckInvalidArgument,
+        IrisRequestCheckMissingColumn,
+        IrisRequestCheckUnknownColumn,
+        IrisResponseCheckNestingLevel,
+        IrisResponseCheckIncorrectType,
+        IrisResponseCheckWrongArraySize,
     }
 }

@@ -20,6 +20,7 @@ IServiceProvider services = serviceScope.ServiceProvider;
 try
 {
     ConsoleApplication consoleService = services.GetRequiredService<ConsoleApplication>();
+
     await consoleService.RunTestCaseAsync(TestCases.MultipleIris);
 }
 catch (Exception ex)

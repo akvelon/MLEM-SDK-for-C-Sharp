@@ -1,7 +1,4 @@
-using System.Collections;
-﻿using System.Collections;
 using System.Data;
-using System.Linq;
 using Microsoft.Extensions.Logging;
 using MlemApi.Dto;
 using Newtonsoft.Json;
@@ -243,6 +240,11 @@ namespace MlemApi
             if (argumentsSchemeData == null)
             {
                 throw new ArgumentNullException($"Empty arguments scheme data for method {methodName}.");
+            }
+
+            if (Value.GetType().GetProperties().Count() > argumentsSchemeData.Count())
+            {
+                throw new ArgumentException($"Count of request object properties is not equal to properties in schema: expected {argumentsSchemeData.Count()}, but actual is {Value.GetType().GetProperties().Count()}");
             }
 
             foreach (MethodArgumentData argumentData in argumentsSchemeData)

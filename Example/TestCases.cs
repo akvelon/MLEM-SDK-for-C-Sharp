@@ -10,9 +10,6 @@
         IrisRequestCheckInvalidArgument,
         IrisRequestCheckMissingColumn,
         IrisRequestCheckUnknownColumn,
-        IrisResponseCheckNestingLevel,
-        IrisResponseCheckIncorrectType,
-        IrisResponseCheckWrongArraySize,
         DigitsRandomForest,
     }
 }

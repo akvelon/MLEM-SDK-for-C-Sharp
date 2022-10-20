@@ -263,11 +263,18 @@ namespace MlemApi
 
                 try
                 {
-                    propertyType = Value.GetType().GetProperty(objPropertyName).PropertyType;
+                    var property = Value.GetType().GetProperty(objPropertyName);
+
+                    if (property == null)
+                    {
+                        throw new ArgumentException($"Can't find '{objPropertyName}' property in request object, although it exists in schema");
+                    }
+
+                    propertyType = property.PropertyType;
                 }
-                catch (NullReferenceException)
+                catch (Exception e)
                 {
-                    throw new ArgumentException($"Can't find '{objPropertyName}' property in request object, although it exists in schema");
+                    throw new ArgumentException($"Can't get value property '{objPropertyName}': {e.Message}", e);
                 }
 
                 try

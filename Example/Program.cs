@@ -20,8 +20,31 @@ IServiceProvider services = serviceScope.ServiceProvider;
 try
 {
     ConsoleApplication consoleService = services.GetRequiredService<ConsoleApplication>();
+    var cases = new List<TestCases>()
+    {
+        TestCases.SingleIris,
+        TestCases.MultipleIris,
+        TestCases.IrisFileLogger,
+        TestCases.IrisRequestCheckInvalidArgument,
+        TestCases.IrisRequestCheckMissingColumn,
+        TestCases.IrisRequestCheckUnknownColumn,
+    };
+    
+    foreach (var currentCase in cases)
+    {
+        try
+        {
+            Console.WriteLine($"\n\n####    Test case : {currentCase}\n\n");
 
-    await consoleService.RunTestCaseAsync(TestCases.MultipleIris);
+            await consoleService.RunTestCaseAsync(currentCase);
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"\n\n## >>>>>> {ex}");
+            Console.Error.WriteLine($"## >>>>>> Error occured for case {currentCase}: {ex}\n\n");
+        }
+    }
+
 }
 catch (Exception ex)
 {

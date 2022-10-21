@@ -34,12 +34,15 @@ try
     {
         try
         {
+            Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine($"\n\n####    Test case : {currentCase}\n\n");
 
+            Console.ForegroundColor = ConsoleColor.White;
             await consoleService.RunTestCaseAsync(currentCase);
         }
         catch (Exception ex)
         {
+            Console.ForegroundColor = ConsoleColor.Red;
             Console.Error.WriteLine($"\n\n## >>>>>> {ex}");
             Console.Error.WriteLine($"## >>>>>> Error occured for case {currentCase}: {ex}\n\n");
         }

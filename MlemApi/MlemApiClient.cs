@@ -3,7 +3,6 @@ using System.Text.Json;
 using System.Net.Mime;
 using Microsoft.Extensions.Logging;
 using MlemApi.Dto;
-using ModelGenerator;
 
 namespace MlemApi
 {
@@ -156,7 +155,7 @@ namespace MlemApi
             }
         }
 
-        private ApiDescription GetDescription()
+        internal ApiDescription GetDescription()
         {
             _logger?.LogInformation("Request command: interface.json");
 

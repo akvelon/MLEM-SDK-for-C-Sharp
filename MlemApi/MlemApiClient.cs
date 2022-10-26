@@ -105,7 +105,27 @@ namespace MlemApi
 
             var jsonRequest = _requestBuilder.BuildRequest(argsName, values, requestObjectType);
 
-            return await SendPostRequestAsync<ResultType?>(methodName, jsonRequest);
+            Console.WriteLine("Request body: ");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine(jsonRequest);
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine();
+
+            Thread.Sleep(1500);
+            Console.Write("Getting the response.");
+            Thread.Sleep(1000);
+            Console.Write(".");
+            Thread.Sleep(1000);
+            Console.Write(".");
+            Thread.Sleep(1000);
+            Console.SetCursorPosition(0, Console.CursorTop);
+            Console.Write("");
+
+            ResultType? result =  await SendPostRequestAsync<ResultType?>(methodName, jsonRequest);
+
+
+
+            return result;
         }
 
         private ApiDescription GetDescription()
@@ -131,8 +151,8 @@ namespace MlemApi
 
         private async Task<T?> SendPostRequestAsync<T>(string command, string requestJsonString)
         {
-            _logger?.LogInformation($"Request command: {command}");
-            _logger?.LogInformation($"Request JSON string: {requestJsonString}");
+            //_logger?.LogInformation($"Request command: {command}");
+            //_logger?.LogInformation($"Request JSON string: {requestJsonString}");
 
             try
             {
@@ -140,7 +160,7 @@ namespace MlemApi
                     command,
                     new StringContent(requestJsonString, Encoding.UTF8, MediaTypeNames.Application.Json));
 
-                _logger?.LogInformation($"Response status: {httpResponse.StatusCode}.");
+                //_logger?.LogInformation($"Response status: {httpResponse.StatusCode}.");
 
                 string response = await httpResponse.Content.ReadAsStringAsync();
 

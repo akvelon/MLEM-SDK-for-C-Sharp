@@ -24,19 +24,19 @@ try
     var cases = new List<TestCases>()
     {
         TestCases.SingleIris,
-        TestCases.MultipleIris,
-        TestCases.IrisFileLogger,
-        TestCases.IrisRequestCheckInvalidArgument,
-        TestCases.IrisRequestCheckMissingColumn,
-        TestCases.IrisRequestCheckUnknownColumn,
+        //TestCases.MultipleIris,
+        //TestCases.IrisFileLogger,
+        //TestCases.IrisRequestCheckInvalidArgument,
+        //TestCases.IrisRequestCheckMissingColumn,
+        //TestCases.IrisRequestCheckUnknownColumn,
     };
     
     foreach (var currentCase in cases)
     {
         try
         {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine($"\n\n####    Test case : {currentCase}\n\n");
+            //Console.ForegroundColor = ConsoleColor.Yellow;
+            //Console.WriteLine($"\n\n####    Test model: Iris\n\n");
 
             Console.ForegroundColor = ConsoleColor.White;
             await consoleService.RunTestCaseAsync(currentCase);

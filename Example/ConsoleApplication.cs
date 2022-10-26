@@ -58,15 +58,73 @@ namespace Example
         {
             string url = "https://example-mlem-get-started-app.herokuapp.com";
             HttpClient httpClient = _httpClientFactory.CreateClient("MlemApiClient");
-            MlemApiClient mlemClient = new(url, _logger, httpClient, _requestSerializer);
+            MlemApiClient mlemClient = new(url);
 
             Iris input = new()
             {
-                SepalLength = -69639435.20838484,
-                SepalWidth = 64887767.01179123,
-                PetalLength = -76043679.89193763,
-                PetalWidth = 20142568.61724788
+                SepalLength = 5.1,
+                SepalWidth = 3.5,
+                PetalLength = 1.4,
+                PetalWidth = 0.2
             };
+
+            Console.ReadKey();
+            Console.SetCursorPosition(0, Console.CursorTop);
+
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine("Make a prediction about the type of Iris flower using \"Predict\" method.\n");
+
+            Console.WriteLine("Input info about the model object:");
+            Console.Write(" - Kind of flower: ");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("Iris");
+            Console.ForegroundColor = ConsoleColor.White;
+
+            Console.Write(" - Sepal length: ");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine($"{input.SepalLength} cm");
+            Console.ForegroundColor = ConsoleColor.White;
+
+            Console.Write(" - Sepal width: ");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine($"{input.SepalWidth} cm");
+            Console.ForegroundColor = ConsoleColor.White;
+
+            Console.Write(" - Petal length: ");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine($"{input.PetalLength} cm");
+            Console.ForegroundColor = ConsoleColor.White;
+
+            Console.Write(" - Petal width: ");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine($"{input.PetalWidth} cm");
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.White;
+
+            Console.WriteLine("Possible Iris types:");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine(" - Iris Setosa (0)");
+            Console.WriteLine(" - Iris Versicolour (1)");
+            Console.WriteLine(" - Iris Virginica (2)");
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.White;
+
+            Thread.Sleep(1000);
+
+            Console.WriteLine("Press any key to make the prediction.");
+            Console.ReadKey();
+            Console.WriteLine();
+
+            Console.Write("Model host: ");
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.WriteLine("http://127.0.0.1:8080");
+            Console.ForegroundColor = ConsoleColor.White;
+
+            Console.Write("Method: ");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("\"predict\"");
+            Console.ForegroundColor = ConsoleColor.White;
+
 
             ShowResult(await mlemClient.PredictAsync<List<long>, Iris>(
                 input,
@@ -276,7 +334,19 @@ namespace Example
             }
             else
             {
-                Console.WriteLine("Result: " + string.Join(",", result));
+                Console.Write("Status code of the response: ");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("200 (OK)");
+                Console.ForegroundColor = ConsoleColor.White;
+
+                Console.Write("Response value: ");
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine(string.Join(",", result) + " (Iris Setosa)");
+                Console.ForegroundColor = ConsoleColor.White;
+
+                Console.ReadKey();
+
+                //Console.WriteLine("Result: " + string.Join(",", result));
             }
         }
     }

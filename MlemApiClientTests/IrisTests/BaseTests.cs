@@ -1,12 +1,8 @@
 ﻿using System.Net;
-using System.Net.Mime;
-using System.Reflection;
-using System.Text;
 using Microsoft.Extensions.Logging;
 using MlemApi;
 using Moq;
 using Moq.Protected;
-using NUnit.Framework.Internal;
 
 namespace MlemApiClientTests.IrisTests
 {
@@ -20,7 +16,7 @@ namespace MlemApiClientTests.IrisTests
             using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
             var logger = loggerFactory.CreateLogger<MlemApiClient>();
 
-            _client = new MlemApiClient("https://example-mlem-get-started-app.herokuapp.com", logger, new HttpClient(), new NewtonsoftRequestValueSerializer());
+            _client = new MlemApiClient("https://example-mlem-get-started-app.herokuapp.com", logger, new HttpClient());
         }
 
         [TearDown]
@@ -54,12 +50,12 @@ namespace MlemApiClientTests.IrisTests
             using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
             var logger = loggerFactory.CreateLogger<MlemApiClient>();
 
-            return new MlemApiClient("https://example-mlem-get-started-app.herokuapp.com", logger, httpClient, new NewtonsoftRequestValueSerializer());
+            return new MlemApiClient("https://example-mlem-get-started-app.herokuapp.com", logger, httpClient);
         }
 
         public MlemApiClient GetClientWithCustomLogger(ILogger<MlemApiClient> logger)
         {
-            return new MlemApiClient("https://example-mlem-get-started-app.herokuapp.com", logger, new HttpClient(), new NewtonsoftRequestValueSerializer());
+            return new MlemApiClient("https://example-mlem-get-started-app.herokuapp.com", logger, new HttpClient());
         }
 
         public string ConvertStringToUniformEndline(string value, bool alignEscapedCharacters = true)

@@ -53,7 +53,7 @@ namespace MlemApiClientTests.SvmModelTests
 
             var httpClient = new HttpClient(_msgHandler.Object);
 
-            _client = new MlemApiClient(_baseAddress, logger, httpClient, new NewtonsoftRequestValueSerializer());
+            _client = new MlemApiClient(_baseAddress, logger, httpClient);
         }
     }
 }

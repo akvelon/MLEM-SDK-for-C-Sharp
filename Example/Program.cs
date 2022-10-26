@@ -3,12 +3,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MlemApi;
+using MlemApi.Serializing;
 
 IHostBuilder builder = new HostBuilder()
     .ConfigureServices((hostContext, services) =>
     {
         services.AddTransient<ConsoleApplication>();
-        services.AddTransient<IRequestValueSerializer>(sp => new NewtonsoftRequestValueSerializer());
+        services.AddTransient<IRequestValuesSerializer>(sp => new DefaultRequestValueSerializer());
         services.AddTransient(sp => LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<MlemApiClient>());
         services.AddHttpClient<MlemApiClient>().AddHttpMessageHandler<LoggingDelegatingHandler>();
         services.AddTransient<LoggingDelegatingHandler>();

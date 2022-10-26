@@ -1,26 +1,23 @@
-﻿namespace MlemApi
+﻿using MlemApi.Serializing;
+
+namespace MlemApi
 {
     /// <summary>
     /// 
     /// </summary>
-    internal class RequestBuilder
+    public class RequestBuilder
     {
-        private readonly IRequestValueSerializer _requestValueSerializer;
+        private readonly IRequestValuesSerializer _requestValueSerializer;
 
-        public RequestBuilder(IRequestValueSerializer requestValueSerializer)
+
+        public RequestBuilder(IRequestValuesSerializer requestValueSerializer)
         {
             _requestValueSerializer = requestValueSerializer;
         }
 
-        public string BuildRequest<T>(string argsName, IEnumerable<T> values)
+        public string BuildRequest<T>(string argsName, IEnumerable<T> values, string requestObjectType)
         {
-            var stringRequest = $"{{\"{argsName}\": " +
-                "{\"values\": " +
-                    "[" +
-                        string.Join(',', _requestValueSerializer.Serialize(values)) +
-                    "]" +
-                "}" +
-            "}";
+            var stringRequest = _requestValueSerializer.Serialize(values, argsName, requestObjectType);
 
             return stringRequest;
         }

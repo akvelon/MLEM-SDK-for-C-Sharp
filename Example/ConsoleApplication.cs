@@ -1,16 +1,17 @@
 ﻿using MlemApi;
 using Microsoft.Extensions.Logging;
 using ModelGenerator.Example;
+using MlemApi.Serializing;
 
 namespace Example
 {
     internal class ConsoleApplication
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IRequestValueSerializer _requestSerializer;
+        private readonly IRequestValuesSerializer _requestSerializer;
         private readonly ILogger<MlemApiClient> _logger;
 
-        public ConsoleApplication(IHttpClientFactory httpClientFactory, IRequestValueSerializer requestSerializer, ILogger<MlemApiClient> logger)
+        public ConsoleApplication(IHttpClientFactory httpClientFactory, IRequestValuesSerializer requestSerializer, ILogger<MlemApiClient> logger)
         {
             _httpClientFactory = httpClientFactory;
             _requestSerializer = requestSerializer;
@@ -248,7 +249,6 @@ namespace Example
         {
             string url = "http://127.0.0.1:8080/";
             MlemApiClient mlemClient = new(url, _logger);
-            mlemClient.ArgumentTypesValidationIsOn = false;
             Random rand = new Random();
             List<double> inputData = new();
             for (var i = 0; i < 64; ++i)
@@ -256,7 +256,7 @@ namespace Example
                 inputData.Add(rand.NextDouble());
             }
 
-            ShowResult(await mlemClient.PredictAsync<List<double>, List<double>>(
+            ShowResult(await mlemClient.PredictAsync<List<int>, List<double>>(
                 inputData
             ));
         }

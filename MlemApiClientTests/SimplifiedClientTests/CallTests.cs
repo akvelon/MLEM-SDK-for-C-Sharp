@@ -1,6 +1,4 @@
 using ModelGenerator.Example;
-using ModelGenerator;
-using System.Collections.Generic;
 
 namespace MlemApiClientTests.SimplifiedClientTests
 {

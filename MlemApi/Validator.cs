@@ -1,6 +1,8 @@
+using System.Collections;
 using System.Data;
 using Microsoft.Extensions.Logging;
 using MlemApi.Dto;
+using MlemApi.Dto.DataFrameArgumentData;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -89,52 +91,7 @@ namespace MlemApi
                 var listElementsQueue = new Queue<Tuple<object, int>>();
                 listElementsQueue.Enqueue(Tuple.Create<object, int>(parsedResponse, 0));
 
-                while (listElementsQueue.Count > 0)
-                {
-                    var currentListElement = listElementsQueue.Dequeue();
-
-                    if (currentListElement.Item1 == null)
-                    {
-                        throw new NoNullAllowedException($"There is a null value in response.");
-                    }
-
-                    if (currentListElement.Item1 is JArray)
-                    {
-                        long? expectedArrayLength;
-                        try
-                        {
-                            expectedArrayLength = methodReturnDataSchema.Shape.ElementAt(currentListElement.Item2);
-                        }
-                        catch (Exception)
-                        {
-                            throw new ArgumentException($"Unexpected level of nesting in response data - appeared {currentListElement.Item2}, but {methodReturnDataSchema.Shape.Count() - 1} is expected as maximum");
-                        }
-
-                        var currentArray = currentListElement.Item1 as JArray;
-
-                        if (expectedArrayLength != null && currentArray.Count != expectedArrayLength)
-                        {
-                            throw new ArgumentException($"Array {currentArray} does not have expected length - actual is {currentArray.Count}, but {expectedArrayLength} expected");
-                        }
-
-                        foreach (var subElement in currentArray)
-                        {
-                            listElementsQueue.Enqueue(Tuple.Create<object, int>(subElement, currentListElement.Item2 + 1));
-                        }
-                    }
-                    else
-                    {
-                        if (currentListElement.Item2 != methodReturnDataSchema.Shape.Count())
-                        {
-                            throw new ArgumentException($"Primitive values on nesting level {currentListElement.Item2} appeared, but expected on {methodReturnDataSchema.Shape.Count()} level only");
-                        }
-                        if (methodReturnDataSchema?.ValueType != null)
-                        {
-                            ValidateJsonValue(currentListElement.Item1, methodReturnDataSchema.ValueType);
-                        }
-                    }
-                }
-
+                ValidateNdarrayData<JArray, JArray>(parsedResponse, methodReturnDataSchema);
             }
             catch (JsonReaderException e)
             {
@@ -142,7 +99,7 @@ namespace MlemApi
             }
         }
 
-        private void ValidateJsonValue(object jsonValue, string expectedNumPyTypeName)
+        private void ValidateStringifiedValue(object jsonValue, string expectedNumPyTypeName)
         {
             string expectedTypeName;
             var valueString = jsonValue.ToString();
@@ -153,7 +110,7 @@ namespace MlemApi
             }
             catch (KeyNotFoundException)
             {
-                throw new KeyNotFoundException($"Unknown value type in response - {expectedNumPyTypeName}");
+                throw new KeyNotFoundException($"Unknown value type - {expectedNumPyTypeName}");
             }
 
             try
@@ -228,42 +185,59 @@ namespace MlemApi
             }
         }
 
-        private void ValidateArgument<incomeT>(incomeT Value, string methodName, Dictionary<string, string> modelColumnToPropNamesMap = null)
+        private void ValidateArgument<incomeT>(incomeT value, string methodName, Dictionary<string, string> modelColumnToPropNamesMap = null)
         {
             var argumentsSchemeData = GetMethodDescriptionFromSchema(methodName)?.ArgsData;
-
-            if (modelColumnToPropNamesMap == null)
-            {
-                throw new ArgumentNullException($"Map of model column names to request object properties is empty.");
-            }
 
             if (argumentsSchemeData == null)
             {
                 throw new ArgumentNullException($"Empty arguments scheme data for method {methodName}.");
             }
 
-            if (Value.GetType().GetProperties().Count() > argumentsSchemeData.Count())
+            if (argumentsSchemeData is DataFrameData)
             {
-                throw new ArgumentException($"Count of request object properties is not equal to properties in schema: expected {argumentsSchemeData.Count()}, but actual is {Value.GetType().GetProperties().Count()}");
+                ValidateDataframeData(value, argumentsSchemeData as DataFrameData, modelColumnToPropNamesMap);
+            }
+            else if (argumentsSchemeData is NdarrayData)
+            {
+                ValidateNdarrayData<incomeT, ICollection>(value, argumentsSchemeData as NdarrayData);
+            }
+        }
+
+        private void ValidateDataframeData<incomeT>(incomeT value, DataFrameData dataFrameData, Dictionary<string, string> modelColumnToPropNamesMap = null)
+        {
+            if (modelColumnToPropNamesMap == null)
+            {
+                throw new ArgumentNullException($"Map of model column names to request object properties is empty.");
             }
 
-            foreach (MethodArgumentData argumentData in argumentsSchemeData)
+            var columnsCountInSchema = dataFrameData.ColumnsData.Count();
+            var actualColumnsCount = value.GetType().GetProperties().Count();
+
+            if (actualColumnsCount > columnsCountInSchema)
+            {
+                throw new ArgumentException($"Count of request object properties is not equal to properties in schema: expected {actualColumnsCount}, but actual is {columnsCountInSchema}");
+            }
+
+            var columnsData = dataFrameData.ColumnsData;
+
+            foreach (var columnData in columnsData)
             {
                 string? objPropertyName;
                 Type? propertyType;
 
                 try
                 {
-                    objPropertyName = modelColumnToPropNamesMap[argumentData.ArgumentName];
+                    objPropertyName = modelColumnToPropNamesMap[columnData.Name];
                 }
                 catch (KeyNotFoundException)
                 {
-                    throw new ArgumentException($"Can't find '{argumentData.ArgumentName}' key in passed column names map");
+                    throw new ArgumentException($"Can't find '{columnData.Name}' key in passed column names map");
                 }
 
                 try
                 {
-                    var property = Value.GetType().GetProperty(objPropertyName);
+                    var property = value.GetType().GetProperty(objPropertyName);
 
                     if (property == null)
                     {
@@ -279,11 +253,65 @@ namespace MlemApi
 
                 try
                 {
-                    ValidateValueType(argumentData.ArgumentType, propertyType.Name);
+                    ValidateValueType(columnData.Dtype, propertyType.Name);
                 }
                 catch (Exception e)
                 {
-                    throw new ArgumentException($"Invalid argument '{argumentData.ArgumentName}': {e.Message}");
+                    throw new ArgumentException($"Invalid argument '{columnData.Name}': {e.Message}");
+                }
+            }
+        }
+
+        private void ValidateNdarrayData<incomeT, ArrayType>(incomeT value, NdarrayData ndArrayData) where ArrayType : class
+        {
+            var requestArray = value as ArrayType;
+
+            var listElementsQueue = new Queue<Tuple<object, int>>();
+            listElementsQueue.Enqueue(Tuple.Create<object, int>(requestArray, 0));
+
+            while (listElementsQueue.Count > 0)
+            {
+                var currentListElement = listElementsQueue.Dequeue();
+
+                if (currentListElement.Item1 == null)
+                {
+                    throw new NoNullAllowedException($"There is a null value in ndarray.");
+                }
+
+                if (currentListElement.Item1 is ICollection)
+                {
+                    long? expectedArrayLength;
+                    try
+                    {
+                        expectedArrayLength = ndArrayData.Shape.ElementAt(currentListElement.Item2);
+                    }
+                    catch (Exception)
+                    {
+                        throw new ArgumentException($"Unexpected level of nesting in response data - appeared {currentListElement.Item2}, but {ndArrayData.Shape.Count() - 1} is expected as maximum");
+                    }
+
+                    var currentArray = currentListElement.Item1 as ICollection;
+
+                    if (expectedArrayLength != null && currentArray.Count != expectedArrayLength)
+                    {
+                        throw new ArgumentException($"Array {currentArray} does not have expected length - actual is {currentArray.Count}, but {expectedArrayLength} expected");
+                    }
+
+                    foreach (var subElement in currentArray)
+                    {
+                        listElementsQueue.Enqueue(Tuple.Create<object, int>(subElement, currentListElement.Item2 + 1));
+                    }
+                }
+                else
+                {
+                    if (currentListElement.Item2 != ndArrayData.Shape.Count())
+                    {
+                        throw new ArgumentException($"Primitive values on nesting level {currentListElement.Item2} appeared, but expected on {ndArrayData.Shape.Count()} level only");
+                    }
+                    if (ndArrayData?.Dtype != null)
+                    {
+                        ValidateStringifiedValue(currentListElement.Item1, ndArrayData.Dtype);
+                    }
                 }
             }
         }

@@ -3,7 +3,8 @@ using System.Text.Json;
 using System.Net.Mime;
 using Microsoft.Extensions.Logging;
 using MlemApi.Dto;
-using ModelGenerator;
+using MlemApi.Serializing;
+using MlemApi.Dto.DataFrameArgumentData;
 
 namespace MlemApi
 {
@@ -29,7 +30,7 @@ namespace MlemApi
         /// <param name="httpClient"></param>
         /// <param name="configuraion"></param>
         public MlemApiClient(string url, ILogger<MlemApiClient>? logger = null, HttpClient? httpClient = null, 
-            IRequestValueSerializer? requestSerializer = null, IValidator? validator = null, bool argumentTypesValidationIsOn = true)
+            IRequestValuesSerializer? requestSerializer = null, IValidator? validator = null, bool argumentTypesValidationIsOn = true)
         {
             _httpClient = httpClient ?? new HttpClient();
             _logger = logger;
@@ -94,13 +95,38 @@ namespace MlemApi
         {
             this._validator?.ValidateMethod(methodName);
 
+            var methodDescription = _apiDescription.Methods.First(m => m.MethodName == methodName);
+
+            var requestObjectType = GetMethodArgumentType(methodDescription);
+
             this._validator?.ValidateValues(values, methodName, ArgumentTypesValidationIsOn, modelColumnNamesMap);
 
-            var argsName = _apiDescription.Methods.First(m => m.MethodName == methodName).ArgsName;
+            var argsName = methodDescription.ArgsName;
 
-            var jsonRequest = _requestBuilder.BuildRequest(argsName, values);
+            var jsonRequest = _requestBuilder.BuildRequest(argsName, values, requestObjectType);
 
             return await SendPostRequestAsync<ResultType?>(methodName, jsonRequest);
+        }
+
+        private ApiDescription GetDescription()
+        {
+            _logger?.LogInformation("Request command: interface.json");
+
+            try
+            {
+                var requestTask = _httpClient.GetStringAsync("interface.json");
+                requestTask.Wait();
+
+                var response = requestTask.Result;
+
+                return DescriptionParser.GetApiDescription(response);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError("Exception of getting API description", ex);
+
+                throw;
+            }
         }
 
         private async Task<T?> SendPostRequestAsync<T>(string command, string requestJsonString)
@@ -156,25 +182,12 @@ namespace MlemApi
             }
         }
 
-        private ApiDescription GetDescription()
-        {
-            _logger?.LogInformation("Request command: interface.json");
-
-            try
+        private string GetMethodArgumentType(MethodDescription methodDescription)
+            => methodDescription.ArgsData switch
             {
-                var requestTask = _httpClient.GetStringAsync("interface.json");
-                requestTask.Wait();
-
-                var response = requestTask.Result;
-
-                return DescriptionParser.GetApiDescription(response);
-            }
-            catch (Exception ex)
-            {
-                _logger?.LogError("Exception of getting API description", ex);
-
-                throw;
-            }
-        }
+                NdarrayData => "ndarray",
+                DataFrameData => "dataframe",
+                _ => throw new Exception("Unknown method argument type - dataframe or ndarray is expected")
+            };
     }
 }

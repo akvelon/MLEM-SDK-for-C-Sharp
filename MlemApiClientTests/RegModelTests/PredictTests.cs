@@ -1,5 +1,4 @@
 using ModelGenerator.Example;
-using ModelGenerator;
 
 namespace MlemApiClientTests.SvmModelTests
 {

@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using MlemApi.Dto;
+using MlemApi.Dto.DataFrameArgumentData;
 
 namespace MlemApi
 {
@@ -38,48 +39,85 @@ namespace MlemApi
             return description;
         }
 
-        private static IEnumerable<MethodArgumentData> GetArgsData(JsonElement.ObjectEnumerator argsObjectEnumerator)
+        private static NdarrayData GetNdarrayData(JsonElement.ObjectEnumerator objectEnumerator)
+        {
+            var shapeArray = objectEnumerator.First(e => e.Name == "shape")
+                .Value.EnumerateArray();
+
+            var dType = objectEnumerator.First(e => e.Name == "dtype")
+                .Value.GetString();
+
+            var shapeList = shapeArray.Select<JsonElement, int?>(shapeElement =>
+            {
+                if (!Int32.TryParse(shapeElement.ToString(), out int shapeNumericValue))
+                {
+                    return null;
+                }
+
+                return shapeNumericValue;
+            }).ToList();
+
+            return new NdarrayData()
+            {
+                Shape = shapeList,
+                Dtype = dType,
+            };
+        }
+
+        private static DataFrameData GetDataFrameData(JsonElement.ObjectEnumerator objectEnumerator)
+        {
+            var argumentNames = objectEnumerator.First(e => e.Name == "columns")
+             .Value.EnumerateArray()
+             .Select(element => element.GetString())
+             .ToList();
+
+            var argumentTypes = objectEnumerator.First(e => e.Name == "dtypes")
+              .Value.EnumerateArray()
+              .Select(element => element.GetString())
+              .ToList();
+
+            var columnsData = argumentNames.Select((argumentName, index) => new DataFrameColumnData
+            {
+                Name = argumentName,
+                Dtype = argumentTypes[index],
+            });
+
+            return new DataFrameData
+            {
+                ColumnsData = columnsData,
+            };
+        }
+
+        private static IMethodArgumentData GetArgsData(JsonElement.ObjectEnumerator argsObjectEnumerator)
         {
             var typesDataObject = argsObjectEnumerator.First(e => e.Name == "type_")
                 .Value.EnumerateObject();
 
-            var argumentNames = typesDataObject.First(e => e.Name == "columns")
-                .Value.EnumerateArray()
-                .Select(element => element.GetString())
-                .ToList();
+            var dataType = typesDataObject.First(e => e.Name == "type")
+               .Value.ToString();
 
-            var argumentTypes = typesDataObject.First(e => e.Name == "dtypes")
-                .Value.EnumerateArray()
-                .Select(element => element.GetString())
-                .ToList();
-
-            return argumentNames.Select((argumentName, index) => new MethodArgumentData
+            if (dataType == "dataframe")
             {
-                ArgumentName = argumentName,
-                ArgumentType = argumentTypes[index]
-            });
+                return DescriptionParser.GetDataFrameData(typesDataObject);
+            }
+            else if (dataType == "ndarray")
+            {
+                var argumentNdArrayData = DescriptionParser.GetNdarrayData(typesDataObject);
+                var shapeList = argumentNdArrayData.Shape as List<int?>;
+                argumentNdArrayData.Shape = shapeList.GetRange(1, shapeList.Count - 1);
+
+                return argumentNdArrayData;
+            }
+            else
+            {
+                throw new ArgumentException($"Uknown method arguments data: {dataType}");
+            }
         }
 
-        private static MethodReturnData GetReturnData(JsonElement.ObjectEnumerator returnObjectEnumerator)
+        private static NdarrayData GetReturnData(JsonElement.ObjectEnumerator returnObjectEnumerator)
         {
-            var shapeArray = returnObjectEnumerator.First(e => e.Name == "shape")
-                .Value.EnumerateArray();
-
-            var valueType = returnObjectEnumerator.First(e => e.Name == "dtype")
-                .Value.GetString();
-
-            return new MethodReturnData() {
-                Shape = shapeArray.Select<JsonElement, int?>(shapeElement =>
-                {
-                    if (!Int32.TryParse(shapeElement.ToString(), out int shapeNumericValue))
-                    {
-                        return null;
-                    }
-
-                    return shapeNumericValue;
-                }).ToList(),
-                ValueType = valueType,
-            };
+            // Considering that the only return data possible is ndarray
+            return DescriptionParser.GetNdarrayData(returnObjectEnumerator);
         }
     }
 }

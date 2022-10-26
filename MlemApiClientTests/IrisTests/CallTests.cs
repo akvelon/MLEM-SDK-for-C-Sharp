@@ -1,5 +1,4 @@
 using ModelGenerator.Example;
-using ModelGenerator;
 using MlemApiClientTests.IrisTests.TestClasses;
 
 namespace MlemApiClientTests.IrisTests

@@ -3,10 +3,11 @@ using System.Data;
 using Microsoft.Extensions.Logging;
 using MlemApi.Dto;
 using MlemApi.Dto.DataFrameArgumentData;
+using MlemApi.Validation.Exceptions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace MlemApi
+namespace MlemApi.Validation
 {
     internal class Validator : IValidator
     {
@@ -34,7 +35,7 @@ namespace MlemApi
 
         public Validator(ApiDescription _apiDescription, ILogger logger = null)
         {
-            this._logger = logger;
+            _logger = logger;
             this._apiDescription = _apiDescription;
         }
 
@@ -46,7 +47,7 @@ namespace MlemApi
 
                 _logger?.LogError(message);
 
-                throw new InvalidOperationException(message);
+                throw new IllegalPathException(message);
             }
         }
 
@@ -106,7 +107,7 @@ namespace MlemApi
 
             try
             {
-                expectedTypeName = this.typesMap[expectedNumPyTypeName];
+                expectedTypeName = typesMap[expectedNumPyTypeName];
             }
             catch (KeyNotFoundException)
             {
@@ -119,69 +120,68 @@ namespace MlemApi
                 {
                     case "Double":
                         {
-                            Double.Parse(valueString);
+                            double.Parse(valueString);
                             break;
                         }
                     case "Single":
                         {
-                            Single.Parse(valueString);
+                            float.Parse(valueString);
                             break;
                         }
                     case "SByte":
                         {
-                            SByte.Parse(valueString);
+                            sbyte.Parse(valueString);
                             break;
                         }
                     case "Int16":
                         {
-                            Int16.Parse(valueString);
+                            short.Parse(valueString);
                             break;
                         }
                     case "Int32":
                         {
-                            Int32.Parse(valueString);
+                            int.Parse(valueString);
                             break;
                         }
                     case "Int64":
                         {
-                            Int64.Parse(valueString);
+                            long.Parse(valueString);
                             break;
                         }
                     case "Byte":
                         {
-                            Byte.Parse(valueString);
+                            byte.Parse(valueString);
                             break;
                         }
                     case "UInt16":
                         {
-                            UInt16.Parse(valueString);
+                            ushort.Parse(valueString);
                             break;
                         }
                     case "UInt32":
                         {
-                            UInt32.Parse(valueString);
+                            uint.Parse(valueString);
                             break;
                         }
                     case "UInt64":
                         {
-                            UInt64.Parse(valueString);
+                            ulong.Parse(valueString);
                             break;
                         }
                     case "Boolean":
                         {
-                            Boolean.Parse(valueString);
+                            bool.Parse(valueString);
                             break;
                         }
                     default:
                         {
-                            throw new Exception($"No validation logic for type {expectedTypeName}");
-                            break;
+                            throw new NotSupportedException($"No validation logic for type {expectedTypeName}");
                         }
                 }
             }
             catch (FormatException)
             {
-                throw new FormatException($"Value '{valueString}' is not compatible with expected type - {expectedTypeName}");
+                throw new InvalidTypeException($"Value '{valueString}' is not compatible with expected type - {expectedTypeName}");
             }
         }
 
@@ -191,7 +191,7 @@ namespace MlemApi
 
             if (argumentsSchemeData == null)
             {
-                throw new ArgumentNullException($"Empty arguments scheme data for method {methodName}.");
+                throw new InvalidApiSchemaException($"Empty arguments scheme data for method {methodName}.");
             }
 
             if (argumentsSchemeData is DataFrameData)
@@ -216,7 +216,7 @@ namespace MlemApi
 
             if (actualColumnsCount > columnsCountInSchema)
             {
-                throw new ArgumentException($"Count of request object properties is not equal to properties in schema: expected {actualColumnsCount}, but actual is {columnsCountInSchema}");
+                throw new IllegalColumnsNumberException($"Count of request object properties is not equal to properties in schema: expected {actualColumnsCount}, but actual is {columnsCountInSchema}");
             }
 
             var columnsData = dataFrameData.ColumnsData;
@@ -232,7 +232,7 @@ namespace MlemApi
                 }
                 catch (KeyNotFoundException)
                 {
-                    throw new ArgumentException($"Can't find '{columnData.Name}' key in passed column names map");
+                    throw new KeyNotFoundException($"Can't find '{columnData.Name}' key in passed column names map");
                 }
 
                 try
@@ -248,17 +248,10 @@ namespace MlemApi
                 }
                 catch (Exception e)
                 {
-                    throw new ArgumentException($"Can't get value property '{objPropertyName}': {e.Message}", e);
+                    throw new KeyNotFoundException($"Can't find '{objPropertyName}' property in request object, although it exists in schema");
                 }
 
-                try
-                {
-                    ValidateValueType(columnData.Dtype, propertyType.Name);
-                }
-                catch (Exception e)
-                {
-                    throw new ArgumentException($"Invalid argument '{columnData.Name}': {e.Message}");
-                }
+                ValidateValueType(columnData.Dtype, propertyType.Name);
             }
         }
 
@@ -287,26 +280,26 @@ namespace MlemApi
                     }
                     catch (Exception)
                     {
-                        throw new ArgumentException($"Unexpected level of nesting in response data - appeared {currentListElement.Item2}, but {ndArrayData.Shape.Count() - 1} is expected as maximum");
+                        throw new IllegalArrayNestingLevel($"Unexpected level of nesting in response data - appeared {currentListElement.Item2}, but {ndArrayData.Shape.Count() - 1} is expected as maximum");
                     }
 
                     var currentArray = currentListElement.Item1 as ICollection;
 
                     if (expectedArrayLength != null && currentArray.Count != expectedArrayLength)
                     {
-                        throw new ArgumentException($"Array {currentArray} does not have expected length - actual is {currentArray.Count}, but {expectedArrayLength} expected");
+                        throw new IllegalArrayLength($"Array {currentArray} does not have expected length - actual is {currentArray.Count}, but {expectedArrayLength} expected");
                     }
 
                     foreach (var subElement in currentArray)
                     {
-                        listElementsQueue.Enqueue(Tuple.Create<object, int>(subElement, currentListElement.Item2 + 1));
+                        listElementsQueue.Enqueue(Tuple.Create(subElement, currentListElement.Item2 + 1));
                     }
                 }
                 else
                 {
                     if (currentListElement.Item2 != ndArrayData.Shape.Count())
                     {
-                        throw new ArgumentException($"Primitive values on nesting level {currentListElement.Item2} appeared, but expected on {ndArrayData.Shape.Count()} level only");
+                        throw new IllegalArrayNestingLevel($"Primitive values on nesting level {currentListElement.Item2} appeared, but expected on {ndArrayData.Shape.Count()} level only");
                     }
                     if (ndArrayData?.Dtype != null)
                     {
@@ -323,7 +316,7 @@ namespace MlemApi
 
             try
             {
-                expectedTypeName = this.typesMap[typeNameFromSchema];
+                expectedTypeName = typesMap[typeNameFromSchema];
             }
             catch (KeyNotFoundException)
             {
@@ -333,13 +326,13 @@ namespace MlemApi
             if (expectedTypeName != actualTypeName)
             {
                 var expectedTypeString = unknownType ? $"equivalent of {actualTypeName}" : expectedTypeName;
-                throw new ArgumentException($"incorrect type - current is {actualTypeName}, but {expectedTypeString} expected");
+                throw new InvalidTypeException($"incorrect type - current is {actualTypeName}, but {expectedTypeString} expected");
             }
         }
 
         private MethodDescription GetMethodDescriptionFromSchema(string methodName)
         {
-            return this._apiDescription.Methods
+            return _apiDescription.Methods
                 .First(methodDescription => methodDescription.MethodName == methodName);
         }
     }

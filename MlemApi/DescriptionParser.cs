@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using MlemApi.Dto;
 using MlemApi.Dto.DataFrameArgumentData;
+using MlemApi.Validation.Exceptions;
 
 namespace MlemApi
 {
@@ -19,21 +20,28 @@ namespace MlemApi
 
             foreach (var jsonMethodElement in jsonMethodElementsEnumerator)
             {
-                var argsObject = jsonMethodElement.Value
+                try
+                {
+                    var argsObject = jsonMethodElement.Value
                         .EnumerateObject().First(e => e.Name == "args").Value
                         .EnumerateArray().First()
                         .EnumerateObject();
 
-                var returnDataObject = jsonMethodElement.Value
-                        .EnumerateObject().First(e => e.Name == "returns").Value.EnumerateObject();
+                    var returnDataObject = jsonMethodElement.Value
+                            .EnumerateObject().First(e => e.Name == "returns").Value.EnumerateObject();
 
-                description.Methods.Add(new MethodDescription
+                    description.Methods.Add(new MethodDescription
+                    {
+                        MethodName = jsonMethodElement.Name,
+                        ArgsName = argsObject.First(e => e.Name == "name").Value.GetString(),
+                        ArgsData = DescriptionParser.GetArgsData(argsObject),
+                        ReturnData = DescriptionParser.GetReturnData(returnDataObject),
+                    });
+                }
+                catch (Exception ex)
                 {
-                    MethodName = jsonMethodElement.Name,
-                    ArgsName = argsObject.First(e => e.Name == "name").Value.GetString(),
-                    ArgsData = DescriptionParser.GetArgsData(argsObject),
-                    ReturnData = DescriptionParser.GetReturnData(returnDataObject),
-                }) ;
+                    throw new InvalidApiSchemaException("Invalid api schema", ex);
+                }
             }
 
             return description;

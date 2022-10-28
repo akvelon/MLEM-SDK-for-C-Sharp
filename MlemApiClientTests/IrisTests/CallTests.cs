@@ -1,5 +1,6 @@
 using ModelGenerator.Example;
 using MlemApiClientTests.IrisTests.TestClasses;
+using MlemApi.Validation.Exceptions;
 
 namespace MlemApiClientTests.IrisTests
 {
@@ -51,7 +52,7 @@ namespace MlemApiClientTests.IrisTests
         [Test]
         public void IncorrectMethodTest()
         {
-            Assert.ThrowsAsync<InvalidOperationException>(() => _client.CallAsync<List<List<double>>, Iris?>("predict_proba_2", new List<Iris>()));
+            Assert.ThrowsAsync<IllegalPathException>(() => _client.CallAsync<List<List<double>>, Iris?>("predict_proba_2", new List<Iris>()));
         }
 
         [Test]
@@ -91,7 +92,7 @@ namespace MlemApiClientTests.IrisTests
         {
             _client.ArgumentTypesValidationIsOn = true;
 
-            Assert.ThrowsAsync<ArgumentException>(() => _client.CallAsync<List<List<double>>, IrisWithInvalidArgumentType?>("predict_proba", new List<IrisWithInvalidArgumentType>
+            Assert.ThrowsAsync<InvalidTypeException>(() => _client.CallAsync<List<List<double>>, IrisWithInvalidArgumentType?>("predict_proba", new List<IrisWithInvalidArgumentType>
                 {
                     new IrisWithInvalidArgumentType
                     {
@@ -117,7 +118,7 @@ namespace MlemApiClientTests.IrisTests
         {
             _client.ArgumentTypesValidationIsOn = true;
 
-            Assert.ThrowsAsync<ArgumentException>(() => _client.CallAsync<List<List<double>>, IrisWithMissingColumn?>("predict_proba", new List<IrisWithMissingColumn>
+            Assert.ThrowsAsync<KeyNotFoundException>(() => _client.CallAsync<List<List<double>>, IrisWithMissingColumn?>("predict_proba", new List<IrisWithMissingColumn>
                 {
                     new IrisWithMissingColumn
                     {
@@ -141,7 +142,7 @@ namespace MlemApiClientTests.IrisTests
         {
             _client.ArgumentTypesValidationIsOn = true;
 
-            Assert.ThrowsAsync<ArgumentException>(() => _client.CallAsync<List<List<double>>, IrisWithMissingColumn>("predict_proba", new List<IrisWithMissingColumn>
+            Assert.ThrowsAsync<KeyNotFoundException>(() => _client.CallAsync<List<List<double>>, IrisWithMissingColumn>("predict_proba", new List<IrisWithMissingColumn>
                 {
                     new IrisWithMissingColumn
                     {
@@ -165,7 +166,7 @@ namespace MlemApiClientTests.IrisTests
         {
             _client.ArgumentTypesValidationIsOn = true;
 
-            Assert.ThrowsAsync<ArgumentException>(() => _client.CallAsync<List<List<double>>, IrisWithUnknownColumnName>("predict_proba", new List<IrisWithUnknownColumnName>
+            Assert.ThrowsAsync<KeyNotFoundException>(() => _client.CallAsync<List<List<double>>, IrisWithUnknownColumnName>("predict_proba", new List<IrisWithUnknownColumnName>
                 {
                     new IrisWithUnknownColumnName
                     {
@@ -192,7 +193,7 @@ namespace MlemApiClientTests.IrisTests
             var client = GetClientWithMockedHttpClient("[1,2]");
             client.ResponseValidationIsOn = true;
 
-            var exception = Assert.ThrowsAsync<ArgumentException>(() => client.CallAsync<List<List<double>>, Iris>("predict_proba", new List<Iris>
+            var exception = Assert.ThrowsAsync<IllegalArrayNestingLevel>(() => client.CallAsync<List<List<double>>, Iris>("predict_proba", new List<Iris>
                 {
                     new Iris
                     {
@@ -254,7 +255,7 @@ namespace MlemApiClientTests.IrisTests
             var client = GetClientWithMockedHttpClient("[1,\"text\"]");
             client.ResponseValidationIsOn = true;
 
-            var exception = Assert.ThrowsAsync<FormatException>(() => client.CallAsync<List<List<double>>, Iris>("predict", new List<Iris>
+            var exception = Assert.ThrowsAsync<InvalidTypeException>(() => client.CallAsync<List<List<double>>, Iris>("predict", new List<Iris>
                 {
                     new Iris
                     {
@@ -283,7 +284,7 @@ namespace MlemApiClientTests.IrisTests
             var client = GetClientWithMockedHttpClient("[[1,4,10,2]]");
             client.ResponseValidationIsOn = true;
 
-            var exception = Assert.ThrowsAsync<ArgumentException>(() => client.CallAsync<List<List<double>>, Iris>("predict_proba", new List<Iris>
+            var exception = Assert.ThrowsAsync<IllegalArrayLength>(() => client.CallAsync<List<List<double>>, Iris>("predict_proba", new List<Iris>
                 {
                     new Iris
                     {

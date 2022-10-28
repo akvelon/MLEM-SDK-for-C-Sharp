@@ -5,6 +5,8 @@ using Microsoft.Extensions.Logging;
 using MlemApi.Dto;
 using MlemApi.Serializing;
 using MlemApi.Dto.DataFrameArgumentData;
+using MlemApi.Validation.Exceptions;
+using MlemApi.Validation;
 
 namespace MlemApi
 {

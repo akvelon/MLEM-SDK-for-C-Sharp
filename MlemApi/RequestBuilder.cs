@@ -9,7 +9,6 @@ namespace MlemApi
     {
         private readonly IRequestValuesSerializer _requestValueSerializer;
 
-
         public RequestBuilder(IRequestValuesSerializer requestValueSerializer)
         {
             _requestValueSerializer = requestValueSerializer;

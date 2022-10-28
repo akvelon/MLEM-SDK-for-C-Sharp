@@ -1,4 +1,4 @@
-﻿namespace MlemApi
+﻿namespace MlemApi.Validation
 {
     public interface IValidator
     {

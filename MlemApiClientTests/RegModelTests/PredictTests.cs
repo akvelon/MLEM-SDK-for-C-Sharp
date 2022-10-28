@@ -1,3 +1,4 @@
+using MlemApi.Validation.Exceptions;
 using ModelGenerator.Example;
 
 namespace MlemApiClientTests.SvmModelTests
@@ -40,7 +41,7 @@ namespace MlemApiClientTests.SvmModelTests
         [Test]
         public void IncorrectMethodTest()
         {
-            Assert.ThrowsAsync<InvalidOperationException>(() => _client.CallAsync<List<long>, SvmModel>(
+            Assert.ThrowsAsync<IllegalPathException>(() => _client.CallAsync<List<long>, SvmModel>(
                 "predict_1",
                 new List<SvmModel>(),
                 ModelGenerator.Sample_models.ValidationMaps.svmModelMap

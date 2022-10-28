@@ -1,3 +1,4 @@
+using MlemApi.Validation.Exceptions;
 using ModelGenerator.Example;
 
 namespace MlemApiClientTests.SimplifiedClientTests
@@ -54,7 +55,7 @@ namespace MlemApiClientTests.SimplifiedClientTests
         [Test]
         public void IncorrectMethodTest()
         {
-            Assert.ThrowsAsync<InvalidOperationException>(() => _client.CallAsync<List<List<double>>, Iris>(
+            Assert.ThrowsAsync<IllegalPathException>(() => _client.CallAsync<List<List<double>>, Iris>(
                 "predict_proba_2",
                 new List<Iris>(),
                 ModelGenerator.Sample_models.ValidationMaps.irisColumnsMap

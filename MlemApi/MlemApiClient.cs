@@ -43,7 +43,7 @@ namespace MlemApi
 
             _apiDescription = GetDescription();
 
-            _validator = validator ?? new Validator(_apiDescription, _logger);
+            _validator = validator ?? new Validator(_apiDescription, null, _logger);
 
             ArgumentTypesValidationIsOn = argumentTypesValidationIsOn;
         }
@@ -110,7 +110,7 @@ namespace MlemApi
             return await SendPostRequestAsync<ResultType?>(methodName, jsonRequest);
         }
 
-        private ApiDescription GetDescription()
+        internal ApiDescription GetDescription()
         {
             _logger?.LogInformation("Request command: interface.json");
 

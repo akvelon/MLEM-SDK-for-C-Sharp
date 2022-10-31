@@ -11,5 +11,6 @@
         IrisRequestCheckMissingColumn,
         IrisRequestCheckUnknownColumn,
         DigitsRandomForest,
+        ClassGeneration,
     }
 }

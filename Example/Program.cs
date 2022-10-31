@@ -29,6 +29,7 @@ try
         TestCases.IrisRequestCheckInvalidArgument,
         TestCases.IrisRequestCheckMissingColumn,
         TestCases.IrisRequestCheckUnknownColumn,
+        TestCases.ClassGeneration,
     };
     
     foreach (var currentCase in cases)

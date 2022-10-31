@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using ModelGenerator.Example;
 using MlemApi.Serializing;
+using MlemApi.ClassesGenerator;
 
 namespace Example
 {
@@ -48,6 +49,9 @@ namespace Example
                     break;
                 case TestCases.DigitsRandomForest:
                     await RunDigitsRandomForest();
+                    break;
+                case TestCases.ClassGeneration:
+                    RunClassGeneration();
                     break;
                 default:
                     throw new NotImplementedException();
@@ -259,6 +263,13 @@ namespace Example
             ShowResult(await mlemClient.PredictAsync<List<int>, List<double>>(
                 inputData
             ));
+        }
+
+        public void RunClassGeneration()
+        {
+            var modelGenerator = new ModelClassesGenerator();
+            var client = new MlemApiClient("https://example-mlem-get-started-app.herokuapp.com");
+            modelGenerator.GenerateClasses("generatedClassesFolder", client, "CustomNamespace");
         }
 
         private MlemApiClient GetIrisClient()

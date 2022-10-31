@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using MlemApi.Dto;
 using MlemApi.Dto.DataFrameArgumentData;
 using MlemApi.Validation.Exceptions;
+using MlemApi.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -13,30 +14,13 @@ namespace MlemApi.Validation
     {
         private readonly ILogger? _logger;
         private readonly ApiDescription _apiDescription;
+        private readonly IPrimitiveTypeHelper primitiveTypeHelper;
 
-        /// <summary>
-        /// Map of Numpy types (used in sklearn) to C# primitive types
-        /// See https://gist.github.com/robbmcleod/73ca42da5984e6d0e5b6ad28bc4a504efor for the referenced list of types
-        /// </summary>
-        private readonly Dictionary<string, string> typesMap = new Dictionary<string, string>()
-        {
-            { "float32", "Single" },
-            { "float64", "Double" },
-            { "int8", "SByte" },
-            { "int16", "Int16" },
-            { "int32", "Int32" },
-            { "int64", "Int64" },
-            { "uint8", "Byte" },
-            { "uint16", "UInt16" },
-            { "uint32", "UInt32" },
-            { "uint64", "UInt64" },
-            { "bool", "Boolean" },
-        };
-
-        public Validator(ApiDescription _apiDescription, ILogger logger = null)
+        public Validator(ApiDescription _apiDescription, IPrimitiveTypeHelper primitiveTypeHelper = null, ILogger logger = null)
         {
             _logger = logger;
             this._apiDescription = _apiDescription;
+            this.primitiveTypeHelper = primitiveTypeHelper ?? new PrimitiveTypeHelper();
         }
 
         public void ValidateMethod(string methodName)
@@ -102,87 +86,9 @@ namespace MlemApi.Validation
 
         private void ValidateStringifiedValue(object jsonValue, string expectedNumPyTypeName)
         {
-            string expectedTypeName;
             var valueString = jsonValue.ToString();
 
-            try
-            {
-                expectedTypeName = typesMap[expectedNumPyTypeName];
-            }
-            catch (KeyNotFoundException)
-            {
-                throw new KeyNotFoundException($"Unknown value type - {expectedNumPyTypeName}");
-            }
-
-            try
-            {
-                switch (expectedTypeName)
-                {
-                    case "Double":
-                        {
-                            double.Parse(valueString);
-                            break;
-                        }
-                    case "Single":
-                        {
-                            float.Parse(valueString);
-                            break;
-                        }
-                    case "SByte":
-                        {
-                            sbyte.Parse(valueString);
-                            break;
-                        }
-                    case "Int16":
-                        {
-                            short.Parse(valueString);
-                            break;
-                        }
-                    case "Int32":
-                        {
-                            int.Parse(valueString);
-                            break;
-                        }
-                    case "Int64":
-                        {
-                            long.Parse(valueString);
-                            break;
-                        }
-                    case "Byte":
-                        {
-                            byte.Parse(valueString);
-                            break;
-                        }
-                    case "UInt16":
-                        {
-                            ushort.Parse(valueString);
-                            break;
-                        }
-                    case "UInt32":
-                        {
-                            uint.Parse(valueString);
-                            break;
-                        }
-                    case "UInt64":
-                        {
-                            ulong.Parse(valueString);
-                            break;
-                        }
-                    case "Boolean":
-                        {
-                            bool.Parse(valueString);
-                            break;
-                        }
-                    default:
-                        {
-                            throw new NotSupportedException($"No validation logic for type {expectedTypeName}");
-                        }
-                }
-            }
-            catch (FormatException)
-            {
-                throw new InvalidTypeException($"Value '{valueString}' is not compatible with expected type - {expectedTypeName}");
-            }
+            this.primitiveTypeHelper.ValidateType(valueString, expectedNumPyTypeName);
         }
 
         private void ValidateArgument<incomeT>(incomeT value, string methodName, Dictionary<string, string> modelColumnToPropNamesMap = null)
@@ -316,7 +222,7 @@ namespace MlemApi.Validation
 
             try
             {
-                expectedTypeName = typesMap[typeNameFromSchema];
+                expectedTypeName = this.primitiveTypeHelper.GetMappedDtype(typeNameFromSchema);
             }
             catch (KeyNotFoundException)
             {

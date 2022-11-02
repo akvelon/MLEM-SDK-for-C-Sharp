@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using ModelGenerator.Example;
 using MlemApi.Serializing;
 using MlemApi.ClassesGenerator;
+using System.Security.Cryptography;
 
 namespace Example
 {
@@ -265,11 +266,34 @@ namespace Example
             ));
         }
 
-        public void RunClassGeneration()
+        public async void RunClassGeneration()
         {
-            var modelGenerator = new ModelClassesGenerator();
-            var client = new MlemApiClient("https://example-mlem-get-started-app.herokuapp.com");
-            modelGenerator.GenerateClasses("generatedClassesFolder", client, "CustomNamespace");
+
+            string url = "http://127.0.0.1:8080/";
+            MlemApiClient mlemClient = new(url, _logger);
+            Random rand = new Random();
+            List<double> inputData = new();
+            for (var i = 0; i < 64; ++i)
+            {
+                inputData.Add(rand.NextDouble());
+            }
+
+            ShowResult(await mlemClient.PredictAsync<List<int>, List<double>>(
+                inputData
+            ));
+            // var client = new MlemApiClient("http://localhost:8080/");
+            // modelGenerator.GenerateClasses("generatedClassesFolder", client, "Example", "public");
+            /*     Random rand = new Random();
+             List<double> inputData = new();
+             for (var i = 0; i < 64; ++i)
+             {
+                 inputData.Add(rand.NextDouble());
+             }
+
+             var res = await client.CallAsync<List<int>, List<double>>("predict",
+                 inputData
+             );
+             res.ForEach(el => Console.WriteLine(el));*/
         }
 
         private MlemApiClient GetIrisClient()

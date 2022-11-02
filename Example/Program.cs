@@ -23,15 +23,10 @@ try
     ConsoleApplication consoleService = services.GetRequiredService<ConsoleApplication>();
     var cases = new List<TestCases>()
     {
-        TestCases.SingleIris,
-        TestCases.MultipleIris,
-        TestCases.IrisFileLogger,
-        TestCases.IrisRequestCheckInvalidArgument,
-        TestCases.IrisRequestCheckMissingColumn,
-        TestCases.IrisRequestCheckUnknownColumn,
+        // TestCases.DigitsRandomForest,
         TestCases.ClassGeneration,
     };
-    
+
     foreach (var currentCase in cases)
     {
         try

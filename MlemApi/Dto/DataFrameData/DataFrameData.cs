@@ -1,4 +1,4 @@
-﻿namespace MlemApi.Dto.DataFrameArgumentData
+﻿namespace MlemApi.Dto.DataFrameData
 {
     public class DataFrameData : IMethodArgumentData
     {

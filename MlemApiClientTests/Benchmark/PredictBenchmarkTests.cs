@@ -3,7 +3,7 @@ using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
 using MlemApi;
-using ModelGenerator.Example;
+using ModelRepository.SampleRequestObjects;
 
 namespace MlemApiClientTests.Benchmark
 {

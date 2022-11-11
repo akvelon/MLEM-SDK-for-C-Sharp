@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 using MlemApi.Dto;
-using MlemApi.Dto.DataFrameArgumentData;
+using MlemApi.Dto.DataFrameData;
 using MlemApi.Validation.Exceptions;
 
 namespace MlemApi
@@ -9,16 +9,12 @@ namespace MlemApi
     {
         public static ApiDescription GetApiDescription(string jsonStringDescription)
         {
-            using var jsonDocument = JsonDocument.Parse(jsonStringDescription);
-            var jsonMethodElements = jsonDocument.RootElement.GetProperty("methods");
+            using JsonDocument jsonDocument = JsonDocument.Parse(jsonStringDescription);
+            JsonElement jsonMethodElements = jsonDocument.RootElement.GetProperty("methods");
+            JsonElement.ObjectEnumerator jsonMethodElementsEnumerator = jsonMethodElements.EnumerateObject();
+            ApiDescription description = new(jsonMethodElementsEnumerator.Count());
 
-            var jsonMethodElementsEnumerator = jsonMethodElements.EnumerateObject();
-            var description = new ApiDescription
-            {
-                Methods = new List<MethodDescription>(jsonMethodElementsEnumerator.Count())
-            };
-
-            foreach (var jsonMethodElement in jsonMethodElementsEnumerator)
+            foreach (JsonProperty jsonMethodElement in jsonMethodElementsEnumerator)
             {
                 try
                 {
@@ -31,12 +27,12 @@ namespace MlemApi
                             .EnumerateObject().First(e => e.Name == "returns").Value.EnumerateObject();
 
                     description.Methods.Add(new MethodDescription
-                    {
-                        MethodName = jsonMethodElement.Name,
-                        ArgsName = argsObject.First(e => e.Name == "name").Value.GetString(),
-                        ArgsData = DescriptionParser.GetArgsData(argsObject),
-                        ReturnData = DescriptionParser.GetReturnData(returnDataObject),
-                    });
+                    (
+                        methodName: jsonMethodElement.Name,
+                        argsName: argsObject.First(e => e.Name == "name").Value.GetString(),
+                        argsData: GetArgsData(argsObject),
+                        returnData: GetReturnData(returnDataObject)
+                    ));
                 }
                 catch (Exception ex)
                 {
@@ -49,21 +45,23 @@ namespace MlemApi
 
         private static NdarrayData GetNdarrayData(JsonElement.ObjectEnumerator objectEnumerator)
         {
-            var shapeArray = objectEnumerator.First(e => e.Name == "shape")
+            JsonElement.ArrayEnumerator shapeArray = objectEnumerator.First(e => e.Name == "shape")
                 .Value.EnumerateArray();
 
-            var dType = objectEnumerator.First(e => e.Name == "dtype")
+            string? dType = objectEnumerator.First(e => e.Name == "dtype")
                 .Value.GetString();
 
-            var shapeList = shapeArray.Select<JsonElement, int?>(shapeElement =>
-            {
-                if (!Int32.TryParse(shapeElement.ToString(), out int shapeNumericValue))
+            List<int?> shapeList = shapeArray
+                .Select<JsonElement, int?>(shapeElement =>
                 {
-                    return null;
-                }
+                    if (!int.TryParse(shapeElement.ToString(), out int shapeNumericValue))
+                    {
+                        return null;
+                    }
 
-                return shapeNumericValue;
-            }).ToList();
+                    return shapeNumericValue;
+                })
+                .ToList();
 
             return new NdarrayData()
             {
@@ -104,28 +102,26 @@ namespace MlemApi
             var dataType = typesDataObject.First(e => e.Name == "type")
                .Value.ToString();
 
-            if (dataType == "dataframe")
+            return dataType switch
             {
-                return DescriptionParser.GetDataFrameData(typesDataObject);
-            }
-            else if (dataType == "ndarray")
+                "dataframe" => GetDataFrameData(typesDataObject),
+                "ndarray" => GetArgumentNdArrayData(),
+                _ => throw new ArgumentException($"Uknown method arguments data: {dataType}")
+            };
+
+            IMethodArgumentData GetArgumentNdArrayData()
             {
-                var argumentNdArrayData = DescriptionParser.GetNdarrayData(typesDataObject);
+                var argumentNdArrayData = GetNdarrayData(typesDataObject);
                 var shapeList = argumentNdArrayData.Shape as List<int?>;
                 argumentNdArrayData.Shape = shapeList.GetRange(1, shapeList.Count - 1);
-
                 return argumentNdArrayData;
-            }
-            else
-            {
-                throw new ArgumentException($"Uknown method arguments data: {dataType}");
             }
         }
 
         private static NdarrayData GetReturnData(JsonElement.ObjectEnumerator returnObjectEnumerator)
         {
             // Considering that the only return data possible is ndarray
-            return DescriptionParser.GetNdarrayData(returnObjectEnumerator);
+            return GetNdarrayData(returnObjectEnumerator);
         }
     }
 }

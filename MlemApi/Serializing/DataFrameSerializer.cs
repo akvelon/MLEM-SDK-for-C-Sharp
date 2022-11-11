@@ -4,9 +4,6 @@ namespace MlemApi.Serializing
 {
     public class DataFrameSerializer : IRequestValueSerializer
     {
-        public string Serialize<T>(T value)
-        {
-            return JObject.FromObject(value).ToString();
-        }
+        public string Serialize<T>(T value) => JObject.FromObject(value).ToString();
     }
 }

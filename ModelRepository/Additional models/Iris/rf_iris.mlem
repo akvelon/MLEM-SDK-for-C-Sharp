@@ -1,0 +1,108 @@
+artifacts:
+  data:
+    hash: 93f416c0445f42db9ece31d3580859ec
+    size: 163639
+    uri: rf_iris
+model_type:
+  methods:
+    predict:
+      args:
+      - name: data
+        type_:
+          columns:
+          - sepal length (cm)
+          - sepal width (cm)
+          - petal length (cm)
+          - petal width (cm)
+          dtypes:
+          - float64
+          - float64
+          - float64
+          - float64
+          index_cols: []
+          type: dataframe
+      name: predict
+      returns:
+        dtype: int32
+        shape:
+        - null
+        type: ndarray
+    predict_proba:
+      args:
+      - name: data
+        type_:
+          columns:
+          - sepal length (cm)
+          - sepal width (cm)
+          - petal length (cm)
+          - petal width (cm)
+          dtypes:
+          - float64
+          - float64
+          - float64
+          - float64
+          index_cols: []
+          type: dataframe
+      name: predict_proba
+      returns:
+        dtype: float64
+        shape:
+        - null
+        - 3
+        type: ndarray
+    sklearn_predict:
+      args:
+      - name: X
+        type_:
+          columns:
+          - sepal length (cm)
+          - sepal width (cm)
+          - petal length (cm)
+          - petal width (cm)
+          dtypes:
+          - float64
+          - float64
+          - float64
+          - float64
+          index_cols: []
+          type: dataframe
+      name: predict
+      returns:
+        dtype: int32
+        shape:
+        - null
+        type: ndarray
+    sklearn_predict_proba:
+      args:
+      - name: X
+        type_:
+          columns:
+          - sepal length (cm)
+          - sepal width (cm)
+          - petal length (cm)
+          - petal width (cm)
+          dtypes:
+          - float64
+          - float64
+          - float64
+          - float64
+          index_cols: []
+          type: dataframe
+      name: predict_proba
+      returns:
+        dtype: float64
+        shape:
+        - null
+        - 3
+        type: ndarray
+  type: sklearn
+object_type: model
+requirements:
+- module: sklearn
+  version: 1.1.2
+- module: pandas
+  version: 1.5.0
+- module: numpy
+  version: 1.23.3
+- module: dateutil
+  version: 2.8.2

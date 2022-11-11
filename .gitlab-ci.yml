@@ -1,4 +1,4 @@
-image: mcr.microsoft.com/dotnet/sdk:latest
+image: mcr.microsoft.com/dotnet/sdk:6.0
 
 variables:
   DLL_RELEASE_FOLDER: 'MlemApi\bin\Release\net6.0'

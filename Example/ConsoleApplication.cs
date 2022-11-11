@@ -1,8 +1,13 @@
 ﻿using MlemApi;
 using Microsoft.Extensions.Logging;
-using ModelGenerator.Example;
 using MlemApi.Serializing;
 using MlemApi.ClassesGenerator;
+using Example.Utilities;
+using ModelRepository.SampleRequestObjects;
+using ModelRepository.InvalidRequestObjects;
+using System.Collections;
+using System.CodeDom;
+using System.Security.Cryptography;
 
 namespace Example
 {
@@ -32,6 +37,15 @@ namespace Example
                 case TestCases.IrisFileLogger:
                     await RunIrisFileLoggerCase();
                     break;
+                case TestCases.MultipleIrisPredictProba:
+                    await RunMultipleIrisPredictProbaCase();
+                    break;
+                case TestCases.MultipleIrisSkLearnPredict:
+                    await RunMultipleIrisSkLearnPredictCase();
+                    break;
+                case TestCases.MultipleIrisSkLearnPredictProba:
+                    await RunMultipleIrisSkLearnPredictProbaCase();
+                    break;
                 case TestCases.Wine:
                     await RunSingleWineCase();
                     break;
@@ -39,16 +53,16 @@ namespace Example
                     await RunSvmCase();
                     break;
                 case TestCases.IrisRequestCheckMissingColumn:
-                    await IrisRequestCheckMissingColumn();
+                    await RunIrisRequestCheckMissingColumnCase();
                     break;
                 case TestCases.IrisRequestCheckUnknownColumn:
-                    await IrisRequestCheckUnknownColumn();
+                    await RunIrisRequestCheckUnknownColumnCase();
                     break;
                 case TestCases.IrisRequestCheckInvalidArgument:
-                    await IrisRequestCheckInvalidArgument();
+                    await RunIrisRequestCheckInvalidArgumentCase();
                     break;
                 case TestCases.DigitsRandomForest:
-                    await RunDigitsRandomForest();
+                    await RunDigitsCase();
                     break;
                 case TestCases.ClassGeneration:
                     RunClassGeneration();
@@ -58,78 +72,171 @@ namespace Example
             }
         }
 
-        public async Task RunSingleIrisCase()
+        private async Task RunSingleIrisCase()
         {
             string url = "https://example-mlem-get-started-app.herokuapp.com";
-            HttpClient httpClient = _httpClientFactory.CreateClient("MlemApiClient");
+            HttpClient httpClient = _httpClientFactory.CreateClient(nameof(MlemApiClient));
             MlemApiClient mlemClient = new(url, _logger, httpClient, _requestSerializer);
 
             Iris input = new()
             {
-                SepalLength = -69639435.20838484,
-                SepalWidth = 64887767.01179123,
-                PetalLength = -76043679.89193763,
-                PetalWidth = 20142568.61724788
+                SepalLength = 5.1,
+                SepalWidth = 3.5,
+                PetalLength = 1.4,
+                PetalWidth = 0.2
             };
 
-            ShowResult(await mlemClient.PredictAsync<List<long>, Iris>(
+            ShowResult<long>(await mlemClient.PredictAsync<List<long>, Iris>(
                 input,
-                ModelGenerator.Sample_models.ValidationMaps.irisColumnsMap
+                ValidationMaps.irisColumnsMap
             ));
         }
 
-        public async Task RunMultipleIrisCase()
+        private async Task RunMultipleIrisCase()
         {
             string url = "https://example-mlem-get-started-app.herokuapp.com";
-            HttpClient httpClient = _httpClientFactory.CreateClient("MlemApiClient");
+            HttpClient httpClient = _httpClientFactory.CreateClient(nameof(MlemApiClient));
             MlemApiClient mlemClient = new(url, _logger, httpClient, _requestSerializer, null, true);
 
             List<Iris> inputData = new()
             {
                 new Iris
                 {
-                    SepalLength = -69639435.20838484,
-                    SepalWidth = 64887767.01179123,
-                    PetalLength = -76043679.89193763,
-                    PetalWidth = 20142568.61724788
+                    SepalLength = 5.1,
+                    SepalWidth = 3.5,
+                    PetalLength = 1.4,
+                    PetalWidth = 0.2
                 },
                 new Iris
                 {
-                    SepalLength = 6343387.454046518,
-                    SepalWidth = -30195626.60490367,
-                    PetalLength = 64042930.90411937,
-                    PetalWidth = -69196204.98948716
+                    SepalLength = 7.6,
+                    SepalWidth = 3.0,
+                    PetalLength = 6.6,
+                    PetalWidth = 2.1
                 }
             };
 
-            ShowResult(await mlemClient.PredictAsync<List<long>, Iris>(
+            ShowResult<long>(await mlemClient.PredictAsync<List<long>, Iris>(
                 inputData,
-                ModelGenerator.Sample_models.ValidationMaps.irisColumnsMap
+                ValidationMaps.irisColumnsMap
             ));
         }
 
-        public async Task RunIrisFileLoggerCase()
+        private async Task RunIrisFileLoggerCase()
         {
             string url = "https://example-mlem-get-started-app.herokuapp.com";
-            HttpClient httpClient = _httpClientFactory.CreateClient("MlemApiClient");
+            HttpClient httpClient = _httpClientFactory.CreateClient(nameof(MlemApiClient));
             var fileLogger = new FileLogger("./iris-log.txt");
             MlemApiClient mlemClient = new(url, fileLogger, httpClient, _requestSerializer);
 
             Iris input = new()
             {
-                SepalLength = -69639435.20838484,
-                SepalWidth = 64887767.01179123,
-                PetalLength = -76043679.89193763,
-                PetalWidth = 20142568.61724788
+                SepalLength = 5.1,
+                SepalWidth = 3.5,
+                PetalLength = 1.4,
+                PetalWidth = 0.2
             };
 
-            ShowResult(await mlemClient.PredictAsync<List<long>, Iris>(
+            ShowResult<long>(await mlemClient.PredictAsync<List<long>, Iris>(
                 input,
-                ModelGenerator.Sample_models.ValidationMaps.irisColumnsMap
+                ValidationMaps.irisColumnsMap
             ));
         }
 
-        public async Task RunSingleWineCase()
+        private async Task RunMultipleIrisPredictProbaCase()
+        {
+            string url = "https://example-mlem-get-started-app.herokuapp.com";
+            HttpClient httpClient = _httpClientFactory.CreateClient(nameof(MlemApiClient));
+            MlemApiClient mlemClient = new(url, _logger, httpClient, _requestSerializer, null, true);
+
+            List<Iris> inputData = new()
+            {
+                new Iris
+                {
+                    SepalLength = 5.1,
+                    SepalWidth = 3.5,
+                    PetalLength = 1.4,
+                    PetalWidth = 0.2
+                },
+                new Iris
+                {
+                    SepalLength = 7.6,
+                    SepalWidth = 3.0,
+                    PetalLength = 6.6,
+                    PetalWidth = 2.1
+                }
+            };
+
+            ShowResult<double>(await mlemClient.CallAsync<List<List<double>>, Iris>(
+                "predict_proba",
+                inputData,
+                ValidationMaps.irisColumnsMap
+            ));
+        }
+
+        private async Task RunMultipleIrisSkLearnPredictCase()
+        {
+            string url = "https://example-mlem-get-started-app.herokuapp.com";
+            HttpClient httpClient = _httpClientFactory.CreateClient(nameof(MlemApiClient));
+            MlemApiClient mlemClient = new(url, _logger, httpClient, _requestSerializer, null, true);
+
+            List<Iris> inputData = new()
+            {
+                new Iris
+                {
+                    SepalLength = 5.1,
+                    SepalWidth = 3.5,
+                    PetalLength = 1.4,
+                    PetalWidth = 0.2
+                },
+                new Iris
+                {
+                    SepalLength = 7.6,
+                    SepalWidth = 3.0,
+                    PetalLength = 6.6,
+                    PetalWidth = 2.1
+                }
+            };
+
+            ShowResult<long>(await mlemClient.CallAsync<List<long>, Iris>(
+                "sklearn_predict",
+                inputData,
+                ValidationMaps.irisColumnsMap
+            ));
+        }
+
+        private async Task RunMultipleIrisSkLearnPredictProbaCase()
+        {
+            string url = "https://example-mlem-get-started-app.herokuapp.com";
+            HttpClient httpClient = _httpClientFactory.CreateClient(nameof(MlemApiClient));
+            MlemApiClient mlemClient = new(url, _logger, httpClient, _requestSerializer, null, true);
+
+            List<Iris> inputData = new()
+            {
+                new Iris
+                {
+                    SepalLength = 5.1,
+                    SepalWidth = 3.5,
+                    PetalLength = 1.4,
+                    PetalWidth = 0.2
+                },
+                new Iris
+                {
+                    SepalLength = 7.6,
+                    SepalWidth = 3.0,
+                    PetalLength = 6.6,
+                    PetalWidth = 2.1
+                }
+            };
+
+            ShowResult<double>(await mlemClient.CallAsync<List<List<double>>, Iris>(
+                "sklearn_predict_proba",
+                inputData,
+                ValidationMaps.irisColumnsMap
+            ));
+        }
+
+        private async Task RunSingleWineCase()
         {
             string url = "http://127.0.0.1:8080/";
             MlemApiClient mlemClient = new(url, _logger);
@@ -151,13 +258,13 @@ namespace Example
                 Proline = 365.0
             };
 
-            ShowResult(await mlemClient.PredictAsync<List<int>, Wine>(
+            ShowResult<int>(await mlemClient.PredictAsync<List<int>, Wine>(
                 input,
-                ModelGenerator.Sample_models.ValidationMaps.wineModelMap
+                ValidationMaps.wineModelMap
             ));
         }
 
-        public async Task RunSvmCase()
+        private async Task RunSvmCase()
         {
             string url = "http://127.0.0.1:8080/";
             MlemApiClient mlemClient = new(url, _logger);
@@ -170,86 +277,87 @@ namespace Example
                 }
             };
 
-            ShowResult(await mlemClient.PredictAsync<List<double>, SvmModel>(
+            ShowResult<double>(await mlemClient.PredictAsync<List<double>, SvmModel>(
                 inputData,
-                ModelGenerator.Sample_models.ValidationMaps.svmModelMap
+                ValidationMaps.svmModelMap
             ));
         }
 
-        public async Task IrisRequestCheckInvalidArgument()
+        private async Task RunIrisRequestCheckInvalidArgumentCase()
         {
-            var client = GetIrisClient();
+            MlemApiClient client = GetIrisClient();
 
             await client.CallAsync<List<List<double>>, IrisWithInvalidArgumentType>("predict_proba", new List<IrisWithInvalidArgumentType>
                 {
                     new IrisWithInvalidArgumentType
                     {
-                        SepalLength = 1,
-                        SepalWidth = 64887767.01179123,
-                        PetalLength = -76043679.89193763,
-                        PetalWidth = 20142568.61724788
+                        SepalLength = 5, // int
+                        SepalWidth = 3.5,
+                        PetalLength = 1.4,
+                        PetalWidth = 0.2
                     },
                     new IrisWithInvalidArgumentType
                     {
-                        SepalLength = 1,
-                        SepalWidth = -30195626.60490367,
-                        PetalLength = 64042930.90411937,
-                        PetalWidth = -69196204.98948716
+                        SepalLength = 7, // int
+                        SepalWidth = 3.0,
+                        PetalLength = 6.6,
+                        PetalWidth = 2.1
                     }
                 },
-               ModelGenerator.Sample_models.ValidationMaps.irisColumnsMap
+               ValidationMaps.irisColumnsMap
            );
         }
 
-        public async Task IrisRequestCheckMissingColumn()
+        private async Task RunIrisRequestCheckMissingColumnCase()
         {
-            var client = GetIrisClient();
+            MlemApiClient client = GetIrisClient();
             client.ArgumentTypesValidationIsOn = true;
 
-            await client.CallAsync<List<List<double>>, IrisWIthMissingColumn>("predict_proba", new List<IrisWIthMissingColumn>
+            await client.CallAsync<List<List<double>>, IrisWithMissingColumn>("predict_proba", new List<IrisWithMissingColumn>
                 {
-                    new IrisWIthMissingColumn
+                    new IrisWithMissingColumn
                     {
-                        SepalLength = 6343387.454046518,
-                        SepalWidth = 64887767.01179123,
-                        PetalLength = -76043679.89193763,
+                        SepalLength = 5.1,
+                        SepalWidth = 3.5,
+                        PetalLength = 1.4
                     },
-                    new IrisWIthMissingColumn
+                    new IrisWithMissingColumn
                     {
-                        SepalLength = 6343387.454046518,
-                        SepalWidth = -30195626.60490367,
-                        PetalLength = 64042930.90411937,
+                        SepalLength = 7.6,
+                        SepalWidth = 3.0,
+                        PetalLength = 6.6
                     }
                 },
-               ModelGenerator.Sample_models.ValidationMaps.irisColumnsMap
+               ValidationMaps.irisColumnsMap
            );
         }
 
-        public async Task IrisRequestCheckUnknownColumn()
+        private async Task RunIrisRequestCheckUnknownColumnCase()
         {
-            var client = GetIrisClient();
+            MlemApiClient client = GetIrisClient();
+
             await client.CallAsync<List<List<double>>, IrisWithUnknownColumnName>("predict_proba", new List<IrisWithUnknownColumnName>
                 {
                     new IrisWithUnknownColumnName
                     {
-                        SepalLength = 6343387.454046518,
-                        SepalWidth = 64887767.01179123,
-                        PetalLength = -76043679.89193763,
+                        SepalLength = 5.1,
+                        SepalWidth = 3.5,
+                        PetalLength = 1.4,
                         Unknown = 3.5,
                     },
                     new IrisWithUnknownColumnName
                     {
-                        SepalLength = 6343387.454046518,
-                        SepalWidth = -30195626.60490367,
-                        PetalLength = 64042930.90411937,
+                        SepalLength = 7.6,
+                        SepalWidth = 3.0,
+                        PetalLength = 6.6,
                         Unknown = 3.5,
                     }
                 },
-               ModelGenerator.Sample_models.ValidationMaps.irisColumnsMap
+               ValidationMaps.irisColumnsMap
            );
         }
-    
-        public async Task RunDigitsRandomForest()
+
+        private async Task RunDigitsCase()
         {
             string url = "http://127.0.0.1:8080/";
             MlemApiClient mlemClient = new(url, _logger);
@@ -260,7 +368,7 @@ namespace Example
                 inputData.Add(rand.NextDouble());
             }
 
-            ShowResult(await mlemClient.PredictAsync<List<int>, List<double>>(
+            ShowResult<int>(await mlemClient.PredictAsync<List<int>, List<double>>(
                 inputData
             ));
         }
@@ -275,19 +383,58 @@ namespace Example
         private MlemApiClient GetIrisClient()
         {
             string url = "https://example-mlem-get-started-app.herokuapp.com";
-            HttpClient httpClient = _httpClientFactory.CreateClient("MlemApiClient");
+            HttpClient httpClient = _httpClientFactory.CreateClient(nameof(MlemApiClient));
             return new(url, _logger, httpClient, _requestSerializer);
         }
 
-        private void ShowResult<T>(List<T>? result)
+        private static void ShowResult<T>(IEnumerable? result)
         {
-            if (result is null)
+            switch (result)
             {
-                Console.WriteLine("Result is null");
-            }
-            else
-            {
-                Console.WriteLine("Result: " + string.Join(",", result));
+                case null:
+                    Console.WriteLine("Result is null");
+                    break;
+                case List<T> res:
+                    Console.Write("Result: ");
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine(string.Join(",", res));
+                    Console.ForegroundColor = ConsoleColor.White;
+                    break;
+                case List<List<T>> listResult:
+                    {
+                        Console.WriteLine("Results:");
+                        for (int i = 0; i < listResult.Count; i++)
+                        {
+                            List<T> res = listResult[i];
+                            Console.Write($"   List {i + 1}: ");
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.WriteLine($"{string.Join(",", res)}");
+                            Console.ForegroundColor = ConsoleColor.White;
+                        }
+
+                        break;
+                    }
+                case List<List<List<T>>> listOfListResult:
+                    {
+                        Console.WriteLine("Results:");
+                        for (int i = 0; i < listOfListResult.Count; i++)
+                        {
+                            Console.WriteLine($"   List {i}: ");
+                            List<List<T>> list = listOfListResult[i];
+                            for (int j = 0; j < list.Count; j++)
+                            {
+                                List<T> res = list[j];
+                                Console.Write($"       List {j + 1}: ");
+                                Console.ForegroundColor = ConsoleColor.Yellow;
+                                Console.WriteLine($"{string.Join(",", res)}");
+                                Console.ForegroundColor = ConsoleColor.White;
+                            }
+                        }
+
+                        break;
+                    }
+                default:
+                    throw new NotSupportedException();
             }
         }
     }

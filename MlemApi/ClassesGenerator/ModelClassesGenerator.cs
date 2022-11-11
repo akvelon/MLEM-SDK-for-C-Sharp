@@ -1,4 +1,4 @@
-﻿using MlemApi.Dto.DataFrameArgumentData;
+﻿using MlemApi.Dto.DataFrameData;
 using MlemApi.Utils;
 using Stubble.Core.Builders;
 

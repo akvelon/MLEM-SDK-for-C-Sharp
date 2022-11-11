@@ -6,7 +6,7 @@
         void ValidateValues<incomeT>(IEnumerable<incomeT> values,
             string methodName,
             bool argumentTypesValidationIsOn = true,
-            Dictionary<string, string> modelColumnToPropNamesMap = null
+            Dictionary<string, string>? modelColumnToPropNamesMap = null
         );
         void ValidateJsonResponse(string response, string methodName);
     }

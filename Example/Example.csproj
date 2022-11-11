@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MlemApi\MlemApi.csproj" />
-    <ProjectReference Include="..\ModelGenerator\ModelGenerator.csproj" />
+    <ProjectReference Include="..\ModelRepository\ModelRepository.csproj" />
   </ItemGroup>
 
 </Project>

@@ -2,37 +2,27 @@
 {
     public class DefaultRequestValueSerializer : IRequestValuesSerializer
     {
-        private DataFrameSerializer dataFrameSerializer = new DataFrameSerializer();
-        private NdarraySerializer ndArraySerializer = new NdarraySerializer();
+        private readonly DataFrameSerializer _dataFrameSerializer = new();
+        private readonly NdarraySerializer _ndArraySerializer = new();
 
         private string GetRequestBody(string argsName, string argValue)
-        {
-            return $"{{\"{argsName}\": {argValue}}}";
-        }
+            => $"{{\"{argsName}\": {argValue}}}";
 
         public string Serialize<T>(IEnumerable<T> values, string argsName, string requestObjectType)
-        {
-            if (requestObjectType == "dataframe")
+            => requestObjectType switch
             {
-                return GetRequestBody(
+                "dataframe" => GetRequestBody(
                     argsName,
                     $"{{" +
                         "\"values\": " +
-                         $"[{string.Join(',', values.Select(value => dataFrameSerializer.Serialize(value)))}]" +
+                         $"[{string.Join(',', values.Select(value => _dataFrameSerializer.Serialize(value)))}]" +
                     $"}}"
-                );
-            }
-            else if (requestObjectType == "ndarray")
-            {
-                return GetRequestBody(
+                ),
+                "ndarray" => GetRequestBody(
                     argsName,
-                    $"[{string.Join(',', values.Select(value => ndArraySerializer.Serialize(value)))}]"
-                );
-            }
-            else
-            {
-                throw new ArgumentException($"Unknown request object type - ${requestObjectType}");
-            }
-        }
+                    $"[{string.Join(',', values.Select(value => _ndArraySerializer.Serialize(value)))}]"
+                ),
+                _ => throw new ArgumentException($"Unknown request object type - ${requestObjectType}")
+            };
     }
 }

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Data;
 using Microsoft.Extensions.Logging;
 using MlemApi.Dto;
-using MlemApi.Dto.DataFrameArgumentData;
+using MlemApi.Dto.DataFrameData;
 using MlemApi.Validation.Exceptions;
 using MlemApi.Utils;
 using Newtonsoft.Json;
@@ -38,7 +38,7 @@ namespace MlemApi.Validation
         public void ValidateValues<incomeT>(IEnumerable<incomeT> values,
             string methodName,
             bool argumentTypesValidationIsOn = true,
-            Dictionary<string, string> modelColumnToPropNamesMap = null
+            Dictionary<string, string>? modelColumnToPropNamesMap = null
         )
         {
             if (values == null)
@@ -66,14 +66,14 @@ namespace MlemApi.Validation
 
         public void ValidateJsonResponse(string response, string methodName)
         {
-            var methodReturnDataSchema = GetMethodDescriptionFromSchema(methodName)?.ReturnData;
+            NdarrayData? methodReturnDataSchema = GetMethodDescriptionFromSchema(methodName)?.ReturnData;
 
             try
             {
-                var parsedResponse = JArray.Parse(response);
+                JArray parsedResponse = JArray.Parse(response);
 
                 // Objects queue with nesting level
-                var listElementsQueue = new Queue<Tuple<object, int>>();
+                Queue<Tuple<object, int>> listElementsQueue = new();
                 listElementsQueue.Enqueue(Tuple.Create<object, int>(parsedResponse, 0));
 
                 ValidateNdarrayData<JArray, JArray>(parsedResponse, methodReturnDataSchema);
@@ -91,26 +91,28 @@ namespace MlemApi.Validation
             this.primitiveTypeHelper.ValidateType(valueString, expectedNumPyTypeName);
         }
 
-        private void ValidateArgument<incomeT>(incomeT value, string methodName, Dictionary<string, string> modelColumnToPropNamesMap = null)
+        private void ValidateArgument<incomeT>(incomeT value, string methodName, Dictionary<string, string>? modelColumnToPropNamesMap = null)
         {
-            var argumentsSchemeData = GetMethodDescriptionFromSchema(methodName)?.ArgsData;
-
-            if (argumentsSchemeData == null)
+            switch (GetMethodDescriptionFromSchema(methodName)?.ArgsData)
             {
-                throw new InvalidApiSchemaException($"Empty arguments scheme data for method {methodName}.");
-            }
-
-            if (argumentsSchemeData is DataFrameData)
-            {
-                ValidateDataframeData(value, argumentsSchemeData as DataFrameData, modelColumnToPropNamesMap);
-            }
-            else if (argumentsSchemeData is NdarrayData)
-            {
-                ValidateNdarrayData<incomeT, ICollection>(value, argumentsSchemeData as NdarrayData);
+                case DataFrameData dataFrame:
+                    {
+                        ValidateDataframeData(value, dataFrame, modelColumnToPropNamesMap);
+                        break;
+                    }
+                case NdarrayData ndarrayData:
+                    {
+                        ValidateNdarrayData<incomeT, ICollection>(value, ndarrayData);
+                        break;
+                    }
+                case null:
+                    {
+                        throw new InvalidApiSchemaException($"Empty arguments scheme data for method {methodName}.");
+                    }
             }
         }
 
-        private void ValidateDataframeData<incomeT>(incomeT value, DataFrameData dataFrameData, Dictionary<string, string> modelColumnToPropNamesMap = null)
+        private void ValidateDataframeData<incomeT>(incomeT value, DataFrameData dataFrameData, Dictionary<string, string>? modelColumnToPropNamesMap = null)
         {
             if (modelColumnToPropNamesMap == null)
             {
@@ -231,15 +233,12 @@ namespace MlemApi.Validation
 
             if (expectedTypeName != actualTypeName)
             {
-                var expectedTypeString = unknownType ? $"equivalent of {actualTypeName}" : expectedTypeName;
+                string expectedTypeString = unknownType ? $"equivalent of {actualTypeName}" : expectedTypeName;
                 throw new InvalidTypeException($"incorrect type - current is {actualTypeName}, but {expectedTypeString} expected");
             }
         }
 
         private MethodDescription GetMethodDescriptionFromSchema(string methodName)
-        {
-            return _apiDescription.Methods
-                .First(methodDescription => methodDescription.MethodName == methodName);
-        }
+            => _apiDescription.Methods.First(methodDescription => methodDescription.MethodName == methodName);
     }
 }

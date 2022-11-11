@@ -4,8 +4,7 @@ using System.Net.Mime;
 using Microsoft.Extensions.Logging;
 using MlemApi.Dto;
 using MlemApi.Serializing;
-using MlemApi.Dto.DataFrameArgumentData;
-using MlemApi.Validation.Exceptions;
+using MlemApi.Dto.DataFrameData;
 using MlemApi.Validation;
 
 namespace MlemApi
@@ -31,7 +30,7 @@ namespace MlemApi
         /// </summary>
         /// <param name="httpClient"></param>
         /// <param name="configuraion"></param>
-        public MlemApiClient(string url, ILogger<MlemApiClient>? logger = null, HttpClient? httpClient = null, 
+        public MlemApiClient(string url, ILogger<MlemApiClient>? logger = null, HttpClient? httpClient = null,
             IRequestValuesSerializer? requestSerializer = null, IValidator? validator = null, bool argumentTypesValidationIsOn = true)
         {
             _httpClient = httpClient ?? new HttpClient();
@@ -55,7 +54,7 @@ namespace MlemApi
         /// <typeparam name="outcomeT"></typeparam>
         /// <param name="values"></param>
         /// <returns></returns>
-        public async Task<ResultType?> PredictAsync<ResultType, RequestType>(RequestType value, Dictionary<string, string> modelColumnNamesMap = null)
+        public async Task<ResultType?> PredictAsync<ResultType, RequestType>(RequestType value, Dictionary<string, string>? modelColumnNamesMap = null)
         {
             return await CallAsync<ResultType, RequestType>(PREDICT_METHOD, new List<RequestType> { value }, modelColumnNamesMap);
         }
@@ -67,7 +66,7 @@ namespace MlemApi
         /// <typeparam name="outcomeT"></typeparam>
         /// <param name="values"></param>
         /// <returns></returns>
-        public async Task<ResultType?> PredictAsync<ResultType, RequestType>(IEnumerable<RequestType> values, Dictionary<string, string > modelColumnNamesMap = null)
+        public async Task<ResultType?> PredictAsync<ResultType, RequestType>(IEnumerable<RequestType> values, Dictionary<string, string>? modelColumnNamesMap = null)
         {
             return await CallAsync<ResultType, RequestType>(PREDICT_METHOD, values, modelColumnNamesMap);
         }
@@ -80,7 +79,7 @@ namespace MlemApi
         /// <param name="methodName"></param>
         /// <param name="values"></param>
         /// <returns></returns>
-        public async Task<ResultType?> CallAsync<ResultType, RequestType>(string methodName, RequestType value, Dictionary<string, string> modelColumnNamesMap = null)
+        public async Task<ResultType?> CallAsync<ResultType, RequestType>(string methodName, RequestType value, Dictionary<string, string>? modelColumnNamesMap = null)
         {
             return await CallAsync<ResultType, RequestType>(methodName, new List<RequestType> { value }, modelColumnNamesMap);
         }
@@ -93,19 +92,19 @@ namespace MlemApi
         /// <param name="methodName"></param>
         /// <param name="values"></param>
         /// <returns></returns>
-        public async Task<ResultType?> CallAsync<ResultType, RequestType>(string methodName, IEnumerable<RequestType> values, Dictionary<string, string> modelColumnNamesMap = null)
+        public async Task<ResultType?> CallAsync<ResultType, RequestType>(string methodName, IEnumerable<RequestType> values, Dictionary<string, string>? modelColumnNamesMap = null)
         {
-            this._validator?.ValidateMethod(methodName);
+            _validator?.ValidateMethod(methodName);
 
-            var methodDescription = _apiDescription.Methods.First(m => m.MethodName == methodName);
+            MethodDescription methodDescription = _apiDescription.Methods.First(m => m.MethodName == methodName);
 
-            var requestObjectType = GetMethodArgumentType(methodDescription);
+            string requestObjectType = GetMethodArgumentType(methodDescription);
 
-            this._validator?.ValidateValues(values, methodName, ArgumentTypesValidationIsOn, modelColumnNamesMap);
+            _validator?.ValidateValues(values, methodName, ArgumentTypesValidationIsOn, modelColumnNamesMap);
 
-            var argsName = methodDescription.ArgsName;
+            string argsName = methodDescription.ArgsName;
 
-            var jsonRequest = _requestBuilder.BuildRequest(argsName, values, requestObjectType);
+            string jsonRequest = _requestBuilder.BuildRequest(argsName, values, requestObjectType);
 
             return await SendPostRequestAsync<ResultType?>(methodName, jsonRequest);
         }
@@ -116,10 +115,7 @@ namespace MlemApi
 
             try
             {
-                var requestTask = _httpClient.GetStringAsync("interface.json");
-                requestTask.Wait();
-
-                var response = requestTask.Result;
+                string response = _httpClient.GetStringAsync("interface.json").Result;
 
                 return DescriptionParser.GetApiDescription(response);
             }
@@ -155,7 +151,7 @@ namespace MlemApi
 
                 if (ResponseValidationIsOn)
                 {
-                    this._validator?.ValidateJsonResponse(response, command);
+                    _validator?.ValidateJsonResponse(response, command);
                 }
 
                 try

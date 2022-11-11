@@ -2,7 +2,7 @@
 
 namespace {{NamespaceName}}
 {
-    class {{ClassName}}
+    {{AccessModifier}} class {{ClassName}}
     {
         {{#ColumnsData}}
         [JsonProperty("{{NameInModel}}")]

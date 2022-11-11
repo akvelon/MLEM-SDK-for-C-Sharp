@@ -376,8 +376,8 @@ namespace Example
         public void RunClassGeneration()
         {
             var modelGenerator = new ModelClassesGenerator();
-            var client = new MlemApiClient("https://example-mlem-get-started-app.herokuapp.com");
-            modelGenerator.GenerateClasses("generatedClassesFolder", client, "CustomNamespace");
+            var client = new MlemApiClient("http://localhost:8080/");
+            modelGenerator.GenerateClasses("digits", "generatedClassesFolder", client, "CustomNamespace");
         }
 
         private MlemApiClient GetIrisClient()

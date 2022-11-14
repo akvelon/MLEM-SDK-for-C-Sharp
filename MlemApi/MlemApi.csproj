@@ -19,10 +19,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="ClassesGenerator\DtoTemplate.template">
+    <None Update="ClassesGenerator\DtoDataframeTemplate.template">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="ClassesGenerator\ResponseTemplate.template">
+    <None Update="ClassesGenerator\DtoNdarrayTemplate.template">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -15,6 +15,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClassesGenerationTests\ClassSamplesForAssertion\GeneratedClasses_SimplePositiveCase.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.13.2" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
@@ -29,12 +33,33 @@
   <ItemGroup>
     <ProjectReference Include="..\MlemApi\MlemApi.csproj" />
     <ProjectReference Include="..\ModelRepository\ModelRepository.csproj" />
+    <ProjectReference Include="..\ModelGenerator\ModelGenerator.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <None Update="Assets\Iris_test_schema.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="ClassesGenerationTests\ClassSamplesForAssertion\GeneratedClasses_NdArrayAsArgument\TestModelPredictRequestType.cs.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="ClassesGenerationTests\ClassSamplesForAssertion\GeneratedClasses_NdArrayAsArgument\TestModelPredictResponseType.cs.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="ClassesGenerationTests\ClassSamplesForAssertion\GeneratedClasses_DataframeAsArgument\TestModelTest1RequestType.cs.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="ClassesGenerationTests\ClassSamplesForAssertion\GeneratedClasses_DataframeAsArgument\TestModelTest1ResponseType.cs.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="ClassesGenerationTests\TestSchemasCollection\defaultSchema.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="ClassesGenerationTests\TestSchemasCollection\ndArrayArgsSchema.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
+
+  <ProjectExtensions><VisualStudio><UserProperties classesgenerationtests_4testschemascollection_4defaultschema_1json__JsonSchema="https://docs.renovatebot.com/renovate-schema.json" /></VisualStudio></ProjectExtensions>
 
 </Project>

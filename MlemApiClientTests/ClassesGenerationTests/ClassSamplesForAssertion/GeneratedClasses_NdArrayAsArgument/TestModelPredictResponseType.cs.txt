@@ -1,0 +1,4 @@
+namespace testNamespaceName
+{
+    internal class TestModelPredictResponseType : List<Int16> {}
+}

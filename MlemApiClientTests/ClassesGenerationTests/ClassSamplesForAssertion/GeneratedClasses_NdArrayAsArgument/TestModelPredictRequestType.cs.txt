@@ -1,0 +1,4 @@
+namespace testNamespaceName
+{
+    internal class TestModelPredictRequestType : Boolean {}
+}

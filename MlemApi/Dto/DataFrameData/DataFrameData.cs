@@ -1,6 +1,6 @@
 ﻿namespace MlemApi.Dto.DataFrameData
 {
-    public class DataFrameData : IMethodArgumentData
+    public class DataFrameData : IApiDescriptionDataStructure
     {
         public IEnumerable<DataFrameColumnData> ColumnsData;
     }

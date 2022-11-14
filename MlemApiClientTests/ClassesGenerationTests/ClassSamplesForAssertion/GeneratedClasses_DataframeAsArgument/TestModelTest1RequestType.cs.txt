@@ -1,0 +1,12 @@
+using Newtonsoft.Json;
+
+namespace testNamespaceName
+{
+    internal class TestModelTest1RequestType
+    {
+        [JsonProperty("arg1")]
+        public Double Arg1 { get; set; }
+        [JsonProperty("arg2")]
+        public Double Arg2 { get; set; }
+    }
+}

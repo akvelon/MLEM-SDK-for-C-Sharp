@@ -1,0 +1,36 @@
+﻿{
+  "version": "0.2.9.dev11+g5a6790d",
+  "methods": {
+    "test1": {
+      "args": [
+        {
+          "name": "data",
+          "type_": {
+            "columns": [
+              "arg1",
+              "arg2"
+            ],
+            "dtypes": [
+              "float64",
+              "float64"
+            ],
+            "index_cols": [],
+            "type": "dataframe"
+          },
+          "required": true,
+          "default": null,
+          "kw_only": false
+        }
+      ],
+      "returns": {
+        "shape": [
+          null
+        ],
+        "dtype": "int64",
+        "type": "ndarray"
+      },
+      "varargs": null,
+      "varkw": null
+    }
+  }
+}

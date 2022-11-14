@@ -88,7 +88,7 @@ namespace MlemApi.Validation
         {
             var valueString = jsonValue.ToString();
 
-            this.primitiveTypeHelper.ValidateType(valueString, expectedNumPyTypeName);
+            primitiveTypeHelper.ValidateType(valueString, expectedNumPyTypeName);
         }
 
         private void ValidateArgument<incomeT>(incomeT value, string methodName, Dictionary<string, string>? modelColumnToPropNamesMap = null)
@@ -224,7 +224,7 @@ namespace MlemApi.Validation
 
             try
             {
-                expectedTypeName = this.primitiveTypeHelper.GetMappedDtype(typeNameFromSchema);
+                expectedTypeName = primitiveTypeHelper.GetMappedDtype(typeNameFromSchema);
             }
             catch (KeyNotFoundException)
             {

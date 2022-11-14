@@ -46,7 +46,7 @@ namespace MlemApi.Utils
         {
             try
             {
-                return this.typesMap[dType].ToString();
+                return typesMap[dType].ToString();
             }
             catch (KeyNotFoundException)
             {
@@ -62,7 +62,7 @@ namespace MlemApi.Utils
         /// <exception cref="FormatException"></exception>
         public void ValidateType(string value, string expectedDtype)
         {
-            var expectedNetType = this.GetMappedDtype(expectedDtype);
+            var expectedNetType = GetMappedDtype(expectedDtype);
 
             try
             {

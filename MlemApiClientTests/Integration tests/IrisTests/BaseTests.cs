@@ -4,6 +4,7 @@ using MlemApi;
 using ModelRepository.SampleRequestObjects;
 using Moq;
 using Moq.Protected;
+using NUnit.Framework;
 
 namespace MlemApiClientTests.IntegrationTests.IrisTests
 {
@@ -28,30 +29,10 @@ namespace MlemApiClientTests.IntegrationTests.IrisTests
 
         public MlemApiClient GetClientWithMockedHttpClient(string responseToSet)
         {
-            var httpSchemaResponse = new HttpResponseMessage
-            {
-                StatusCode = HttpStatusCode.OK,
-                Content = new StringContent(File.ReadAllText("Assets/Iris_test_schema.json")),
-            };
-
-            var httpResponse = new HttpResponseMessage
-            {
-                StatusCode = HttpStatusCode.OK,
-                Content = new StringContent(responseToSet),
-            };
-
-            var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            mockHttpMessageHandler.Protected()
-                .SetupSequence<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(httpSchemaResponse)
-                .ReturnsAsync(httpResponse);
-
-            var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-
-            using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
-            var logger = loggerFactory.CreateLogger<MlemApiClient>();
-
-            return new MlemApiClient("https://example-mlem-get-started-app.herokuapp.com", logger, httpClient);
+            return TestMockUtils.GetClientWithMockedSchema(
+                Path.Combine("Assets", "Iris_test_schema.json"),
+                responseToSet
+            );
         }
 
         public MlemApiClient GetClientWithCustomLogger(ILogger<MlemApiClient> logger)

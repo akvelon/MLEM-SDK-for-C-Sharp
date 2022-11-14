@@ -1,0 +1,4 @@
+namespace testNamespaceName
+{
+    internal class TestModelTest1ResponseType : List<Int64> {}
+}

@@ -1,4 +1,0 @@
-﻿namespace {{NamespaceName}}
-{
-    {{AccessModifier}} class {{ResponseTypeAlias}} : {{DataStructureType}} {}
-}

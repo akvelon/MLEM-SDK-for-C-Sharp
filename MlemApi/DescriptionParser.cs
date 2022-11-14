@@ -94,7 +94,7 @@ namespace MlemApi
             };
         }
 
-        private static IMethodArgumentData GetArgsData(JsonElement.ObjectEnumerator argsObjectEnumerator)
+        private static IApiDescriptionDataStructure GetArgsData(JsonElement.ObjectEnumerator argsObjectEnumerator)
         {
             var typesDataObject = argsObjectEnumerator.First(e => e.Name == "type_")
                 .Value.EnumerateObject();
@@ -109,7 +109,7 @@ namespace MlemApi
                 _ => throw new ArgumentException($"Uknown method arguments data: {dataType}")
             };
 
-            IMethodArgumentData GetArgumentNdArrayData()
+            IApiDescriptionDataStructure GetArgumentNdArrayData()
             {
                 var argumentNdArrayData = GetNdarrayData(typesDataObject);
                 var shapeList = argumentNdArrayData.Shape as List<int?>;

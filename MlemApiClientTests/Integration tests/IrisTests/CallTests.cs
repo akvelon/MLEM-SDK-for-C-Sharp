@@ -89,6 +89,7 @@ namespace MlemApiClientTests.IntegrationTests.IrisTests
         [Test]
         public void CallAsync_ThrowsArgumentNullException_If_ArgumentList_IsEmpty()
         {
+            _client.ArgumentTypesValidationIsOn = true;
             Assert.ThrowsAsync<ArgumentException>(() => _client.CallAsync<List<List<double>>, Iris>(
                 "predict_proba",
                 new List<Iris>(), // empty list

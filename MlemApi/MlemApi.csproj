@@ -15,10 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ModelGenerator\ModelGenerator.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="ClassesGenerator\DtoDataframeTemplate.template">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

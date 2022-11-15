@@ -33,7 +33,6 @@
   <ItemGroup>
     <ProjectReference Include="..\MlemApi\MlemApi.csproj" />
     <ProjectReference Include="..\ModelRepository\ModelRepository.csproj" />
-    <ProjectReference Include="..\ModelGenerator\ModelGenerator.csproj" />
   </ItemGroup>
 
   <ItemGroup>

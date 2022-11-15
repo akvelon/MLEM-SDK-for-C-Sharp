@@ -23,7 +23,7 @@ namespace MlemApi
         private readonly ApiDescription _apiDescription;
 
         public bool ArgumentTypesValidationIsOn { get; set; }
-        public bool ResponseValidationIsOn { get; set; } = true;
+        public bool ResponseValidationIsOn { get; set; } = false;
 
         /// <summary>
         /// Constructor
@@ -31,7 +31,7 @@ namespace MlemApi
         /// <param name="httpClient"></param>
         /// <param name="configuraion"></param>
         public MlemApiClient(string url, ILogger<MlemApiClient>? logger = null, HttpClient? httpClient = null,
-            IRequestValuesSerializer? requestSerializer = null, IValidator? validator = null, bool argumentTypesValidationIsOn = true)
+            IRequestValuesSerializer? requestSerializer = null, IValidator? validator = null, bool argumentTypesValidationIsOn = false)
         {
             _httpClient = httpClient ?? new HttpClient();
             _logger = logger;

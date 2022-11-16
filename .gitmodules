@@ -1,0 +1,3 @@
+[submodule "common-resource"]
+	path = common-resource
+	url = https://gitlab.akvelon.net/vladimir.krestov/common-resource.git

@@ -11,6 +11,9 @@ build:
   stage: build
   script: 
     - echo "Compiling the code..."
+    - echo git ls-remote https://gitlab.akvelon.net/sdc/mlem-client-dependencies/common-resources.git
+    - echo "------------"
+    - git ls-remote https://gitlab.akvelon.net/sdc/mlem-client-dependencies/common-resources.git
     - dotnet build -c Release
   artifacts:
     expire_in: 1 week 

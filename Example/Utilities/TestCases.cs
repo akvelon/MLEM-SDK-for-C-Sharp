@@ -15,5 +15,6 @@
         IrisRequestCheckUnknownColumn,
         DigitsRandomForest,
         ClassGeneration,
+        TextModel,
     }
 }

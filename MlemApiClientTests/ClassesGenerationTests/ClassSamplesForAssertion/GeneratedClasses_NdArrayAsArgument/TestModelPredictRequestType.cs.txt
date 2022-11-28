@@ -1,4 +1,4 @@
 namespace testNamespaceName
 {
-    internal class TestModelPredictRequestType : Boolean {}
+    internal class TestModelPredictRequestType : List<Boolean> {}
 }

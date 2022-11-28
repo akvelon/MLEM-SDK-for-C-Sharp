@@ -12,9 +12,9 @@
 
         public string MethodName { get; set; }
 
-        public string ArgsName { get; set; }
-        public IApiDescriptionDataStructure ArgsData { get; set; }
+        public string? ArgsName { get; set; }
+        public IApiDescriptionDataStructure? ArgsData { get; set; }
 
-        public NdarrayData ReturnData {get; set;}
+        public IApiDescriptionDataStructure ReturnData {get; set;}
     }
 }

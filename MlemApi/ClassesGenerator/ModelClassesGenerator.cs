@@ -70,7 +70,7 @@ namespace MlemApi.ClassesGenerator
             GenerateNdArrayClass(
                 classAccessModifier,
                 namespaceName,
-                method.ReturnData,
+                method.ReturnData as NdarrayData,
                 templateRenderer,
                 outputPath,
                 $"{camelCasedModelName}{camelCaseConverter.ConvertToCamelCase(method.MethodName)}ResponseType",

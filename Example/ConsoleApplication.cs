@@ -67,6 +67,9 @@ namespace Example
                 case TestCases.ClassGeneration:
                     RunClassGeneration();
                     break;
+                case TestCases.TextModel:
+                    await RunTextModelCase();
+                    break;
                 default:
                     throw new NotImplementedException();
             }
@@ -372,13 +375,18 @@ namespace Example
             mlemClient.ResponseValidationIsOn = true;
 
             Random rand = new Random();
-            List<double> inputData = new();
+
+            List<List<double>> inputData = new();
+            List<double> internalList = new();
+
             for (var i = 0; i < 64; ++i)
             {
-                inputData.Add(rand.NextDouble());
+                internalList.Add(rand.NextDouble());
             }
 
-            ShowResult<int>(await mlemClient.PredictAsync<List<int>, List<double>>(
+            inputData.Add(internalList);
+
+            ShowResult<int>(await mlemClient.PredictAsync<List<int>, List<List<double>>>(
                 inputData
             ));
         }
@@ -389,6 +397,23 @@ namespace Example
             var client = new MlemApiClient("http://localhost:8080/");
             modelGenerator.GenerateClasses("digits", "generatedClassesFolder", client, "CustomNamespace");
         }
+
+        public async Task RunTextModelCase()
+        {
+            string url = "http://127.0.0.1:8080/";
+            HttpClient httpClient = _httpClientFactory.CreateClient("MlemApiClient");
+            MlemApiClient mlemClient = new(url, _logger, httpClient, _requestSerializer);
+            mlemClient.ResponseValidationIsOn = false;
+            List<string> input = new List<string>(){
+                "Hugging Face is a technology company based in New York and Paris",
+            };
+
+            var res = await mlemClient.PredictAsync<string, List<string>>(
+                input
+            );
+            Console.WriteLine(res);
+        }
+
 
         private MlemApiClient GetIrisClient()
         {

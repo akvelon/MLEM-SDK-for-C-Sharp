@@ -2,9 +2,9 @@
 {
     internal class ApiDescription
     {
-        internal ApiDescription(int jsonMethodElementsCount)
+        internal ApiDescription()
         {
-            Methods = new List<MethodDescription>(jsonMethodElementsCount);
+            Methods = new List<MethodDescription>();
         }
 
         internal List<MethodDescription> Methods { get; set; }

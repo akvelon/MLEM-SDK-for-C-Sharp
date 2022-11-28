@@ -6,6 +6,7 @@ using MlemApi.Dto;
 using MlemApi.Serializing;
 using MlemApi.Dto.DataFrameData;
 using MlemApi.Validation;
+using MlemApi.Parsing;
 
 namespace MlemApi
 {
@@ -21,6 +22,7 @@ namespace MlemApi
         private readonly IValidator? _validator;
         private readonly RequestBuilder _requestBuilder;
         private readonly ApiDescription _apiDescription;
+        private readonly DescriptionParser descriptionParser = new DescriptionParser();
 
         public bool ArgumentTypesValidationIsOn { get; set; }
         public bool ResponseValidationIsOn { get; set; } = false;
@@ -98,13 +100,11 @@ namespace MlemApi
 
             MethodDescription methodDescription = _apiDescription.Methods.First(m => m.MethodName == methodName);
 
-            string requestObjectType = GetMethodArgumentType(methodDescription);
-
             _validator?.ValidateValues(values, methodName, ArgumentTypesValidationIsOn, modelColumnNamesMap);
 
             string argsName = methodDescription.ArgsName;
 
-            string jsonRequest = _requestBuilder.BuildRequest(argsName, values, requestObjectType);
+            var jsonRequest = _requestBuilder.BuildRequest(argsName, values, methodDescription.ArgsData.GetType());
 
             return await SendPostRequestAsync<ResultType?>(methodName, jsonRequest);
         }
@@ -117,7 +117,7 @@ namespace MlemApi
             {
                 string response = _httpClient.GetStringAsync("interface.json").Result;
 
-                return DescriptionParser.GetApiDescription(response);
+                return descriptionParser.GetApiDescription(response);
             }
             catch (Exception ex)
             {
@@ -179,13 +179,5 @@ namespace MlemApi
                 throw;
             }
         }
-
-        private string GetMethodArgumentType(MethodDescription methodDescription)
-            => methodDescription.ArgsData switch
-            {
-                NdarrayData => "ndarray",
-                DataFrameData => "dataframe",
-                _ => throw new Exception("Unknown method argument type - dataframe or ndarray is expected")
-            };
     }
 }

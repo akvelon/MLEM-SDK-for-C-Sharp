@@ -66,7 +66,7 @@ namespace MlemApi.Validation
 
         public void ValidateJsonResponse(string response, string methodName)
         {
-            NdarrayData? methodReturnDataSchema = GetMethodDescriptionFromSchema(methodName)?.ReturnData;
+            NdarrayData? methodReturnDataSchema = GetMethodDescriptionFromSchema(methodName)?.ReturnData as NdarrayData;
 
             try
             {
@@ -184,7 +184,7 @@ namespace MlemApi.Validation
                     long? expectedArrayLength;
                     try
                     {
-                        expectedArrayLength = ndArrayData.Shape.ElementAt(currentListElement.Item2);
+                        expectedArrayLength = ndArrayData.Shape.ElementAt(currentListElement.Item2) ;
                     }
                     catch (Exception)
                     {

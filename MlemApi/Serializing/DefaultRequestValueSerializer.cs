@@ -1,4 +1,6 @@
-﻿namespace MlemApi.Serializing
+﻿using MlemApi.Dto.DataFrameData;
+
+namespace MlemApi.Serializing
 {
     public class DefaultRequestValueSerializer : IRequestValuesSerializer
     {
@@ -8,21 +10,25 @@
         private string GetRequestBody(string argsName, string argValue)
             => $"{{\"{argsName}\": {argValue}}}";
 
-        public string Serialize<T>(IEnumerable<T> values, string argsName, string requestObjectType)
-            => requestObjectType switch
+        public string Serialize<T>(IEnumerable<T> values, string argsName, Type argsType)
+        {
+            if (argsType == typeof(DataFrameData))
             {
-                "dataframe" => GetRequestBody(
+                return GetRequestBody(
                     argsName,
                     $"{{" +
                         "\"values\": " +
                          $"[{string.Join(',', values.Select(value => _dataFrameSerializer.Serialize(value)))}]" +
                     $"}}"
-                ),
-                "ndarray" => GetRequestBody(
+                );
+            }
+            else
+            {
+                return GetRequestBody(
                     argsName,
-                    $"[{string.Join(',', values.Select(value => _ndArraySerializer.Serialize(value)))}]"
-                ),
-                _ => throw new ArgumentException($"Unknown request object type - ${requestObjectType}")
-            };
+                    _ndArraySerializer.Serialize(values.First())
+                );
+            }
+        }
     }
 }

@@ -12,6 +12,6 @@
         /// <param name="values">input values</param>
         /// <param name="values">request object type - ndarray or dataframe</param>
         /// <returns></returns>
-        string Serialize<T>(IEnumerable<T> values, string argsName, string requestObjectType);
+        string Serialize<T>(IEnumerable<T> values, string argsName, Type argsType);
     }
 }

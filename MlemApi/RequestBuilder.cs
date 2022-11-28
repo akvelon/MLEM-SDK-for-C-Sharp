@@ -1,4 +1,5 @@
-﻿using MlemApi.Serializing;
+﻿using MlemApi.Dto;
+using MlemApi.Serializing;
 
 namespace MlemApi
 {
@@ -11,7 +12,7 @@ namespace MlemApi
             _requestValueSerializer = requestValueSerializer;
         }
 
-        public string BuildRequest<T>(string argsName, IEnumerable<T> values, string requestObjectType)
-            => _requestValueSerializer.Serialize(values, argsName, requestObjectType);
+        public string BuildRequest<T>(string argsName, IEnumerable<T> values, Type argsType)
+            => _requestValueSerializer.Serialize(values, argsName, argsType);
     }
 }

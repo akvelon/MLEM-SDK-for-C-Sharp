@@ -8,11 +8,18 @@ namespace MlemApiClientTests
 {
     internal static class TestMockUtils
     {
+        private static readonly string baseAddress = "https://example-mlem-get-started-app.herokuapp.com";
         internal static MlemApiClient GetClientWithMockedSchema(string pathToApiSchemaJson, string responseToSet, int countOfApiResponses = 1, int countOfModelResponses = 1)
         {
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            var sequentialMockResult = mockHttpMessageHandler.Protected()
+            var sequentialMockResultSendAsync = mockHttpMessageHandler.Protected()
                 .SetupSequence<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>());
+            var sequentialMockResultApi = mockHttpMessageHandler.Protected()
+                .SetupSequence<Task<HttpResponseMessage>>(
+                 "SendAsync",
+                 ItExpr.Is<HttpRequestMessage>(m => Equals(m.RequestUri, $"{TestMockUtils.baseAddress}/interface.json")),
+                 ItExpr.IsAny<CancellationToken>()
+             );
 
             for (int i = 0; i < countOfApiResponses; ++i)
             {
@@ -22,7 +29,7 @@ namespace MlemApiClientTests
                     Content = new StringContent(File.ReadAllText(pathToApiSchemaJson)),
                 };
 
-                sequentialMockResult.ReturnsAsync(httpSchemaResponse);
+                sequentialMockResultApi.ReturnsAsync(httpSchemaResponse);
             }
 
             for (int i = 0; i < countOfModelResponses; ++i)
@@ -33,7 +40,7 @@ namespace MlemApiClientTests
                     Content = new StringContent(responseToSet),
                 };
 
-                sequentialMockResult.ReturnsAsync(httpResponse);
+                sequentialMockResultSendAsync.ReturnsAsync(httpResponse);
             }
 
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
@@ -41,7 +48,7 @@ namespace MlemApiClientTests
             using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
             var logger = loggerFactory.CreateLogger<MlemApiClient>();
 
-            return new MlemApiClient("https://example-mlem-get-started-app.herokuapp.com", logger, httpClient);
+            return new MlemApiClient(TestMockUtils.baseAddress, logger, httpClient);
         }
     }
 }

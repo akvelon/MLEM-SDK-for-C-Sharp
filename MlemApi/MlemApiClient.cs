@@ -4,7 +4,6 @@ using System.Net.Mime;
 using Microsoft.Extensions.Logging;
 using MlemApi.Dto;
 using MlemApi.Serializing;
-using MlemApi.Dto.DataFrameData;
 using MlemApi.Validation;
 using MlemApi.Parsing;
 

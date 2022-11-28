@@ -12,29 +12,29 @@ namespace MlemApi.Parsing
 
         public ApiDescription GetApiDescription(string jsonStringDescription)
         {
-            using var jsonDocument = JsonDocument.Parse(jsonStringDescription);
-            var jsonMethodElements = jsonDocument.RootElement.GetProperty("methods");
+            using JsonDocument jsonDocument = JsonDocument.Parse(jsonStringDescription);
+            JsonElement jsonMethodElements = jsonDocument.RootElement.GetProperty("methods");
 
-            var jsonMethodElementsEnumerator = jsonMethodElements.EnumerateObject();
-            var description = new ApiDescription
+            JsonElement.ObjectEnumerator jsonMethodElementsEnumerator = jsonMethodElements.EnumerateObject();
+            ApiDescription description = new ApiDescription
             {
                 Methods = new List<MethodDescription>(jsonMethodElementsEnumerator.Count())
             };
+
 
             foreach (var jsonMethodElement in jsonMethodElementsEnumerator)
             {
                 try
                 {
+                    string? argsName = null;
+                    IApiDescriptionDataStructure? argsData = null;
+                    NdarrayData? returnData = null;
                     var methodElement = jsonMethodElement.Value
                         .EnumerateObject();
 
-                    var argsArrayObject = methodElement.First(e => e.Name == "args").Value
-                           .EnumerateArray();
+                    var methodName = jsonMethodElement.Name;
 
-                    IApiDescriptionDataStructure? argsData = null;
-                    string? argsName = null;
-
-                    if (argsArrayObject.Count() != 0)
+                    try
                     {
                         var argsObject = methodElement.First(e => e.Name == "args").Value
                            .EnumerateArray().First()
@@ -43,15 +43,29 @@ namespace MlemApi.Parsing
                         argsData = GetArgsData(argsObject);
                         argsName = argsObject.First(e => e.Name == "name").Value.GetString();
                     }
+                    catch (Exception e)
+                    {
+                        // todo - rewrite using logger
+                        Console.WriteLine($"Error during args parsing for method {methodName}: {e.Message}. Args will be considered as empty.");
+                    }
 
-                    var returnDataObject = jsonMethodElement.Value
-                            .EnumerateObject().First(e => e.Name == "returns").Value.EnumerateObject();
+                    try
+                    {
+                        var returnDataObject = jsonMethodElement.Value
+                                .EnumerateObject().First(e => e.Name == "returns").Value.EnumerateObject();
+                        returnData = GetReturnData(returnDataObject) as NdarrayData;
+                    }
+                    catch (Exception e)
+                    {
+                        // todo - rewrite using logger
+                        Console.WriteLine($"Error during return object schema parsing for method {methodName}: {e.Message}. Return object schema will be considered as empty.");
+                    }
 
                     description.Methods.Add(new MethodDescription(
-                        jsonMethodElement.Name,
+                        methodName: jsonMethodElement.Name,
                         argsName,
                         argsData,
-                        GetReturnData(returnDataObject) as NdarrayData
+                        returnData
                     ));
                 }
                 catch (Exception ex)
@@ -63,9 +77,14 @@ namespace MlemApi.Parsing
             return description;
         }
 
-        private IApiDescriptionDataStructure GetArgsData(JsonElement.ObjectEnumerator argsObjectEnumerator)
+        private IApiDescriptionDataStructure? GetArgsData(JsonElement.ObjectEnumerator? argsObjectEnumerator)
         {
-            var typesDataObject = argsObjectEnumerator.First(e => e.Name == "type_")
+            if (argsObjectEnumerator is not JsonElement.ObjectEnumerator notNullableArgsObjectEnumerator)
+            {
+                return null;
+            }
+
+            var typesDataObject = notNullableArgsObjectEnumerator.First(e => e.Name == "type_")
                 .Value.EnumerateObject();
 
             IApiDescriptionDataStructure dataType = dataTypeProvider.GetTypeFromSchema(typesDataObject, dataTypeProvider);
@@ -80,9 +99,14 @@ namespace MlemApi.Parsing
             return dataType;
         }
 
-        private IApiDescriptionDataStructure GetReturnData(JsonElement.ObjectEnumerator returnObjectEnumerator)
+        private IApiDescriptionDataStructure? GetReturnData(JsonElement.ObjectEnumerator? returnObjectEnumerator)
         {
-            return dataTypeProvider.GetTypeFromSchema(returnObjectEnumerator, dataTypeProvider);
+            if (returnObjectEnumerator is not JsonElement.ObjectEnumerator notNullableReturnObjectEnumerator)
+            {
+                return null;
+            }
+
+            return dataTypeProvider.GetTypeFromSchema(notNullableReturnObjectEnumerator, dataTypeProvider);
         }
     }
 }

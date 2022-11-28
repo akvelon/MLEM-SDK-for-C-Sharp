@@ -233,5 +233,35 @@ namespace MlemApiClientTests.IntegrationTests.IrisTests
                 ValidationMaps.irisColumnsMap
             ));
         }
+
+        [Test]
+        public void CallAsync_ThrowsInvalidApiSchemaException_ForEmptyMethodArgsInSchema()
+        {
+            MlemApiClient client = GetClientWithMockedHttpClientAndCustomSchema("", "Iris_empty_args.json");
+            client.ArgumentTypesValidationIsOn = true;
+
+            var exception = Assert.ThrowsAsync<InvalidApiSchemaException>(() => client.CallAsync<List<List<double>>, Iris>(
+                "predict",
+                GetIrisDataList(),
+                ValidationMaps.irisColumnsMap
+            ));
+
+            Assert.That(exception.Message, Is.EqualTo("Empty arguments scheme data for method predict."));
+        }
+
+        [Test]
+        public void CallAsync_ThrowsInvalidApiSchemaException_ForEmptyReturnObjectInSchema()
+        {
+            MlemApiClient client = GetClientWithMockedHttpClientAndCustomSchema("", "Iris_empty_return_obj.json");
+            client.ResponseValidationIsOn = true;
+
+            var exception = Assert.ThrowsAsync<InvalidApiSchemaException>(() => client.CallAsync<List<List<double>>, Iris>(
+                "predict",
+                GetIrisDataList(),
+                ValidationMaps.irisColumnsMap
+            ));
+
+            Assert.That(exception.Message, Is.EqualTo("Return object type for method predict is empty"));
+        }
     }
 }

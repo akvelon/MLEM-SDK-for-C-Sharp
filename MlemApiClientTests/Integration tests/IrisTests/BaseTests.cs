@@ -29,8 +29,13 @@ namespace MlemApiClientTests.IntegrationTests.IrisTests
 
         public MlemApiClient GetClientWithMockedHttpClient(string responseToSet)
         {
+            return GetClientWithMockedHttpClientAndCustomSchema(responseToSet, "Iris_test_schema.json");
+        }
+
+        public MlemApiClient GetClientWithMockedHttpClientAndCustomSchema(string responseToSet, string schemaFileName)
+        {
             return TestMockUtils.GetClientWithMockedSchema(
-                Path.Combine("Assets", "Iris_test_schema.json"),
+                Path.Combine("Assets", schemaFileName),
                 responseToSet
             );
         }

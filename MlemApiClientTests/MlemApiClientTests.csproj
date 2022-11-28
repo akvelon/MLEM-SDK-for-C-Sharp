@@ -36,6 +36,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Assets\Iris_empty_args.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\Iris_empty_return_obj.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Assets\Iris_test_schema.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

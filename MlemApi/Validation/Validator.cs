@@ -68,6 +68,11 @@ namespace MlemApi.Validation
         {
             NdarrayData? methodReturnDataSchema = GetMethodDescriptionFromSchema(methodName)?.ReturnData as NdarrayData;
 
+            if (methodReturnDataSchema == null)
+            {
+                throw new InvalidApiSchemaException($"Return object type for method {methodName} is empty");
+            }
+
             try
             {
                 JArray parsedResponse = JArray.Parse(response);
@@ -93,7 +98,8 @@ namespace MlemApi.Validation
 
         private void ValidateArgument<incomeT>(incomeT value, string methodName, Dictionary<string, string>? modelColumnToPropNamesMap = null)
         {
-            switch (GetMethodDescriptionFromSchema(methodName)?.ArgsData)
+            var argsData = GetMethodDescriptionFromSchema(methodName)?.ArgsData;
+            switch (argsData)
             {
                 case DataFrameData dataFrame:
                     {
@@ -108,6 +114,10 @@ namespace MlemApi.Validation
                 case null:
                     {
                         throw new InvalidApiSchemaException($"Empty arguments scheme data for method {methodName}.");
+                    }
+                default:
+                    {
+                        throw new NotSupportedTypeException($"Not supported argument type for method {methodName}: {argsData.GetType()}.");
                     }
             }
         }
@@ -124,7 +134,7 @@ namespace MlemApi.Validation
 
             if (actualColumnsCount > columnsCountInSchema)
             {
-                throw new IllegalColumnsNumberException($"Count of request object properties is not equal to properties in schema: expected {actualColumnsCount}, but actual is {columnsCountInSchema}");
+                throw new IllegalColumnsNumberException($"Count of request object properties is not equal to properties in schema: expected {columnsCountInSchema}, but actual is {actualColumnsCount}");
             }
 
             var columnsData = dataFrameData.ColumnsData;

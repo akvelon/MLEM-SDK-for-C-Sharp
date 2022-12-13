@@ -1,0 +1,4 @@
+[submodule "ResourcesGenerator/CommonResources"]
+	path = ResourcesGenerator/CommonResources
+	url = ssh://git@gitlab-ssh.akvelon.net:2022/sdc/mlem-client-dependencies/common-resources.git
+	ignore = dirty

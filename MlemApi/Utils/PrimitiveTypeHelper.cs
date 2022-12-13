@@ -1,10 +1,12 @@
-﻿using MlemApi.Validation.Exceptions;
+﻿using MlemApi.MessageResources;
+using MlemApi.Validation.Exceptions;
 
 namespace MlemApi.Utils
 {
     internal class PrimitiveTypeHelper : IPrimitiveTypeHelper
     {
-        public enum SupportedTypes {
+        public enum SupportedTypes
+        {
             Single,
             Double,
             SByte,
@@ -53,6 +55,7 @@ namespace MlemApi.Utils
                 throw new KeyNotFoundException($"Unknown value type - {dType}");
             }
         }
+
         /// <summary>
         /// Validates if value is of expected dtype
         /// </summary>
@@ -125,14 +128,13 @@ namespace MlemApi.Utils
                         }
                     default:
                         {
-                            throw new Exception($"No validation logic for type {expectedNetType}");
-                            break;
+                            throw new NotImplementedException(string.Format(EM.NoValidationLogic, expectedNetType));
                         }
                 }
             }
             catch (FormatException)
             {
-                throw new InvalidTypeException($"Value '{value}' is not compatible with expected type - {expectedNetType}");
+                throw new InvalidTypeException(string.Format(EM.InvalidType, value, expectedNetType));
             }
         }
     }

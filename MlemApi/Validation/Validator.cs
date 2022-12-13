@@ -7,6 +7,7 @@ using MlemApi.Validation.Exceptions;
 using MlemApi.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using MlemApi.MessageResources;
 
 namespace MlemApi.Validation
 {
@@ -52,7 +53,7 @@ namespace MlemApi.Validation
             {
                 _logger?.LogError($"Input value is empty: {nameof(values)}.");
 
-                throw new ArgumentException($"{nameof(values)} cannot be empty.");
+                throw new ArgumentException(string.Format(EM.EmptyArgument, nameof(values)));
             }
 
             if (argumentTypesValidationIsOn)
@@ -198,14 +199,14 @@ namespace MlemApi.Validation
                     }
                     catch (Exception)
                     {
-                        throw new IllegalArrayNestingLevel($"Unexpected level of nesting in response data - appeared {currentListElement.Item2}, but {ndArrayData.Shape.Count() - 1} is expected as maximum");
+                        throw new IllegalArrayNestingLevelException($"Unexpected level of nesting in response data - appeared {currentListElement.Item2}, but {ndArrayData.Shape.Count() - 1} is expected as maximum");
                     }
 
                     var currentArray = currentListElement.Item1 as ICollection;
 
                     if (expectedArrayLength != null && currentArray.Count != expectedArrayLength)
                     {
-                        throw new IllegalArrayLength($"Array {currentArray} does not have expected length - actual is {currentArray.Count}, but {expectedArrayLength} expected");
+                        throw new IllegalArrayLengthException($"Array {currentArray} does not have expected length - actual is {currentArray.Count}, but {expectedArrayLength} expected");
                     }
 
                     foreach (var subElement in currentArray)
@@ -217,7 +218,7 @@ namespace MlemApi.Validation
                 {
                     if (currentListElement.Item2 != ndArrayData.Shape.Count())
                     {
-                        throw new IllegalArrayNestingLevel($"Primitive values on nesting level {currentListElement.Item2} appeared, but expected on {ndArrayData.Shape.Count()} level only");
+                        throw new IllegalArrayNestingLevelException($"Primitive values on nesting level {currentListElement.Item2} appeared, but expected on {ndArrayData.Shape.Count()} level only");
                     }
                     if (ndArrayData?.Dtype != null)
                     {

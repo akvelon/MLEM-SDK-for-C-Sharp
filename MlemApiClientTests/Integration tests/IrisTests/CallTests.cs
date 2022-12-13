@@ -185,7 +185,7 @@ namespace MlemApiClientTests.IntegrationTests.IrisTests
             MlemApiClient client = GetClientWithMockedHttpClient("[1,2]");
             client.ResponseValidationIsOn = true;
 
-            var exception = Assert.ThrowsAsync<IllegalArrayNestingLevel>(() => client.CallAsync<List<List<double>>, Iris>(
+            var exception = Assert.ThrowsAsync<IllegalArrayNestingLevelException>(() => client.CallAsync<List<List<double>>, Iris>(
                 "predict_proba",
                 GetIrisDataList(),
                 ValidationMaps.irisColumnsMap
@@ -206,7 +206,7 @@ namespace MlemApiClientTests.IntegrationTests.IrisTests
                 ValidationMaps.irisColumnsMap
             ));
 
-            Assert.That(exception.Message, Is.EqualTo("Value 'text' is not compatible with expected type - Int64"));
+            Assert.That(exception.Message, Is.EqualTo("Value 'text' is not compatible with expected type Int64"));
         }
 
         [Test]
@@ -215,7 +215,7 @@ namespace MlemApiClientTests.IntegrationTests.IrisTests
             MlemApiClient client = GetClientWithMockedHttpClient("[[1,4,10,2]]");
             client.ResponseValidationIsOn = true;
 
-            var exception = Assert.ThrowsAsync<IllegalArrayLength>(() => client.CallAsync<List<List<double>>, Iris>(
+            var exception = Assert.ThrowsAsync<IllegalArrayLengthException>(() => client.CallAsync<List<List<double>>, Iris>(
                 "predict_proba",
                 GetIrisDataList(),
                 ValidationMaps.irisColumnsMap

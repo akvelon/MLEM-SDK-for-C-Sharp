@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using MlemApi.DataTypeParsers;
 using MlemApi.Dto;
+using MlemApi.MessageResources;
 using MlemApi.Parsing.DataTypeParsers;
 using MlemApi.Validation.Exceptions;
 
@@ -70,7 +71,7 @@ namespace MlemApi.Parsing
                 }
                 catch (Exception ex)
                 {
-                    throw new InvalidApiSchemaException("Invalid api schema", ex);
+                    throw new InvalidApiSchemaException(EM.InvalidApiSchema, ex);
                 }
             }
 

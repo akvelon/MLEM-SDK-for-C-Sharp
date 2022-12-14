@@ -16,5 +16,6 @@
         DigitsRandomForest,
         ClassGeneration,
         TextModel,
+        CustomConsoleLoggerCase
     }
 }

@@ -6,6 +6,7 @@ using MlemApi.Dto;
 using MlemApi.Serializing;
 using MlemApi.Validation;
 using MlemApi.Parsing;
+using MlemApi.Logging;
 
 namespace MlemApi
 {
@@ -21,7 +22,7 @@ namespace MlemApi
         private readonly IValidator? _validator;
         private readonly RequestBuilder _requestBuilder;
         private readonly ApiDescription _apiDescription;
-        private readonly DescriptionParser descriptionParser = new DescriptionParser();
+        private readonly DescriptionParser descriptionParser;
 
         public bool ArgumentTypesValidationIsOn { get; set; }
         public bool ResponseValidationIsOn { get; set; } = false;
@@ -35,11 +36,13 @@ namespace MlemApi
             IRequestValuesSerializer? requestSerializer = null, IValidator? validator = null, bool argumentTypesValidationIsOn = false)
         {
             _httpClient = httpClient ?? new HttpClient();
-            _logger = logger;
-
+            _logger = logger ?? new DefaultLogger();
+            
             _httpClient.BaseAddress = new Uri(url);
 
             _requestBuilder = new RequestBuilder(requestSerializer ?? new DefaultRequestValueSerializer());
+
+            descriptionParser = new DescriptionParser(logger);
 
             _apiDescription = GetDescription();
 
@@ -150,6 +153,7 @@ namespace MlemApi
 
                 if (ResponseValidationIsOn)
                 {
+                    _logger?.LogDebug("Response validation is on - started validation");
                     _validator?.ValidateJsonResponse(response, command);
                 }
 

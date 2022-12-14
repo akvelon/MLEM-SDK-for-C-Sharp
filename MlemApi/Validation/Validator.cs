@@ -17,7 +17,7 @@ namespace MlemApi.Validation
         private readonly ApiDescription _apiDescription;
         private readonly IPrimitiveTypeHelper primitiveTypeHelper;
 
-        public Validator(ApiDescription _apiDescription, IPrimitiveTypeHelper primitiveTypeHelper = null, ILogger logger = null)
+        public Validator(ApiDescription _apiDescription, IPrimitiveTypeHelper? primitiveTypeHelper = null, ILogger? logger = null)
         {
             _logger = logger;
             this._apiDescription = _apiDescription;
@@ -26,6 +26,7 @@ namespace MlemApi.Validation
 
         public void ValidateMethod(string methodName)
         {
+            _logger?.LogDebug($"Validating method {methodName}.");
             if (!_apiDescription.Methods.Any(m => m.MethodName == methodName))
             {
                 var message = $"No method {methodName} in API.";
@@ -42,6 +43,8 @@ namespace MlemApi.Validation
             Dictionary<string, string>? modelColumnToPropNamesMap = null
         )
         {
+            _logger?.LogDebug($"Validating values for method {methodName}.");
+
             if (values == null)
             {
                 _logger?.LogError($"Input value is null: {nameof(values)}.");
@@ -58,6 +61,7 @@ namespace MlemApi.Validation
 
             if (argumentTypesValidationIsOn)
             {
+                _logger?.LogDebug($"Validation of method's arguments is turned on - proceeding on it.");
                 foreach (var value in values)
                 {
                     ValidateArgument(value, methodName, modelColumnToPropNamesMap);
@@ -67,6 +71,9 @@ namespace MlemApi.Validation
 
         public void ValidateJsonResponse(string response, string methodName)
         {
+            _logger?.LogDebug($"Validating response for method {methodName}.");
+            _logger?.LogDebug($"Response content: {response}");
+
             NdarrayData? methodReturnDataSchema = GetMethodDescriptionFromSchema(methodName)?.ReturnData as NdarrayData;
 
             if (methodReturnDataSchema == null)
@@ -76,12 +83,14 @@ namespace MlemApi.Validation
 
             try
             {
+                _logger?.LogDebug($"Trying to parse response as json...");
                 JArray parsedResponse = JArray.Parse(response);
 
                 // Objects queue with nesting level
                 Queue<Tuple<object, int>> listElementsQueue = new();
                 listElementsQueue.Enqueue(Tuple.Create<object, int>(parsedResponse, 0));
 
+                _logger?.LogDebug($"Considering that response should have ndarray type");
                 ValidateNdarrayData<JArray, JArray>(parsedResponse, methodReturnDataSchema);
             }
             catch (JsonReaderException e)
@@ -99,6 +108,7 @@ namespace MlemApi.Validation
 
         private void ValidateArgument<incomeT>(incomeT value, string methodName, Dictionary<string, string>? modelColumnToPropNamesMap = null)
         {
+            _logger?.LogDebug($"Validate argument value - {value}");
             var argsData = GetMethodDescriptionFromSchema(methodName)?.ArgsData;
             switch (argsData)
             {
@@ -125,6 +135,7 @@ namespace MlemApi.Validation
 
         private void ValidateDataframeData<incomeT>(incomeT value, DataFrameData dataFrameData, Dictionary<string, string>? modelColumnToPropNamesMap = null)
         {
+            _logger?.LogDebug($"Validating as dataframe...");
             if (modelColumnToPropNamesMap == null)
             {
                 throw new ArgumentNullException($"Map of model column names to request object properties is empty.");
@@ -176,6 +187,7 @@ namespace MlemApi.Validation
 
         private void ValidateNdarrayData<incomeT, ArrayType>(incomeT value, NdarrayData ndArrayData) where ArrayType : class
         {
+            _logger?.LogDebug($"Validating as ndarray...");
             var requestArray = value as ArrayType;
 
             var listElementsQueue = new Queue<Tuple<object, int>>();

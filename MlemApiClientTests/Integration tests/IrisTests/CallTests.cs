@@ -32,7 +32,7 @@ namespace MlemApiClientTests.IntegrationTests.IrisTests
         }
 
         [Test]
-        public async Task CallAsync_ProvidesExcpectedLogs()
+        public async Task CallAsync_ProvidesExpectedLogs()
         {
             CustomTestLogger logger = new();
             MlemApiClient client = GetClientWithCustomLogger(logger);

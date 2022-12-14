@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Microsoft.Extensions.Logging;
 using MlemApi.DataTypeParsers;
 using MlemApi.Dto;
 using MlemApi.MessageResources;
@@ -10,11 +11,18 @@ namespace MlemApi.Parsing
     internal class DescriptionParser
     {
         private IDataTypeProvider dataTypeProvider = new DataTypeProvider();
+        private ILogger? logger;
+
+        public DescriptionParser(ILogger logger)
+        {
+            this.logger = logger;
+        }
 
         public ApiDescription GetApiDescription(string jsonStringDescription)
         {
             using JsonDocument jsonDocument = JsonDocument.Parse(jsonStringDescription);
             JsonElement jsonMethodElements = jsonDocument.RootElement.GetProperty("methods");
+            logger?.LogDebug("Parsing api description...");
 
             JsonElement.ObjectEnumerator jsonMethodElementsEnumerator = jsonMethodElements.EnumerateObject();
             ApiDescription description = new ApiDescription
@@ -22,7 +30,7 @@ namespace MlemApi.Parsing
                 Methods = new List<MethodDescription>(jsonMethodElementsEnumerator.Count())
             };
 
-
+            logger?.LogDebug("Trying to parse methods");
             foreach (var jsonMethodElement in jsonMethodElementsEnumerator)
             {
                 try
@@ -68,6 +76,7 @@ namespace MlemApi.Parsing
                         argsData,
                         returnData
                     ));
+                    logger?.LogDebug($"Successfully parsed method {jsonMethodElement.Name}");
                 }
                 catch (Exception ex)
                 {
@@ -85,6 +94,7 @@ namespace MlemApi.Parsing
                 return null;
             }
 
+            logger?.LogDebug("Parsing args data...");
             var typesDataObject = notNullableArgsObjectEnumerator.First(e => e.Name == "type_")
                 .Value.EnumerateObject();
 
@@ -107,6 +117,7 @@ namespace MlemApi.Parsing
                 return null;
             }
 
+            logger?.LogDebug("Parsing return data...");
             return dataTypeProvider.GetTypeFromSchema(notNullableReturnObjectEnumerator, dataTypeProvider);
         }
     }

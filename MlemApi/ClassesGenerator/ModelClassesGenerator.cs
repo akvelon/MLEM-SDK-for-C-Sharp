@@ -1,4 +1,5 @@
-﻿﻿﻿using MlemApi.Dto;
+﻿using Microsoft.Extensions.Logging;
+using MlemApi.Dto;
 using MlemApi.Dto.DataFrameData;
 using MlemApi.Utils;
 using Stubble.Core;
@@ -9,6 +10,7 @@ namespace MlemApi.ClassesGenerator
 {
     public class ModelClassesGenerator
     {
+        private readonly ILogger? logger;
         private CamelCaseConverter camelCaseConverter = new CamelCaseConverter();
         private IPrimitiveTypeHelper primitiveTypeHelper = new PrimitiveTypeHelper();
         private readonly string dtoDataframeTemplatePath = Path.Combine("ClassesGenerator", "DtoDataframeTemplate.template");
@@ -16,6 +18,11 @@ namespace MlemApi.ClassesGenerator
 
         private string dtoDataframeTemplateContent;
         private string dtoNdarrayTemplateContent;
+
+        public ModelClassesGenerator(ILogger? logger = null)
+        {
+            this.logger = logger;
+        }
 
         private string GetMultiDimentionalListTypeString(List<int?> shape, string elementType)
         {
@@ -29,18 +36,22 @@ namespace MlemApi.ClassesGenerator
 
         private void WriteClassToFile(string outputPath, string classFileName, string fileContent)
         {
+            logger?.LogDebug($"Writing {classFileName} to {outputPath}");
             File.WriteAllText(
                     Path.Combine(outputPath, $"{classFileName}.cs"),
                     fileContent
                 );
+            logger?.LogDebug($"Successfully written {classFileName} to file");
         }
 
         private void GenerateRequestClasses(string camelCasedModelName, string classAccessModifier, string namespaceName, MethodDescription method, StubbleVisitorRenderer templateRenderer, string outputPath, RenderSettings renderSettings)
         {
+            logger?.LogDebug($"Generating classes for request type");
             var typeAlias = camelCaseConverter.ConvertToCamelCase($"{camelCasedModelName}{camelCaseConverter.ConvertToCamelCase(method.MethodName)}RequestType");
 
             if (method.ArgsData is DataFrameData)
             {
+                logger?.LogDebug($"Generating for dataframe type...");
                 GenerateDataframeClass(
                     classAccessModifier,
                     namespaceName,
@@ -53,6 +64,7 @@ namespace MlemApi.ClassesGenerator
             }
             else if (method.ArgsData is NdarrayData)
             {
+                logger?.LogDebug($"Generating for ndarray type...");
                 GenerateNdArrayClass(
                     classAccessModifier,
                     namespaceName,
@@ -67,6 +79,7 @@ namespace MlemApi.ClassesGenerator
 
         private void GenerateResponseClasses(string camelCasedModelName, string classAccessModifier, string namespaceName, MethodDescription method, StubbleVisitorRenderer templateRenderer, string outputPath, RenderSettings renderSettings)
         {
+            logger?.LogDebug($"Generating classes for response type");
             GenerateNdArrayClass(
                 classAccessModifier,
                 namespaceName,
@@ -80,22 +93,29 @@ namespace MlemApi.ClassesGenerator
 
         public void GenerateClasses(string modelName, string outputPath, MlemApiClient mlemApiClient, string namespaceName, string classAccessModifier = "internal")
         {
+            logger?.LogInformation($"Started classes generating for model {modelName}, output path - {outputPath}");
+            logger?.LogDebug($"Namespace name: {namespaceName}");
+            logger?.LogDebug($"Namespace name: {classAccessModifier}");
+
             Directory.CreateDirectory(outputPath);
 
             var apiDescription = mlemApiClient.GetDescription();
             var camelCasedModelName = camelCaseConverter.ConvertToCamelCase(modelName);
 
+            logger?.LogInformation($"Reading templates...");
             dtoDataframeTemplateContent = File.ReadAllText(dtoDataframeTemplatePath);
             dtoNdarrayTemplateContent = File.ReadAllText(dtoNdarrayTemplatePath);
 
             foreach (var method in apiDescription.Methods)
             {
+                logger?.LogDebug($"Generating classes for method {method.MethodName}");
                 var templateRenderer = new StubbleBuilder().Build();
                 var renderSettings = new RenderSettings
                 {
                     SkipHtmlEncoding = true
                 };
 
+                logger?.LogDebug($"Generating request type classes...");
                 GenerateRequestClasses(
                      camelCasedModelName,
                      classAccessModifier,
@@ -106,6 +126,7 @@ namespace MlemApi.ClassesGenerator
                      renderSettings
                  );
 
+                logger?.LogDebug($"Generating response type classes...");
                 GenerateResponseClasses(
                      camelCasedModelName,
                      classAccessModifier,
@@ -120,6 +141,7 @@ namespace MlemApi.ClassesGenerator
 
         private void GenerateNdArrayClass(string classAccessModifier, string namespaceName, NdarrayData ndArrayData, StubbleVisitorRenderer templateRenderer, string outputPath, string typeAlias, RenderSettings renderSettings)
         {
+            logger?.LogDebug($"Generating class for ndarray type");
             var stringifiedNdArrayDimensions = ndArrayData.Shape
                .Select(dimensionSize => dimensionSize == null ? "" : dimensionSize.ToString());
 
@@ -141,6 +163,7 @@ namespace MlemApi.ClassesGenerator
 
         private void GenerateDataframeClass(string classAccessModifier, string namespaceName, DataFrameData dataFrameData, StubbleVisitorRenderer templateRenderer, string outputPath, string typeAlias, RenderSettings renderSettings)
         {
+            logger?.LogDebug($"Generating class for dataframe type");
             var columnsData = from columnData in dataFrameData.ColumnsData
                               select new ColumnData
                               {

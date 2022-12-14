@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using MlemApi;
+using NUnit.Framework.Internal;
 
 namespace MlemApiClientTests.Utilities
 {
@@ -12,13 +13,16 @@ namespace MlemApiClientTests.Utilities
             Logs = new List<string>();
         }
 
-        public bool IsEnabled(LogLevel LogLevel) => LogLevel == LogLevel.Debug;
+        public bool IsEnabled(LogLevel LogLevel) => LogLevel == LogLevel.Information;
 
         public IDisposable BeginScope<TState>(TState state) => state as IDisposable;
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
         {
-            Logs.Add(formatter(state, exception));
+            if (IsEnabled(logLevel))
+            {
+                Logs.Add(formatter(state, exception));
+            }
         }
     }
 }

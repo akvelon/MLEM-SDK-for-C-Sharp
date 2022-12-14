@@ -266,7 +266,7 @@ namespace Example
         {
             string url = "http://127.0.0.1:8080/";
             MlemApiClient mlemClient = new(url, _logger);
-            mlemClient.ArgumentTypesValidationIsOn = true;
+            mlemClient.ArgumentsValidationIsOn = true;
             mlemClient.ResponseValidationIsOn = true;
 
             Wine input = new()
@@ -314,7 +314,7 @@ namespace Example
         private async Task RunIrisRequestCheckInvalidArgumentCase()
         {
             MlemApiClient client = GetIrisClient();
-            client.ArgumentTypesValidationIsOn = true;
+            client.ArgumentsValidationIsOn = true;
             client.ResponseValidationIsOn = true;
 
             await client.CallAsync<List<List<double>>, IrisWithInvalidArgumentType>("predict_proba", new List<IrisWithInvalidArgumentType>
@@ -341,7 +341,7 @@ namespace Example
         private async Task RunIrisRequestCheckMissingColumnCase()
         {
             MlemApiClient client = GetIrisClient();
-            client.ArgumentTypesValidationIsOn = true;
+            client.ArgumentsValidationIsOn = true;
             client.ResponseValidationIsOn = true;
 
             await client.CallAsync<List<List<double>>, IrisWithMissingColumn>("predict_proba", new List<IrisWithMissingColumn>
@@ -366,7 +366,7 @@ namespace Example
         private async Task RunIrisRequestCheckUnknownColumnCase()
         {
             MlemApiClient client = GetIrisClient();
-            client.ArgumentTypesValidationIsOn = true;
+            client.ArgumentsValidationIsOn = true;
             client.ResponseValidationIsOn = true;
 
             await client.CallAsync<List<List<double>>, IrisWithUnknownColumnName>("predict_proba", new List<IrisWithUnknownColumnName>
@@ -394,7 +394,7 @@ namespace Example
         {
             string url = "http://127.0.0.1:8080/";
             MlemApiClient mlemClient = new(url, null);
-            mlemClient.ArgumentTypesValidationIsOn = true;
+            mlemClient.ArgumentsValidationIsOn = true;
             mlemClient.ResponseValidationIsOn = true;
 
             Random rand = new Random();

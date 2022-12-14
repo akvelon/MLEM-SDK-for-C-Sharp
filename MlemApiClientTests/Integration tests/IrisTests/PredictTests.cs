@@ -15,7 +15,7 @@ namespace MlemApiClientTests.IntegrationTests.IrisTests
         [TestCase(false, true)]
         public async Task PredictAsync_ReturnsExpected_Count(bool useRequestValidation, bool useResponseValidation)
         {
-            _client.ArgumentTypesValidationIsOn = useRequestValidation;
+            _client.ArgumentsValidationIsOn = useRequestValidation;
             _client.ResponseValidationIsOn = useResponseValidation;
 
             List<long>? result = await _client.PredictAsync<List<long>, Iris>(
@@ -91,7 +91,7 @@ namespace MlemApiClientTests.IntegrationTests.IrisTests
         [Test]
         public void PredictAsync_ThrowsInvalidTypeException_If_RequestObject_HasUnexpectedPropertyType()
         {
-            _client.ArgumentTypesValidationIsOn = true;
+            _client.ArgumentsValidationIsOn = true;
 
             Assert.ThrowsAsync<InvalidTypeException>(() => _client.PredictAsync<List<long>, IrisWithInvalidArgumentType?>(
                 new List<IrisWithInvalidArgumentType>
@@ -118,7 +118,7 @@ namespace MlemApiClientTests.IntegrationTests.IrisTests
         [Test]
         public void PredictAsync_ThrowsKeyNotFoundException_If_RequestObject_HasMissingColumn()
         {
-            _client.ArgumentTypesValidationIsOn = true;
+            _client.ArgumentsValidationIsOn = true;
 
             Assert.ThrowsAsync<KeyNotFoundException>(() => _client.PredictAsync<List<long>, IrisWithMissingColumn?>(
                 new List<IrisWithMissingColumn>
@@ -143,7 +143,7 @@ namespace MlemApiClientTests.IntegrationTests.IrisTests
         [Test]
         public void PredictAsync_ThrowsKeyNotFoundException_If_RequestObject_HasUnknownColumn()
         {
-            _client.ArgumentTypesValidationIsOn = true;
+            _client.ArgumentsValidationIsOn = true;
 
             Assert.ThrowsAsync<KeyNotFoundException>(() => _client.PredictAsync<List<long>, IrisWithUnknownColumnName>(
                 new List<IrisWithUnknownColumnName>

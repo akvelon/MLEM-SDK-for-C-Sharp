@@ -24,7 +24,7 @@ namespace MlemApi.Logging
         /// Methods to skip in stack trace - to get relevant class/method name of the caller
         /// Denends on calls nesting inside of DefaultLogger class
         /// </summary>
-        private readonly int methodsToSkip = 4;
+        private readonly int _methodsToSkip = 4;
 
         public bool IsEnabled(LogLevel LogLevel)
         {
@@ -55,7 +55,7 @@ namespace MlemApi.Logging
             {
                 StackTrace stackTrace = new StackTrace();
                 
-                var className = stackTrace.GetFrame(methodsToSkip).GetMethod().ReflectedType.Name;
+                var className = stackTrace.GetFrame(_methodsToSkip).GetMethod().ReflectedType.Name;
                 var frames = stackTrace.GetFrames();
                 logMessageBuilder.Append($" {className}");
             }
@@ -63,7 +63,7 @@ namespace MlemApi.Logging
             if (MethodNameLogLevels.Contains(logLevel))
             {
                 StackTrace stackTrace = new StackTrace();
-                var methodName = stackTrace.GetFrame(methodsToSkip).GetMethod().Name;
+                var methodName = stackTrace.GetFrame(_methodsToSkip).GetMethod().Name;
                 logMessageBuilder.Append($".{methodName}");
             }
 

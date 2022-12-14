@@ -24,7 +24,7 @@ namespace MlemApiClientTests.IntegrationTests.IrisTests
         [TearDown]
         public void TearDown()
         {
-            _client.ArgumentTypesValidationIsOn = false;
+            _client.ArgumentsValidationIsOn = false;
         }
 
         public MlemApiClient GetClientWithMockedHttpClient(string responseToSet)

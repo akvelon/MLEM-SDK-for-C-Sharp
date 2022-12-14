@@ -3,10 +3,15 @@ using MlemApi.Validation.Exceptions;
 
 namespace MlemApi.Utils
 {
+    /// <summary>
+    /// Provides operation over primitive data types supported by mlem
+    /// </summary>
     internal class PrimitiveTypeHelper : IPrimitiveTypeHelper
     {
-        public enum SupportedTypes
-        {
+        /// <summary>
+        /// List of types supported (.NET types)
+        /// </summary>
+        public enum SupportedTypes {
             Single,
             Double,
             SByte,
@@ -24,7 +29,7 @@ namespace MlemApi.Utils
         /// Map of Numpy types (used in sklearn) to C# primitive types
         /// See https://gist.github.com/robbmcleod/73ca42da5984e6d0e5b6ad28bc4a504efor for the referenced list of types
         /// </summary>
-        private readonly Dictionary<string, SupportedTypes> typesMap = new Dictionary<string, SupportedTypes>()
+        private readonly Dictionary<string, SupportedTypes> _typesMap = new Dictionary<string, SupportedTypes>()
         {
             { "float32", SupportedTypes.Single },
             { "float64", SupportedTypes.Double },
@@ -48,7 +53,7 @@ namespace MlemApi.Utils
         {
             try
             {
-                return typesMap[dType].ToString();
+                return _typesMap[dType].ToString();
             }
             catch (KeyNotFoundException)
             {

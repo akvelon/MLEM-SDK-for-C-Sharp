@@ -2,10 +2,12 @@
 using MlemApi.Dto;
 using MlemApi.Dto.DataFrameData;
 using MlemApi.Parsing;
-using static System.Text.Json.JsonElement;
 
 namespace MlemApi.DataTypeParsers
 {
+    /// <summary>
+    /// Parses pandas data types
+    /// </summary>
     internal class PandasTypesProvider : IDataTypeProvider
     {
         public List<string> GetSupportedTypes()

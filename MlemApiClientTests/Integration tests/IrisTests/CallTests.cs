@@ -16,7 +16,7 @@ namespace MlemApiClientTests.IntegrationTests.IrisTests
         [TestCase(false, true)]
         public async Task CallAsync_ReturnsExpected_Count(bool useRequestValidation, bool useResponseValidation)
         {
-            _client.ArgumentTypesValidationIsOn = useRequestValidation;
+            _client.ArgumentsValidationIsOn = useRequestValidation;
             _client.ResponseValidationIsOn = useResponseValidation;
 
             List<List<double>>? result = await _client.CallAsync<List<List<double>>, Iris>("predict_proba",
@@ -89,7 +89,7 @@ namespace MlemApiClientTests.IntegrationTests.IrisTests
         [Test]
         public void CallAsync_ThrowsArgumentNullException_If_ArgumentList_IsEmpty()
         {
-            _client.ArgumentTypesValidationIsOn = true;
+            _client.ArgumentsValidationIsOn = true;
             Assert.ThrowsAsync<ArgumentException>(() => _client.CallAsync<List<List<double>>, Iris>(
                 "predict_proba",
                 new List<Iris>(), // empty list
@@ -100,7 +100,7 @@ namespace MlemApiClientTests.IntegrationTests.IrisTests
         [Test]
         public void CallAsync_ThrowsInvalidTypeException_If_RequestObject_HasUnexpectedPropertyType()
         {
-            _client.ArgumentTypesValidationIsOn = true;
+            _client.ArgumentsValidationIsOn = true;
 
             Assert.ThrowsAsync<InvalidTypeException>(() => _client.CallAsync<List<List<double>>, IrisWithInvalidArgumentType?>(
                 "predict_proba",
@@ -128,7 +128,7 @@ namespace MlemApiClientTests.IntegrationTests.IrisTests
         [Test]
         public void CallAsync_ThrowsKeyNotFoundException_If_RequestObject_HasMissingColumn()
         {
-            _client.ArgumentTypesValidationIsOn = true;
+            _client.ArgumentsValidationIsOn = true;
 
             Assert.ThrowsAsync<KeyNotFoundException>(() => _client.CallAsync<List<List<double>>, IrisWithMissingColumn?>(
                 "predict_proba",
@@ -154,7 +154,7 @@ namespace MlemApiClientTests.IntegrationTests.IrisTests
         [Test]
         public void CallAsync_ThrowsKeyNotFoundException_If_RequestObject_HasUnknownColumn()
         {
-            _client.ArgumentTypesValidationIsOn = true;
+            _client.ArgumentsValidationIsOn = true;
 
             Assert.ThrowsAsync<KeyNotFoundException>(() => _client.CallAsync<List<List<double>>, IrisWithUnknownColumnName>(
                 "predict_proba",
@@ -177,6 +177,44 @@ namespace MlemApiClientTests.IntegrationTests.IrisTests
                 },
                 ValidationMaps.irisColumnsMap
             ));
+        }
+
+        [Test]
+        public void CallAsync_ThrowsArgumentNullException_If_MethodNameIsNull()
+        {
+            _client.ArgumentsValidationIsOn = true;
+
+            var exception = Assert.ThrowsAsync<ArgumentNullException>(() => _client.CallAsync<List<List<double>>, Iris>(
+                null,
+                GetIrisDataList(),
+                ValidationMaps.irisColumnsMap
+            ));
+
+            Assert.That(exception.Message, Is.EqualTo("Value cannot be null. (Parameter 'Method name should not be null')"));
+        }
+
+        [Test]
+        public void CallAsync_ThrowsArgumentNullException_If_OneOfInputValuesIsNull()
+        {
+            _client.ArgumentsValidationIsOn = true;
+
+            var exception = Assert.ThrowsAsync<ArgumentNullException>(() => _client.CallAsync<List<List<double>>, Iris>(
+                "predict_proba",
+                 new List<Iris>
+                {
+                    new Iris
+                    {
+                        SepalLength = 5.1,
+                        SepalWidth = 3.5,
+                        PetalLength = 1.4,
+                        PetalWidth = 3.5
+                    },
+                    null
+                },
+                ValidationMaps.irisColumnsMap
+            ));
+
+            Assert.That(exception.Message, Is.EqualTo("Input value by index 1 is null."));
         }
 
         [Test]
@@ -238,7 +276,7 @@ namespace MlemApiClientTests.IntegrationTests.IrisTests
         public void CallAsync_ThrowsInvalidApiSchemaException_ForEmptyMethodArgsInSchema()
         {
             MlemApiClient client = GetClientWithMockedHttpClientAndCustomSchema("", "Iris_empty_args.json");
-            client.ArgumentTypesValidationIsOn = true;
+            client.ArgumentsValidationIsOn = true;
 
             var exception = Assert.ThrowsAsync<InvalidApiSchemaException>(() => client.CallAsync<List<List<double>>, Iris>(
                 "predict",

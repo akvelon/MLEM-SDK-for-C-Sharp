@@ -11,22 +11,31 @@ using MlemApi.MessageResources;
 
 namespace MlemApi.Validation
 {
+    /// <summary>
+    /// Provides validation logic for request or response data
+    /// </summary>
     internal class Validator : IValidator
     {
         private readonly ILogger? _logger;
         private readonly ApiDescription _apiDescription;
-        private readonly IPrimitiveTypeHelper primitiveTypeHelper;
+        private readonly IPrimitiveTypeHelper _primitiveTypeHelper;
 
         public Validator(ApiDescription _apiDescription, IPrimitiveTypeHelper? primitiveTypeHelper = null, ILogger? logger = null)
         {
             _logger = logger;
             this._apiDescription = _apiDescription;
-            this.primitiveTypeHelper = primitiveTypeHelper ?? new PrimitiveTypeHelper();
+            this._primitiveTypeHelper = primitiveTypeHelper ?? new PrimitiveTypeHelper();
         }
 
         public void ValidateMethod(string methodName)
         {
+            if (methodName == null)
+            {
+                throw new ArgumentNullException("Method name should not be null");
+            }
+
             _logger?.LogDebug($"Validating method {methodName}.");
+
             if (!_apiDescription.Methods.Any(m => m.MethodName == methodName))
             {
                 var message = $"No method {methodName} in API.";
@@ -47,24 +56,25 @@ namespace MlemApi.Validation
 
             if (values == null)
             {
-                _logger?.LogError($"Input value is null: {nameof(values)}.");
-
-                throw new ArgumentNullException(nameof(values));
+                throw new ArgumentNullException(message: $"Input value is null: {nameof(values)}.", innerException: null);
             }
 
             if (!values.Any())
             {
-                _logger?.LogError($"Input value is empty: {nameof(values)}.");
-
                 throw new ArgumentException(string.Format(EM.EmptyArgument, nameof(values)));
             }
 
             if (argumentTypesValidationIsOn)
             {
                 _logger?.LogDebug($"Validation of method's arguments is turned on - proceeding on it.");
-                foreach (var value in values)
+
+                foreach (var valueTuple in values.Select((value, index) => new { index, value }))
                 {
-                    ValidateArgument(value, methodName, modelColumnToPropNamesMap);
+                    if (valueTuple.value == null)
+                    {
+                        throw new ArgumentNullException(message: $"Input value by index {valueTuple.index} is null.", innerException: null);
+                    }
+                    ValidateArgument(valueTuple.value, methodName, modelColumnToPropNamesMap);
                 }
             }
         }
@@ -103,7 +113,7 @@ namespace MlemApi.Validation
         {
             var valueString = jsonValue.ToString();
 
-            primitiveTypeHelper.ValidateType(valueString, expectedNumPyTypeName);
+            _primitiveTypeHelper.ValidateType(valueString, expectedNumPyTypeName);
         }
 
         private void ValidateArgument<incomeT>(incomeT value, string methodName, Dictionary<string, string>? modelColumnToPropNamesMap = null)
@@ -247,7 +257,7 @@ namespace MlemApi.Validation
 
             try
             {
-                expectedTypeName = primitiveTypeHelper.GetMappedDtype(typeNameFromSchema);
+                expectedTypeName = _primitiveTypeHelper.GetMappedDtype(typeNameFromSchema);
             }
             catch (KeyNotFoundException)
             {

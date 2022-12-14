@@ -8,7 +8,7 @@
         /// <summary>
         /// Serialize input values to list of json string
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">type of the single input value</typeparam>
         /// <param name="values">input values</param>
         /// <param name="values">request object type - ndarray or dataframe</param>
         /// <returns></returns>

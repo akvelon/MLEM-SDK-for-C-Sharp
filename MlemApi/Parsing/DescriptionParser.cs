@@ -8,21 +8,30 @@ using MlemApi.Validation.Exceptions;
 
 namespace MlemApi.Parsing
 {
+    /// <summary>
+    /// Allows to parse api schema of mlem model
+    /// </summary>
     internal class DescriptionParser
     {
-        private IDataTypeProvider dataTypeProvider = new DataTypeProvider();
-        private ILogger? logger;
+        private IDataTypeProvider _dataTypeProvider = new DataTypeProvider();
+        private ILogger? _logger;
 
         public DescriptionParser(ILogger logger)
         {
-            this.logger = logger;
+            this._logger = logger;
         }
 
+        /// <summary>
+        /// Returns parsed api schema
+        /// </summary>
+        /// <param name="jsonStringDescription">Json representation of api schema from deployed mlem model</param>
+        /// <returns>Parsed api schema</returns>
+        /// <exception cref="InvalidApiSchemaException">Throws if schema is invalid</exception>
         public ApiDescription GetApiDescription(string jsonStringDescription)
         {
             using JsonDocument jsonDocument = JsonDocument.Parse(jsonStringDescription);
             JsonElement jsonMethodElements = jsonDocument.RootElement.GetProperty("methods");
-            logger?.LogDebug("Parsing api description...");
+            _logger?.LogDebug("Parsing api description...");
 
             JsonElement.ObjectEnumerator jsonMethodElementsEnumerator = jsonMethodElements.EnumerateObject();
             ApiDescription description = new ApiDescription
@@ -30,7 +39,7 @@ namespace MlemApi.Parsing
                 Methods = new List<MethodDescription>(jsonMethodElementsEnumerator.Count())
             };
 
-            logger?.LogDebug("Trying to parse methods");
+            _logger?.LogDebug("Trying to parse methods");
             foreach (var jsonMethodElement in jsonMethodElementsEnumerator)
             {
                 try
@@ -76,7 +85,7 @@ namespace MlemApi.Parsing
                         argsData,
                         returnData
                     ));
-                    logger?.LogDebug($"Successfully parsed method {jsonMethodElement.Name}");
+                    _logger?.LogDebug($"Successfully parsed method {jsonMethodElement.Name}");
                 }
                 catch (Exception ex)
                 {
@@ -87,6 +96,11 @@ namespace MlemApi.Parsing
             return description;
         }
 
+        /// <summary>
+        /// Parses schema for args data from relevant json object
+        /// </summary>
+        /// <param name="argsObjectEnumerator">json object enumerator for args data in api schema</param>
+        /// <returns>Parsed schema for args data</returns>
         private IApiDescriptionDataStructure? GetArgsData(JsonElement.ObjectEnumerator? argsObjectEnumerator)
         {
             if (argsObjectEnumerator is not JsonElement.ObjectEnumerator notNullableArgsObjectEnumerator)
@@ -94,11 +108,11 @@ namespace MlemApi.Parsing
                 return null;
             }
 
-            logger?.LogDebug("Parsing args data...");
+            _logger?.LogDebug("Parsing args data...");
             var typesDataObject = notNullableArgsObjectEnumerator.First(e => e.Name == "type_")
                 .Value.EnumerateObject();
 
-            IApiDescriptionDataStructure dataType = dataTypeProvider.GetTypeFromSchema(typesDataObject, dataTypeProvider);
+            IApiDescriptionDataStructure dataType = _dataTypeProvider.GetTypeFromSchema(typesDataObject, _dataTypeProvider);
 
             if (dataType is NdarrayData)
             {
@@ -110,6 +124,11 @@ namespace MlemApi.Parsing
             return dataType;
         }
 
+        /// <summary>
+        /// Parses schema for return data from relevant json object
+        /// </summary>
+        /// <param name="returnObjectEnumerator">json object enumerator for return data in api schema</param>
+        /// <returns>Parsed schema for return data</returns>
         private IApiDescriptionDataStructure? GetReturnData(JsonElement.ObjectEnumerator? returnObjectEnumerator)
         {
             if (returnObjectEnumerator is not JsonElement.ObjectEnumerator notNullableReturnObjectEnumerator)
@@ -117,8 +136,8 @@ namespace MlemApi.Parsing
                 return null;
             }
 
-            logger?.LogDebug("Parsing return data...");
-            return dataTypeProvider.GetTypeFromSchema(notNullableReturnObjectEnumerator, dataTypeProvider);
+            _logger?.LogDebug("Parsing return data...");
+            return _dataTypeProvider.GetTypeFromSchema(notNullableReturnObjectEnumerator, _dataTypeProvider);
         }
     }
 }

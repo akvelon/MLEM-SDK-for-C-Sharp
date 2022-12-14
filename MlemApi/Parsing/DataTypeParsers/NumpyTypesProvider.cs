@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
+﻿using System.Text.Json;
 using MlemApi.Dto;
 
 namespace MlemApi.Parsing.DataTypeParsers
 {
+    /// <summary>
+    /// Parses numpy data types
+    /// </summary>
     internal class NumpyTypesProvider : IDataTypeProvider
     {
         public List<string> GetSupportedTypes()

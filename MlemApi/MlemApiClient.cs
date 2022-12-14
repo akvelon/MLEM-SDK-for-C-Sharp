@@ -22,16 +22,26 @@ namespace MlemApi
         private readonly IValidator? _validator;
         private readonly RequestBuilder _requestBuilder;
         private readonly ApiDescription _apiDescription;
-        private readonly DescriptionParser descriptionParser;
+        private readonly DescriptionParser _descriptionParser;
 
-        public bool ArgumentTypesValidationIsOn { get; set; }
+        /// <summary>
+        /// If true - turns arguments validation on
+        /// </summary>
+        public bool ArgumentsValidationIsOn { get; set; }
+        /// <summary>
+        /// If true - turns response validation on
+        /// </summary>
         public bool ResponseValidationIsOn { get; set; } = false;
 
         /// <summary>
-        /// Constructor
+        /// Constructs mlem client
         /// </summary>
-        /// <param name="httpClient"></param>
-        /// <param name="configuraion"></param>
+        /// <param name="url">url of the deployed mlem model</param>
+        /// <param name="logger">logger to be used by mlem client</param>
+        /// <param name="httpClient">http client used to send requests to mlem model</param>
+        /// <param name="requestSerializer">request serializer used to serialize request to model</param>
+        /// <param name="validator">validator - to provide validation for request data, method name and response</param>
+        /// <param name="argumentTypesValidationIsOn">if true - turns arguments validation on</param>
         public MlemApiClient(string url, ILogger<MlemApiClient>? logger = null, HttpClient? httpClient = null,
             IRequestValuesSerializer? requestSerializer = null, IValidator? validator = null, bool argumentTypesValidationIsOn = false)
         {
@@ -42,13 +52,13 @@ namespace MlemApi
 
             _requestBuilder = new RequestBuilder(requestSerializer ?? new DefaultRequestValueSerializer());
 
-            descriptionParser = new DescriptionParser(logger);
+            _descriptionParser = new DescriptionParser(logger);
 
             _apiDescription = GetDescription();
 
             _validator = validator ?? new Validator(_apiDescription, null, _logger);
 
-            ArgumentTypesValidationIsOn = argumentTypesValidationIsOn;
+            ArgumentsValidationIsOn = argumentTypesValidationIsOn;
         }
 
         /// <summary>
@@ -82,7 +92,7 @@ namespace MlemApi
         /// <typeparam name="outcomeT"></typeparam>
         /// <param name="methodName"></param>
         /// <param name="values"></param>
-        /// <returns></returns>
+        /// <returns>Response data from mlem model</returns>
         public async Task<ResultType?> CallAsync<ResultType, RequestType>(string methodName, RequestType value, Dictionary<string, string>? modelColumnNamesMap = null)
         {
             return await CallAsync<ResultType, RequestType>(methodName, new List<RequestType> { value }, modelColumnNamesMap);
@@ -91,18 +101,19 @@ namespace MlemApi
         /// <summary>
         /// Call methodName API method
         /// </summary>
-        /// <typeparam name="incomeT"></typeparam>
-        /// <typeparam name="outcomeT"></typeparam>
-        /// <param name="methodName"></param>
-        /// <param name="values"></param>
-        /// <returns></returns>
+        /// <typeparam name="ResultType">Type of data being returned from model</typeparam>
+        /// <typeparam name="RequestType">Type of input data</typeparam>
+        /// <param name="methodName">Method name (like "predict")</param>
+        /// <param name="values">Data values</param>
+        /// <param name="modelColumnNamesMap">Map from model column names to field names of the RequestType - used for validation only</param>
+        /// <returns>Response data from mlem model</returns>
         public async Task<ResultType?> CallAsync<ResultType, RequestType>(string methodName, IEnumerable<RequestType> values, Dictionary<string, string>? modelColumnNamesMap = null)
         {
             _validator?.ValidateMethod(methodName);
 
             MethodDescription methodDescription = _apiDescription.Methods.First(m => m.MethodName == methodName);
 
-            _validator?.ValidateValues(values, methodName, ArgumentTypesValidationIsOn, modelColumnNamesMap);
+            _validator?.ValidateValues(values, methodName, ArgumentsValidationIsOn, modelColumnNamesMap);
 
             string argsName = methodDescription.ArgsName;
 
@@ -111,6 +122,10 @@ namespace MlemApi
             return await SendPostRequestAsync<ResultType?>(methodName, jsonRequest);
         }
 
+        /// <summary>
+        /// Returns api schema desciption retrieved from deployed mlem model
+        /// </summary>
+        /// <returns>api schema description for deployed mlem model</returns>
         internal ApiDescription GetDescription()
         {
             _logger?.LogInformation("Request command: interface.json");
@@ -119,7 +134,7 @@ namespace MlemApi
             {
                 string response = _httpClient.GetStringAsync("interface.json").Result;
 
-                return descriptionParser.GetApiDescription(response);
+                return _descriptionParser.GetApiDescription(response);
             }
             catch (Exception ex)
             {

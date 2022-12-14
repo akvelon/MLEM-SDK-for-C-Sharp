@@ -3,6 +3,9 @@ using System.Text.Json;
 
 namespace MlemApi.Parsing.DataTypeParsers
 {
+    /// <summary>
+    /// Parses list data type
+    /// </summary>
     internal class ListTypeProvider : IDataTypeProvider
     {
         public List<string> GetSupportedTypes()

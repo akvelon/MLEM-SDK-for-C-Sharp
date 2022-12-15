@@ -1,12 +1,12 @@
 ﻿namespace MlemApi.Dto
 {
-    internal class ApiDescription
+    public class ApiDescription
     {
-        internal ApiDescription()
+        public ApiDescription()
         {
             Methods = new List<MethodDescription>();
         }
 
-        internal List<MethodDescription> Methods { get; set; }
+        public List<MethodDescription> Methods { get; set; }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace ModelRepository.InvalidRequestObjects
 {
-    internal class IrisWithMissingColumn
+    public class IrisWithMissingColumn
     {
         [JsonProperty("sepal length (cm)")]
         public double SepalLength { get; set; }

@@ -1,6 +1,6 @@
 ﻿namespace MlemApi.Dto
 {
-    internal class MethodDescription
+    public class MethodDescription
     {
         public MethodDescription(string methodName, string argsName, IApiDescriptionDataStructure argsData, NdarrayData returnData)
         {

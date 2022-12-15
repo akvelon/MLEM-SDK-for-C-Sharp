@@ -123,6 +123,17 @@ They are in `ModelRepository` project in `Additional models` folder.
 
 They are built using `LearnModelScript.py` scripts for each model.
 
+## Supported request object data types
+Mlem client support the following types:
+- Pandas types: dataframe
+- Numpy types: ndarray
+- List type
+- Primitive types: float64, int (int8, int16,int32), uint (uint8, uint16, uint32, uint64), bool, str
+
+Please note that mlem [already sorts](https://github.com/iterative/mlem/blob/afb18dba1cbc3e69590caa2f2a93f99dcdddf1f1/mlem/contrib/pandas.py#L161) dataframe fields in right order - so there is no need to worry about columns order for this datatype (treat it just like a dictionary type).
+
+See `Example_CSharp` project for more examples.
+
 ## Shared resources
 
 Some resources should be the same in .NET and Java clients. So, this reprository uses [git submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules) to get files like `Error_messages.json` and `Log_messages.json` from another private reporsitory - see README.md file in `[root]\ResourcesGenerator\CommonResources` for more details.

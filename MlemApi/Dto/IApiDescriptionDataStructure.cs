@@ -1,6 +1,6 @@
 ﻿namespace MlemApi.Dto
 {
-    internal interface IApiDescriptionDataStructure
+    public interface IApiDescriptionDataStructure
     {
 
     }

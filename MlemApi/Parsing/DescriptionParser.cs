@@ -64,7 +64,7 @@ namespace MlemApi.Parsing
                     catch (Exception e)
                     {
                         // todo - rewrite using logger
-                        Console.WriteLine($"Error during args parsing for method {methodName}: {e.Message}. Args will be considered as empty.");
+                        Console.WriteLine(string.Format(EM.ErrorDuringArgsParsing, methodName, e.Message));
                     }
 
                     try
@@ -76,7 +76,7 @@ namespace MlemApi.Parsing
                     catch (Exception e)
                     {
                         // todo - rewrite using logger
-                        Console.WriteLine($"Error during return object schema parsing for method {methodName}: {e.Message}. Return object schema will be considered as empty.");
+                        Console.WriteLine(string.Format(EM.ErrorDurngReturnObjectParsing, methodName, e.Message));
                     }
 
                     description.Methods.Add(new MethodDescription(

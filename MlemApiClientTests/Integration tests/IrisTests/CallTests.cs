@@ -66,7 +66,7 @@ namespace MlemApiClientTests.IntegrationTests.IrisTests
   ""petal length (cm)"": 6.6,
   ""petal width (cm)"": 2.1
 }]}}",
-                "Response status: OK.",
+                "Response status: OK",
             };
 
             Assert.That(logger.Logs, Is.EquivalentTo(expectedLogs));

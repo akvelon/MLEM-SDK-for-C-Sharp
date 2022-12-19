@@ -7,6 +7,7 @@ using MlemApi.Serializing;
 using MlemApi.Validation;
 using MlemApi.Parsing;
 using MlemApi.Logging;
+using MlemApi.MessageResources;
 
 namespace MlemApi
 {
@@ -128,7 +129,7 @@ namespace MlemApi
         /// <returns>api schema description for deployed mlem model</returns>
         internal ApiDescription GetDescription()
         {
-            _logger?.LogInformation("Request command: interface.json");
+            _logger?.LogInformation(string.Format(LM.LogRequestCommand, "interface.json"));
 
             try
             {
@@ -138,7 +139,7 @@ namespace MlemApi
             }
             catch (Exception ex)
             {
-                _logger?.LogError("Exception of getting API description", ex);
+                _logger?.LogError(EM.ExceptionGettingApiDescription, ex);
 
                 throw;
             }
@@ -146,8 +147,8 @@ namespace MlemApi
 
         private async Task<T?> SendPostRequestAsync<T>(string command, string requestJsonString)
         {
-            _logger?.LogInformation($"Request command: {command}");
-            _logger?.LogInformation($"Request JSON string: {requestJsonString}");
+            _logger?.LogInformation(string.Format(LM.LogRequestCommand, command));
+            _logger?.LogInformation(string.Format(LM.LogRequestJson,requestJsonString));
 
             try
             {
@@ -155,7 +156,7 @@ namespace MlemApi
                     command,
                     new StringContent(requestJsonString, Encoding.UTF8, MediaTypeNames.Application.Json));
 
-                _logger?.LogInformation($"Response status: {httpResponse.StatusCode}.");
+                _logger?.LogInformation(string.Format(LM.LogResponseStatus, httpResponse.StatusCode));
 
                 string response = await httpResponse.Content.ReadAsStringAsync();
 
@@ -178,21 +179,21 @@ namespace MlemApi
 
                     if (result == null)
                     {
-                        _logger?.LogWarning($"Response deserialization result is null.");
+                        _logger?.LogWarning(LM.LogResponseDeserializationNull);
                     }
 
                     return result;
                 }
                 catch
                 {
-                    _logger?.LogError($"Response deserialization error.");
+                    _logger?.LogError(LM.LogResponseDeserializationError);
 
                     throw;
                 }
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex, $"API request error.");
+                _logger?.LogError(ex, EM.ApiRequestError);
 
                 throw;
             }

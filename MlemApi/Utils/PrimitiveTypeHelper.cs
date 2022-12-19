@@ -57,7 +57,7 @@ namespace MlemApi.Utils
             }
             catch (KeyNotFoundException)
             {
-                throw new KeyNotFoundException($"Unknown value type - {dType}");
+                throw new KeyNotFoundException(string.Format(EM.UnknownValueType, dType));
             }
         }
 

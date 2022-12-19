@@ -8,6 +8,7 @@ using MlemApi.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using MlemApi.MessageResources;
+using System.Globalization;
 
 namespace MlemApi.Validation
 {
@@ -38,7 +39,7 @@ namespace MlemApi.Validation
 
             if (!_apiDescription.Methods.Any(m => m.MethodName == methodName))
             {
-                var message = $"No method {methodName} in API.";
+                var message = string.Format(EM.NoMethodInApi, methodName);
 
                 _logger?.LogError(message);
 
@@ -88,7 +89,7 @@ namespace MlemApi.Validation
 
             if (methodReturnDataSchema == null)
             {
-                throw new InvalidApiSchemaException($"Return object type for method {methodName} is empty");
+                throw new InvalidApiSchemaException(string.Format(EM.ReturnObjectTypeForMethodIsEmpty, methodName));
             }
 
             try
@@ -105,7 +106,7 @@ namespace MlemApi.Validation
             }
             catch (JsonReaderException e)
             {
-                throw new JsonReaderException($"Invalid json response from model - {e.Message}");
+                throw new JsonReaderException(string.Format(EM.InvalidJsonResponseFromModel, e.Message));
             }
         }
 
@@ -134,11 +135,11 @@ namespace MlemApi.Validation
                     }
                 case null:
                     {
-                        throw new InvalidApiSchemaException($"Empty arguments scheme data for method {methodName}.");
+                        throw new InvalidApiSchemaException(string.Format(EM.EmptyArgumentsSchemeDataForMethod, methodName));
                     }
                 default:
                     {
-                        throw new NotSupportedTypeException($"Not supported argument type for method {methodName}: {argsData.GetType()}.");
+                        throw new NotSupportedTypeException(string.Format(EM.NotSupportedArgumentType, methodName, argsData.GetType()));
                     }
             }
         }
@@ -148,7 +149,7 @@ namespace MlemApi.Validation
             _logger?.LogDebug($"Validating as dataframe...");
             if (modelColumnToPropNamesMap == null)
             {
-                throw new ArgumentNullException($"Map of model column names to request object properties is empty.");
+                throw new ArgumentNullException(EM.MapModelColumnsIsEmpty);
             }
 
             var columnsCountInSchema = dataFrameData.ColumnsData.Count();
@@ -156,7 +157,7 @@ namespace MlemApi.Validation
 
             if (actualColumnsCount > columnsCountInSchema)
             {
-                throw new IllegalColumnsNumberException($"Count of request object properties is not equal to properties in schema: expected {columnsCountInSchema}, but actual is {actualColumnsCount}");
+                throw new IllegalColumnsNumberException(string.Format(EM.NotEqualCountOfRequestObjectProperties, columnsCountInSchema, actualColumnsCount));
             }
 
             var columnsData = dataFrameData.ColumnsData;
@@ -172,7 +173,7 @@ namespace MlemApi.Validation
                 }
                 catch (KeyNotFoundException)
                 {
-                    throw new KeyNotFoundException($"Can't find '{columnData.Name}' key in passed column names map");
+                    throw new KeyNotFoundException(string.Format(EM.CantFindColumnKeyInMap, columnData.Name));
                 }
 
                 try
@@ -181,14 +182,14 @@ namespace MlemApi.Validation
 
                     if (property == null)
                     {
-                        throw new ArgumentException($"Can't find '{objPropertyName}' property in request object, although it exists in schema");
+                        throw new ArgumentException(string.Format(EM.CantFindPropertyInObject, objPropertyName));
                     }
 
                     propertyType = property.PropertyType;
                 }
                 catch (Exception e)
                 {
-                    throw new KeyNotFoundException($"Can't find '{objPropertyName}' property in request object, although it exists in schema");
+                    throw new KeyNotFoundException(string.Format(EM.CantFindPropertyInObject, objPropertyName));
                 }
 
                 ValidateValueType(columnData.Dtype, propertyType.Name);
@@ -209,7 +210,7 @@ namespace MlemApi.Validation
 
                 if (currentListElement.Item1 == null)
                 {
-                    throw new NoNullAllowedException($"There is a null value in ndarray.");
+                    throw new NoNullAllowedException(EM.NullValueInNdArray);
                 }
 
                 if (currentListElement.Item1 is ICollection)
@@ -221,14 +222,14 @@ namespace MlemApi.Validation
                     }
                     catch (Exception)
                     {
-                        throw new IllegalArrayNestingLevelException($"Unexpected level of nesting in response data - appeared {currentListElement.Item2}, but {ndArrayData.Shape.Count() - 1} is expected as maximum");
+                        throw new IllegalArrayNestingLevelException(string.Format(EM.UnexpectedLevelOfNestingResponseData, currentListElement.Item2, ndArrayData.Shape.Count() - 1));
                     }
 
                     var currentArray = currentListElement.Item1 as ICollection;
 
                     if (expectedArrayLength != null && currentArray.Count != expectedArrayLength)
                     {
-                        throw new IllegalArrayLengthException($"Array {currentArray} does not have expected length - actual is {currentArray.Count}, but {expectedArrayLength} expected");
+                        throw new IllegalArrayLengthException(string.Format(EM.ArrayUnexpectedLength, currentArray, currentArray.Count, expectedArrayLength));
                     }
 
                     foreach (var subElement in currentArray)
@@ -240,7 +241,7 @@ namespace MlemApi.Validation
                 {
                     if (currentListElement.Item2 != ndArrayData.Shape.Count())
                     {
-                        throw new IllegalArrayNestingLevelException($"Primitive values on nesting level {currentListElement.Item2} appeared, but expected on {ndArrayData.Shape.Count()} level only");
+                        throw new IllegalArrayNestingLevelException(string.Format(EM.PrimitiveValueUnexpectedLevel, currentListElement.Item2, ndArrayData.Shape.Count()));
                     }
                     if (ndArrayData?.Dtype != null)
                     {
@@ -266,8 +267,14 @@ namespace MlemApi.Validation
 
             if (expectedTypeName != actualTypeName)
             {
-                string expectedTypeString = unknownType ? $"equivalent of {actualTypeName}" : expectedTypeName;
-                throw new InvalidTypeException($"incorrect type - current is {actualTypeName}, but {expectedTypeString} expected");
+                if (unknownType)
+                {
+                    throw new InvalidTypeException(string.Format(EM.IncorrectValueTypeEquivalent, actualTypeName, actualTypeName));
+                }
+                else
+                {
+                    throw new InvalidTypeException(string.Format(EM.IncorrectValueType, actualTypeName, expectedTypeName));
+                }
             }
         }
 

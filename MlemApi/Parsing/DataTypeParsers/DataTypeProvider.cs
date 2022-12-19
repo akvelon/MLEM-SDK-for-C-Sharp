@@ -1,5 +1,6 @@
 ﻿using MlemApi.DataTypeParsers;
 using MlemApi.Dto;
+using MlemApi.MessageResources;
 using System.Text.Json;
 
 namespace MlemApi.Parsing.DataTypeParsers
@@ -45,7 +46,7 @@ namespace MlemApi.Parsing.DataTypeParsers
 
             if (!isTypeSupported)
             {
-                throw new ArgumentException($"Uknown data type in schema: {dataType}");
+                throw new ArgumentException(string.Format(EM.UnknownDataTypeInSchema, dataType));
             }
 
             return dataTypeProvider.GetTypeFromSchema(objectEnumerator, childDataTypeProvider);

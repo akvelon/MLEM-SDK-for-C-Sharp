@@ -5,7 +5,7 @@
     /// </summary>
     public class MethodDescription
     {
-        public MethodDescription(string methodName, string argsName, IApiDescriptionDataStructure argsData, NdarrayData returnData)
+        public MethodDescription(string methodName, string argsName, IApiDescriptionDataStructure argsData, IApiDescriptionDataStructure returnData)
         {
             MethodName = methodName;
             ArgsName = argsName;

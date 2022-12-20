@@ -31,7 +31,9 @@ List<TestCases> cases = new()
     TestCases.IrisRequestCheckMissingColumn,
     TestCases.IrisRequestCheckUnknownColumn,
     TestCases.ClassGeneration,
-    TestCases.CustomConsoleLoggerCase
+    TestCases.CustomConsoleLoggerCase,
+    TestCases.TextModel,
+    TestCases.Wine
 };
 
 // Run one or several test cases

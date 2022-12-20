@@ -13,6 +13,11 @@ namespace MlemApi.Utils
             return string.Concat(delimitersRegex.Split(str)
                 .Select(s =>
                 {
+                    if (s.Length < 2)
+                    {
+                        return s;
+                    }
+
                     var tailingSubstring = s.Substring(1);
                     var camelCasedTailingSubstring = isCamelCase(str) ? tailingSubstring : tailingSubstring.ToLower();
                     return char.ToUpper(s[0]) + camelCasedTailingSubstring;

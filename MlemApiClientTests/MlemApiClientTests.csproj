@@ -45,6 +45,15 @@
     <None Update="Assets\Iris_test_schema.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Assets\list_int_elems_and_result.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\t5_text_int_result.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\t5_text_test_schema.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="ClassesGenerationTests\ClassSamplesForAssertion\GeneratedClasses_NdArrayAsArgument\TestModelPredictRequestType.cs.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

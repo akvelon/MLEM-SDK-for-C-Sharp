@@ -4,7 +4,8 @@ using MlemApi.Dto;
 namespace MlemApi.Parsing.DataTypeParsers
 {
     /// <summary>
-    /// Parses numpy data types
+    /// Gets Numpy types from schema
+    /// See relevant mlem code https://github.com/iterative/mlem/blob/afb18dba1cbc3e69590caa2f2a93f99dcdddf1f1/mlem/contrib/numpy.py
     /// </summary>
     internal class NumpyTypesProvider : IDataTypeProvider
     {

@@ -1,10 +1,6 @@
-﻿using System.Net;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using MlemApi;
 using ModelRepository.SampleRequestObjects;
-using Moq;
-using Moq.Protected;
-using NUnit.Framework;
 
 namespace MlemApiClientTests.IntegrationTests.IrisTests
 {

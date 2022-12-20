@@ -3,7 +3,6 @@ using MlemApi.Validation.Exceptions;
 using MlemApiClientTests.Utilities;
 using ModelRepository.InvalidRequestObjects;
 using ModelRepository.SampleRequestObjects;
-using Newtonsoft.Json.Linq;
 
 namespace MlemApiClientTests.IntegrationTests.IrisTests
 {
@@ -238,13 +237,13 @@ namespace MlemApiClientTests.IntegrationTests.IrisTests
             MlemApiClient client = GetClientWithMockedHttpClient("[1,\"text\"]");
             client.ResponseValidationIsOn = true;
 
-            var exception = Assert.ThrowsAsync<InvalidTypeException>(() => client.CallAsync<List<List<double>>, Iris>(
+            var exception = Assert.ThrowsAsync<InvalidTypeException>(() => client.CallAsync<List<int>, Iris>(
                 "predict",
                 GetIrisDataList(),
                 ValidationMaps.irisColumnsMap
             ));
 
-            Assert.That(exception.Message, Is.EqualTo("Value 'text' is not compatible with expected type Int64"));
+            Assert.That(exception.Message, Is.EqualTo("Value 'text' is not compatible with expected type - System.Int64"));
         }
 
         [Test]
@@ -288,18 +287,20 @@ namespace MlemApiClientTests.IntegrationTests.IrisTests
         }
 
         [Test]
-        public void CallAsync_ThrowsInvalidApiSchemaException_ForEmptyReturnObjectInSchema()
+        public async Task CallAsync_OmitValidation_ForEmptyReturnObjectInSchema()
         {
-            MlemApiClient client = GetClientWithMockedHttpClientAndCustomSchema("", "Iris_empty_return_obj.json");
+            MlemApiClient client = GetClientWithMockedHttpClientAndCustomSchema("[1,2]", "Iris_empty_return_obj.json");
             client.ResponseValidationIsOn = true;
 
-            var exception = Assert.ThrowsAsync<InvalidApiSchemaException>(() => client.CallAsync<List<List<double>>, Iris>(
+            var result = await client.CallAsync<List<double>, Iris>(
                 "predict",
                 GetIrisDataList(),
                 ValidationMaps.irisColumnsMap
-            ));
+            );
 
-            Assert.That(exception.Message, Is.EqualTo("Return object type for method predict is empty"));
+            Assert.NotNull(result);
+            Assert.IsNotEmpty(result);
+            Assert.That(result.Count, Is.EqualTo(2));
         }
     }
 }

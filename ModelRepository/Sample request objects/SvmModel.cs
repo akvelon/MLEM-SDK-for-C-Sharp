@@ -2,7 +2,7 @@
 
 namespace ModelRepository.SampleRequestObjects
 {
-    public class SvmModel
+    internal class SvmModel
     {
         [JsonPropertyName("0")]
         public double Value { get; set; }

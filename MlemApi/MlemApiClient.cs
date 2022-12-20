@@ -108,7 +108,7 @@ namespace MlemApi
             return await SendPostRequestAsync<ResultType?>(methodName, jsonRequest);
         }
 
-        public ApiDescription GetDescription()
+        internal ApiDescription GetDescription()
         {
             _logger?.LogInformation("Request command: interface.json");
 

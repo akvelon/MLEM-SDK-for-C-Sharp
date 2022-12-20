@@ -1,7 +1,7 @@
 using MlemApi.Validation.Exceptions;
 using ModelRepository.SampleRequestObjects;
 
-namespace MlemApiClientTests.RegModelTests
+namespace MlemApiClientTests.IntegrationTests.SvmModelTests
 {
     public class PredictTests : BaseTests
     {

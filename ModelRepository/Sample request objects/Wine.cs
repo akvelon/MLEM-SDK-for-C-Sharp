@@ -2,7 +2,7 @@
 
 namespace ModelRepository.SampleRequestObjects
 {
-    internal class Wine
+    public class Wine
     {
         [JsonProperty("alcohol")]
         public double Alcohol { get; set; }

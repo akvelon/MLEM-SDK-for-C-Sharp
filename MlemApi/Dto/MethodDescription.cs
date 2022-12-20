@@ -3,7 +3,7 @@
     /// <summary>
     /// Interface for method description in mlem model api schema
     /// </summary>
-    internal class MethodDescription
+    public class MethodDescription
     {
         public MethodDescription(string methodName, string argsName, IApiDescriptionDataStructure argsData, NdarrayData returnData)
         {

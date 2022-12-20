@@ -127,7 +127,7 @@ namespace MlemApi
         /// Returns api schema desciption retrieved from deployed mlem model
         /// </summary>
         /// <returns>api schema description for deployed mlem model</returns>
-        internal ApiDescription GetDescription()
+        public ApiDescription GetDescription()
         {
             _logger?.LogInformation(string.Format(LM.LogRequestCommand, "interface.json"));
 

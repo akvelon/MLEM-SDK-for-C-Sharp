@@ -4,7 +4,8 @@ using System.Text.Json;
 namespace MlemApi.Parsing.DataTypeParsers
 {
     /// <summary>
-    /// Parses list data type
+    /// Gets List type from schema
+    /// See relevant mlem code - https://github.com/iterative/mlem/blob/a891636ff1f464d11925acaa845eb9f6c8efc044/mlem/core/data_type.py#L654
     /// </summary>
     internal class ListTypeProvider : IDataTypeProvider
     {
@@ -22,7 +23,7 @@ namespace MlemApi.Parsing.DataTypeParsers
             var typesList = listItems.Select(item =>
             {
                 return childDataTypeProvider.GetTypeFromSchema(item.EnumerateObject(), childDataTypeProvider);
-            });
+            }).ToList();
 
             return new ListData() {
                 Items = typesList,

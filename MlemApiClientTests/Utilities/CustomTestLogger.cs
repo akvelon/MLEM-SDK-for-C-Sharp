@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using MlemApi;
-using NUnit.Framework.Internal;
 
 namespace MlemApiClientTests.Utilities
 {

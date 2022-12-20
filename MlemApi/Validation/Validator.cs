@@ -1,14 +1,12 @@
-using System.Collections;
 using System.Data;
 using Microsoft.Extensions.Logging;
 using MlemApi.Dto;
-using MlemApi.Dto.DataFrameData;
 using MlemApi.Validation.Exceptions;
 using MlemApi.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using MlemApi.MessageResources;
-using System.Globalization;
+using MlemApi.Validation.Validators;
 
 namespace MlemApi.Validation
 {
@@ -20,12 +18,14 @@ namespace MlemApi.Validation
         private readonly ILogger? _logger;
         private readonly ApiDescription _apiDescription;
         private readonly IPrimitiveTypeHelper _primitiveTypeHelper;
+        private readonly ITypeValidator _rootTypeValidator;
 
-        public Validator(ApiDescription _apiDescription, IPrimitiveTypeHelper? primitiveTypeHelper = null, ILogger? logger = null)
+        public Validator(ApiDescription _apiDescription, IPrimitiveTypeHelper? primitiveTypeHelper = null, ILogger? logger = null, RootTypeValidator rootTypeValidator = null)
         {
             _logger = logger;
             this._apiDescription = _apiDescription;
             this._primitiveTypeHelper = primitiveTypeHelper ?? new PrimitiveTypeHelper();
+            this._rootTypeValidator = rootTypeValidator ?? new RootTypeValidator();
         }
 
         public void ValidateMethod(string methodName)
@@ -84,25 +84,39 @@ namespace MlemApi.Validation
         {
             _logger?.LogDebug($"Validating response for method {methodName}.");
             _logger?.LogDebug($"Response content: {response}");
-
-            NdarrayData? methodReturnDataSchema = GetMethodDescriptionFromSchema(methodName)?.ReturnData as NdarrayData;
+            var methodReturnDataSchema = GetMethodDescriptionFromSchema(methodName)?.ReturnData;
 
             if (methodReturnDataSchema == null)
             {
-                throw new InvalidApiSchemaException(string.Format(EM.ReturnObjectTypeForMethodIsEmpty, methodName));
+                _logger?.LogInformation($"Return object type for method {methodName} is empty - skipping validation");
+                return;
             }
 
             try
             {
-                _logger?.LogDebug($"Trying to parse response as json...");
-                JArray parsedResponse = JArray.Parse(response);
+                // by default - use as plain text
+                object parsedValue = response;
+                try
+                {
+                    _logger?.LogDebug($"Trying to parse response as json...");
+                    parsedValue = JObject.Parse(response);
+                }
+                catch
+                {
+                    try
+                    {
+                        parsedValue = JArray.Parse(response);
+                    }
+                    catch { }
+                }
 
-                // Objects queue with nesting level
-                Queue<Tuple<object, int>> listElementsQueue = new();
-                listElementsQueue.Enqueue(Tuple.Create<object, int>(parsedResponse, 0));
 
-                _logger?.LogDebug($"Considering that response should have ndarray type");
-                ValidateNdarrayData<JArray, JArray>(parsedResponse, methodReturnDataSchema);
+                _rootTypeValidator.Validate(
+                    parsedValue,
+                    methodReturnDataSchema,
+                    new() { ShouldValueBeParsed = true },
+                    _rootTypeValidator
+                );
             }
             catch (JsonReaderException e)
             {
@@ -110,172 +124,22 @@ namespace MlemApi.Validation
             }
         }
 
-        private void ValidateStringifiedValue(object jsonValue, string expectedNumPyTypeName)
-        {
-            var valueString = jsonValue.ToString();
-
-            _primitiveTypeHelper.ValidateType(valueString, expectedNumPyTypeName);
-        }
-
         private void ValidateArgument<incomeT>(incomeT value, string methodName, Dictionary<string, string>? modelColumnToPropNamesMap = null)
         {
-            _logger?.LogDebug($"Validate argument value - {value}");
+            _logger?.LogDebug($"Validating argument for method {methodName}");
             var argsData = GetMethodDescriptionFromSchema(methodName)?.ArgsData;
-            switch (argsData)
+            if (argsData == null)
             {
-                case DataFrameData dataFrame:
-                    {
-                        ValidateDataframeData(value, dataFrame, modelColumnToPropNamesMap);
-                        break;
-                    }
-                case NdarrayData ndarrayData:
-                    {
-                        ValidateNdarrayData<incomeT, ICollection>(value, ndarrayData);
-                        break;
-                    }
-                case null:
-                    {
-                        throw new InvalidApiSchemaException(string.Format(EM.EmptyArgumentsSchemeDataForMethod, methodName));
-                    }
-                default:
-                    {
-                        throw new NotSupportedTypeException(string.Format(EM.NotSupportedArgumentType, methodName, argsData.GetType()));
-                    }
-            }
-        }
-
-        private void ValidateDataframeData<incomeT>(incomeT value, DataFrameData dataFrameData, Dictionary<string, string>? modelColumnToPropNamesMap = null)
-        {
-            _logger?.LogDebug($"Validating as dataframe...");
-            if (modelColumnToPropNamesMap == null)
-            {
-                throw new ArgumentNullException(EM.MapModelColumnsIsEmpty);
+                throw new InvalidApiSchemaException($"Empty arguments scheme data for method {methodName}.");
             }
 
-            var columnsCountInSchema = dataFrameData.ColumnsData.Count();
-            var actualColumnsCount = value.GetType().GetProperties().Count();
-
-            if (actualColumnsCount > columnsCountInSchema)
-            {
-                throw new IllegalColumnsNumberException(string.Format(EM.NotEqualCountOfRequestObjectProperties, columnsCountInSchema, actualColumnsCount));
-            }
-
-            var columnsData = dataFrameData.ColumnsData;
-
-            foreach (var columnData in columnsData)
-            {
-                string? objPropertyName;
-                Type? propertyType;
-
-                try
-                {
-                    objPropertyName = modelColumnToPropNamesMap[columnData.Name];
-                }
-                catch (KeyNotFoundException)
-                {
-                    throw new KeyNotFoundException(string.Format(EM.CantFindColumnKeyInMap, columnData.Name));
-                }
-
-                try
-                {
-                    var property = value.GetType().GetProperty(objPropertyName);
-
-                    if (property == null)
-                    {
-                        throw new ArgumentException(string.Format(EM.CantFindPropertyInObject, objPropertyName));
-                    }
-
-                    propertyType = property.PropertyType;
-                }
-                catch (Exception e)
-                {
-                    throw new KeyNotFoundException(string.Format(EM.CantFindPropertyInObject, objPropertyName));
-                }
-
-                ValidateValueType(columnData.Dtype, propertyType.Name);
-            }
-        }
-
-        private void ValidateNdarrayData<incomeT, ArrayType>(incomeT value, NdarrayData ndArrayData) where ArrayType : class
-        {
-            _logger?.LogDebug($"Validating as ndarray...");
-            var requestArray = value as ArrayType;
-
-            var listElementsQueue = new Queue<Tuple<object, int>>();
-            listElementsQueue.Enqueue(Tuple.Create<object, int>(requestArray, 0));
-
-            while (listElementsQueue.Count > 0)
-            {
-                var currentListElement = listElementsQueue.Dequeue();
-
-                if (currentListElement.Item1 == null)
-                {
-                    throw new NoNullAllowedException(EM.NullValueInNdArray);
-                }
-
-                if (currentListElement.Item1 is ICollection)
-                {
-                    long? expectedArrayLength;
-                    try
-                    {
-                        expectedArrayLength = ndArrayData.Shape.ElementAt(currentListElement.Item2) ;
-                    }
-                    catch (Exception)
-                    {
-                        throw new IllegalArrayNestingLevelException(string.Format(EM.UnexpectedLevelOfNestingResponseData, currentListElement.Item2, ndArrayData.Shape.Count() - 1));
-                    }
-
-                    var currentArray = currentListElement.Item1 as ICollection;
-
-                    if (expectedArrayLength != null && currentArray.Count != expectedArrayLength)
-                    {
-                        throw new IllegalArrayLengthException(string.Format(EM.ArrayUnexpectedLength, currentArray, currentArray.Count, expectedArrayLength));
-                    }
-
-                    foreach (var subElement in currentArray)
-                    {
-                        listElementsQueue.Enqueue(Tuple.Create(subElement, currentListElement.Item2 + 1));
-                    }
-                }
-                else
-                {
-                    if (currentListElement.Item2 != ndArrayData.Shape.Count())
-                    {
-                        throw new IllegalArrayNestingLevelException(string.Format(EM.PrimitiveValueUnexpectedLevel, currentListElement.Item2, ndArrayData.Shape.Count()));
-                    }
-                    if (ndArrayData?.Dtype != null)
-                    {
-                        ValidateStringifiedValue(currentListElement.Item1, ndArrayData.Dtype);
-                    }
-                }
-            }
-        }
-
-        private void ValidateValueType(string typeNameFromSchema, string actualTypeName)
-        {
-            string expectedTypeName = "";
-            bool unknownType = false;
-
-            try
-            {
-                expectedTypeName = _primitiveTypeHelper.GetMappedDtype(typeNameFromSchema);
-            }
-            catch (KeyNotFoundException)
-            {
-                unknownType = true;
-            }
-
-            if (expectedTypeName != actualTypeName)
-            {
-                if (unknownType)
-                {
-                    throw new InvalidTypeException(string.Format(EM.IncorrectValueTypeEquivalent, actualTypeName, actualTypeName));
-                }
-                else
-                {
-                    throw new InvalidTypeException(string.Format(EM.IncorrectValueType, actualTypeName, expectedTypeName));
-                }
-            }
+            _rootTypeValidator.Validate(
+                value,
+                argsData,
+                new() { ShouldValueBeParsed = false },
+                modelColumnToPropNamesMap,
+                _rootTypeValidator
+            );
         }
 
         private MethodDescription GetMethodDescriptionFromSchema(string methodName)

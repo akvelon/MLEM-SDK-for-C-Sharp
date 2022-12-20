@@ -192,7 +192,7 @@ namespace MlemApiClientTests.IntegrationTests.IrisTests
                 ValidationMaps.irisColumnsMap
             ));
 
-            Assert.That(exception.Message, Is.EqualTo("Value 'text' is not compatible with expected type Int64"));
+            Assert.That(exception.Message, Is.EqualTo("Value 'text' is not compatible with expected type - System.Int64"));
         }
 
         [Test]

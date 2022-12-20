@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using MlemApi.DataTypeParsers;
 using MlemApi.Dto;
 using MlemApi.MessageResources;
 using MlemApi.Parsing.DataTypeParsers;
@@ -46,7 +45,7 @@ namespace MlemApi.Parsing
                 {
                     string? argsName = null;
                     IApiDescriptionDataStructure? argsData = null;
-                    NdarrayData? returnData = null;
+                    IApiDescriptionDataStructure? returnData = null;
                     var methodElement = jsonMethodElement.Value
                         .EnumerateObject();
 
@@ -71,7 +70,7 @@ namespace MlemApi.Parsing
                     {
                         var returnDataObject = jsonMethodElement.Value
                                 .EnumerateObject().First(e => e.Name == "returns").Value.EnumerateObject();
-                        returnData = GetReturnData(returnDataObject) as NdarrayData;
+                        returnData = GetReturnData(returnDataObject);
                     }
                     catch (Exception e)
                     {
@@ -113,13 +112,6 @@ namespace MlemApi.Parsing
                 .Value.EnumerateObject();
 
             IApiDescriptionDataStructure dataType = _dataTypeProvider.GetTypeFromSchema(typesDataObject, _dataTypeProvider);
-
-            if (dataType is NdarrayData)
-            {
-                var ndArrayType = dataType as NdarrayData;
-                var shapeList = ndArrayType.Shape as List<int?>;
-                ndArrayType.Shape = shapeList;
-            }
 
             return dataType;
         }

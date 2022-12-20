@@ -8,6 +8,8 @@ using MlemApi.Validation;
 using MlemApi.Parsing;
 using MlemApi.Logging;
 using MlemApi.MessageResources;
+using System.ComponentModel;
+using System.Globalization;
 
 namespace MlemApi
 {
@@ -186,9 +188,10 @@ namespace MlemApi
                 }
                 catch
                 {
-                    _logger?.LogError(LM.LogResponseDeserializationError);
-
-                    throw;
+                    _logger?.LogInformation($"Response deserialization from json failed - considering responce as plain text");
+                    TypeConverter converter = TypeDescriptor.GetConverter(typeof(T));
+                    
+                    return (T) converter.ConvertFromString(null, CultureInfo.InvariantCulture, response);
                 }
             }
             catch (Exception ex)

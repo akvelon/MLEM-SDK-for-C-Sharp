@@ -3,9 +3,9 @@
     /// <summary>
     /// Represens api schema of mlem model
     /// </summary>
-    internal class ApiDescription
+    public class ApiDescription
     {
-        internal ApiDescription()
+        public ApiDescription()
         {
             Methods = new List<MethodDescription>();
         }
@@ -13,6 +13,6 @@
         /// <summary>
         /// Methods list - provided by api schema
         /// </summary>
-        internal List<MethodDescription> Methods { get; set; }
+        public List<MethodDescription> Methods { get; set; }
     }
 }

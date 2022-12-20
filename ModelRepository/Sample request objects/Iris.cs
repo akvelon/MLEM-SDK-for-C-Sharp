@@ -2,7 +2,7 @@
 
 namespace ModelRepository.SampleRequestObjects
 {
-    public class Iris
+    internal class Iris
     {
         [JsonProperty("sepal length (cm)")]
         public double SepalLength { get; set; }

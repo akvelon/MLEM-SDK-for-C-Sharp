@@ -1,6 +1,6 @@
 ﻿namespace ModelRepository.SampleRequestObjects
 {
-    public class ValidationMaps
+    internal class ValidationMaps
     {
         public static Dictionary<string, string> irisColumnsMap = new Dictionary<string, string>()
         {

@@ -4,7 +4,7 @@ using Moq;
 using Moq.Protected;
 using MlemApi;
 
-namespace MlemApiClientTests.RegModelTests
+namespace MlemApiClientTests.IntegrationTests.SvmModelTests
 {
     public abstract class BaseTests
     {
@@ -27,7 +27,7 @@ namespace MlemApiClientTests.RegModelTests
             #region HttpMessageHandler Setup
             var _msgHandler = new Mock<HttpMessageHandler>();
             var mockedProtected = _msgHandler.Protected();
-
+            
             mockedProtected.Setup<Task<HttpResponseMessage>>(
                     "SendAsync",
                     ItExpr.Is<HttpRequestMessage>(m => Equals(m.RequestUri, _baseAddress + "/predict")),

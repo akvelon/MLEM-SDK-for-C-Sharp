@@ -2,10 +2,13 @@
 using MlemApi.Dto;
 using MlemApi.Dto.DataFrameData;
 using MlemApi.Parsing;
-using static System.Text.Json.JsonElement;
 
 namespace MlemApi.DataTypeParsers
 {
+    /// <summary>
+    /// Gets Pandas type from schema
+    /// See relevant mlem code - https://github.com/iterative/mlem/blob/afb18dba1cbc3e69590caa2f2a93f99dcdddf1f1/mlem/contrib/pandas.py
+    /// </summary>
     internal class PandasTypesProvider : IDataTypeProvider
     {
         public List<string> GetSupportedTypes()

@@ -1,8 +1,11 @@
 ﻿namespace MlemApi.Dto
 {
-    internal class MethodDescription
+    /// <summary>
+    /// Interface for method description in mlem model api schema
+    /// </summary>
+    public class MethodDescription
     {
-        public MethodDescription(string methodName, string argsName, IApiDescriptionDataStructure argsData, NdarrayData returnData)
+        public MethodDescription(string methodName, string argsName, IApiDescriptionDataStructure argsData, IApiDescriptionDataStructure returnData)
         {
             MethodName = methodName;
             ArgsName = argsName;

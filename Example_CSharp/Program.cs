@@ -12,7 +12,7 @@ IHostBuilder builder = new HostBuilder()
     {
         services.AddTransient<ConsoleApplication>();
         services.AddTransient<IRequestValuesSerializer>(sp => new DefaultRequestValueSerializer());
-        services.AddTransient(sp => LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger<MlemApiClient>());
+        services.AddTransient(sp => LoggerFactory.Create(builder => builder.AddConsole().SetMinimumLevel(LogLevel.Information)).CreateLogger<MlemApiClient>());
         services.AddHttpClient<MlemApiClient>().AddHttpMessageHandler<LoggingDelegatingHandler>();
         services.AddTransient<LoggingDelegatingHandler>();
     }).UseConsoleLifetime();
@@ -31,6 +31,9 @@ List<TestCases> cases = new()
     TestCases.IrisRequestCheckMissingColumn,
     TestCases.IrisRequestCheckUnknownColumn,
     TestCases.ClassGeneration,
+    TestCases.CustomConsoleLoggerCase,
+    TestCases.TextModel,
+    TestCases.Wine
 };
 
 // Run one or several test cases

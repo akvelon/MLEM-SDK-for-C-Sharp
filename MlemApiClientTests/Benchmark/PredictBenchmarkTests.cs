@@ -30,7 +30,7 @@ namespace MlemApiClientTests.Benchmark
                 };
 
                 string url = "https://example-mlem-get-started-app.herokuapp.com";
-                _mlemClient = new MlemApiClient(url) { ArgumentTypesValidationIsOn = false};
+                _mlemClient = new MlemApiClient(url) { ArgumentsValidationIsOn = false};
                 Random random = new();
                 irises12 = new();
                 irises4_1 = new();

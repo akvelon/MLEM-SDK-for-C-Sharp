@@ -6,6 +6,10 @@ using MlemApi.Dto;
 using MlemApi.Serializing;
 using MlemApi.Validation;
 using MlemApi.Parsing;
+using MlemApi.Logging;
+using MlemApi.MessageResources;
+using System.ComponentModel;
+using System.Globalization;
 
 namespace MlemApi
 {
@@ -21,31 +25,43 @@ namespace MlemApi
         private readonly IValidator? _validator;
         private readonly RequestBuilder _requestBuilder;
         private readonly ApiDescription _apiDescription;
-        private readonly DescriptionParser descriptionParser = new DescriptionParser();
+        private readonly DescriptionParser _descriptionParser;
 
-        public bool ArgumentTypesValidationIsOn { get; set; }
+        /// <summary>
+        /// If true - turns arguments validation on
+        /// </summary>
+        public bool ArgumentsValidationIsOn { get; set; }
+        /// <summary>
+        /// If true - turns response validation on
+        /// </summary>
         public bool ResponseValidationIsOn { get; set; } = false;
 
         /// <summary>
-        /// Constructor
+        /// Constructs mlem client
         /// </summary>
-        /// <param name="httpClient"></param>
-        /// <param name="configuraion"></param>
+        /// <param name="url">url of the deployed mlem model</param>
+        /// <param name="logger">logger to be used by mlem client</param>
+        /// <param name="httpClient">http client used to send requests to mlem model</param>
+        /// <param name="requestSerializer">request serializer used to serialize request to model</param>
+        /// <param name="validator">validator - to provide validation for request data, method name and response</param>
+        /// <param name="argumentTypesValidationIsOn">if true - turns arguments validation on</param>
         public MlemApiClient(string url, ILogger<MlemApiClient>? logger = null, HttpClient? httpClient = null,
             IRequestValuesSerializer? requestSerializer = null, IValidator? validator = null, bool argumentTypesValidationIsOn = false)
         {
             _httpClient = httpClient ?? new HttpClient();
-            _logger = logger;
-
+            _logger = logger ?? new DefaultLogger();
+            
             _httpClient.BaseAddress = new Uri(url);
 
             _requestBuilder = new RequestBuilder(requestSerializer ?? new DefaultRequestValueSerializer());
+
+            _descriptionParser = new DescriptionParser(logger);
 
             _apiDescription = GetDescription();
 
             _validator = validator ?? new Validator(_apiDescription, null, _logger);
 
-            ArgumentTypesValidationIsOn = argumentTypesValidationIsOn;
+            ArgumentsValidationIsOn = argumentTypesValidationIsOn;
         }
 
         /// <summary>
@@ -79,7 +95,7 @@ namespace MlemApi
         /// <typeparam name="outcomeT"></typeparam>
         /// <param name="methodName"></param>
         /// <param name="values"></param>
-        /// <returns></returns>
+        /// <returns>Response data from mlem model</returns>
         public async Task<ResultType?> CallAsync<ResultType, RequestType>(string methodName, RequestType value, Dictionary<string, string>? modelColumnNamesMap = null)
         {
             return await CallAsync<ResultType, RequestType>(methodName, new List<RequestType> { value }, modelColumnNamesMap);
@@ -88,18 +104,19 @@ namespace MlemApi
         /// <summary>
         /// Call methodName API method
         /// </summary>
-        /// <typeparam name="incomeT"></typeparam>
-        /// <typeparam name="outcomeT"></typeparam>
-        /// <param name="methodName"></param>
-        /// <param name="values"></param>
-        /// <returns></returns>
+        /// <typeparam name="ResultType">Type of data being returned from model</typeparam>
+        /// <typeparam name="RequestType">Type of input data</typeparam>
+        /// <param name="methodName">Method name (like "predict")</param>
+        /// <param name="values">Data values</param>
+        /// <param name="modelColumnNamesMap">Map from model column names to field names of the RequestType - used for validation only</param>
+        /// <returns>Response data from mlem model</returns>
         public async Task<ResultType?> CallAsync<ResultType, RequestType>(string methodName, IEnumerable<RequestType> values, Dictionary<string, string>? modelColumnNamesMap = null)
         {
             _validator?.ValidateMethod(methodName);
 
             MethodDescription methodDescription = _apiDescription.Methods.First(m => m.MethodName == methodName);
 
-            _validator?.ValidateValues(values, methodName, ArgumentTypesValidationIsOn, modelColumnNamesMap);
+            _validator?.ValidateValues(values, methodName, ArgumentsValidationIsOn, modelColumnNamesMap);
 
             string argsName = methodDescription.ArgsName;
 
@@ -108,19 +125,23 @@ namespace MlemApi
             return await SendPostRequestAsync<ResultType?>(methodName, jsonRequest);
         }
 
-        internal ApiDescription GetDescription()
+        /// <summary>
+        /// Returns api schema desciption retrieved from deployed mlem model
+        /// </summary>
+        /// <returns>api schema description for deployed mlem model</returns>
+        public ApiDescription GetDescription()
         {
-            _logger?.LogInformation("Request command: interface.json");
+            _logger?.LogInformation(string.Format(LM.LogRequestCommand, "interface.json"));
 
             try
             {
                 string response = _httpClient.GetStringAsync("interface.json").Result;
 
-                return descriptionParser.GetApiDescription(response);
+                return _descriptionParser.GetApiDescription(response);
             }
             catch (Exception ex)
             {
-                _logger?.LogError("Exception of getting API description", ex);
+                _logger?.LogError(EM.ExceptionGettingApiDescription, ex);
 
                 throw;
             }
@@ -128,8 +149,8 @@ namespace MlemApi
 
         private async Task<T?> SendPostRequestAsync<T>(string command, string requestJsonString)
         {
-            _logger?.LogInformation($"Request command: {command}");
-            _logger?.LogInformation($"Request JSON string: {requestJsonString}");
+            _logger?.LogInformation(string.Format(LM.LogRequestCommand, command));
+            _logger?.LogInformation(string.Format(LM.LogRequestJson,requestJsonString));
 
             try
             {
@@ -137,7 +158,7 @@ namespace MlemApi
                     command,
                     new StringContent(requestJsonString, Encoding.UTF8, MediaTypeNames.Application.Json));
 
-                _logger?.LogInformation($"Response status: {httpResponse.StatusCode}.");
+                _logger?.LogInformation(string.Format(LM.LogResponseStatus, httpResponse.StatusCode));
 
                 string response = await httpResponse.Content.ReadAsStringAsync();
 
@@ -150,6 +171,7 @@ namespace MlemApi
 
                 if (ResponseValidationIsOn)
                 {
+                    _logger?.LogDebug("Response validation is on - started validation");
                     _validator?.ValidateJsonResponse(response, command);
                 }
 
@@ -159,21 +181,22 @@ namespace MlemApi
 
                     if (result == null)
                     {
-                        _logger?.LogWarning($"Response deserialization result is null.");
+                        _logger?.LogWarning(LM.LogResponseDeserializationNull);
                     }
 
                     return result;
                 }
                 catch
                 {
-                    _logger?.LogError($"Response deserialization error.");
-
-                    throw;
+                    _logger?.LogInformation($"Response deserialization from json failed - considering responce as plain text");
+                    TypeConverter converter = TypeDescriptor.GetConverter(typeof(T));
+                    
+                    return (T) converter.ConvertFromString(null, CultureInfo.InvariantCulture, response);
                 }
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex, $"API request error.");
+                _logger?.LogError(ex, EM.ApiRequestError);
 
                 throw;
             }

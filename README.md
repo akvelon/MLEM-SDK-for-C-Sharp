@@ -123,6 +123,32 @@ They are in `ModelRepository` project in `Additional models` folder.
 
 They are built using `LearnModelScript.py` scripts for each model.
 
+## Supported request object data types
+Mlem client support the following types:
+- Pandas types: dataframe
+- Numpy types: ndarray
+- List type
+- Primitive types: float64, int (int8, int16,int32), uint (uint8, uint16, uint32, uint64), bool, str
+
+Please note that mlem [already sorts](https://github.com/iterative/mlem/blob/afb18dba1cbc3e69590caa2f2a93f99dcdddf1f1/mlem/contrib/pandas.py#L161) dataframe fields in right order - so there is no need to worry about columns order for this datatype (treat it just like a dictionary type).
+
+See `Example_CSharp` project for more examples.
+
+## Shared resources
+
+Some resources should be the same in .NET and Java clients. So, this reprository uses [git submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules) to get files like `Error_messages.json` and `Log_messages.json` from another private reporsitory - see README.md file in `[root]\ResourcesGenerator\CommonResources` for more details.
+This file is located in `[root]\ResourcesGenerator\CommonResources` folder, that is a clone of that private repository in fact. So, this folder can contain any shared files defined there.
+
+Regarding to this .NET repository, the client doesn't use these `.json` files directly. For example, `Error_messages.json` file converts into `[root]\MlemApi\Resources\EM.cs` file via `[root]\Update_resources.cmd` script; the same for `Log_messages.json` file and `[root]\MlemApi\Resources\LM.cs`. After cloning of the repository you don't need to do anything additional to get the resources. They are already defined in `EM.cs` and `LM.cs` file.
+
+To update resources do the following:
+- Open `[root]\ResourcesGenerator\CommonResources\Error_messages.json` file (or `Log_messages.json`)
+- Make some changes, it will affect the both .NET and Java clients
+- Open `[root]\ResourcesGenerator\CommonResources` folder via git, here is the submodule local repository
+- Make a commit and push it to the `main` branch (make sure you have necessary permissions)
+- Next you need to update submodule dependencies. Just run `[root]\Update_resources.cmd` script. It will update `[root]\MlemApi\Resources\EM.cs` and `[root]\MlemApi\Resources\LM.cs` file and add submodule changes to the git index of the current .NET repository
+- Commit and push the new changes
+
 ## Conclusion
 
 MLEM makes the process of packaging and deployment of machine learning models much easier. .NET client developed by Akvelon make it possible to integrate MLEM models to non-Python projects.

@@ -1,4 +1,5 @@
-﻿﻿﻿using MlemApi.Dto;
+﻿using Microsoft.Extensions.Logging;
+using MlemApi.Dto;
 using MlemApi.Dto.DataFrameData;
 using MlemApi.Utils;
 using Stubble.Core;
@@ -7,16 +8,30 @@ using Stubble.Core.Settings;
 
 namespace MlemApi.ClassesGenerator
 {
+    /// <summary>
+    /// Allows to generate request/response classes for specified client as static files
+    /// </summary>
     public class ModelClassesGenerator
     {
-        private CamelCaseConverter camelCaseConverter = new CamelCaseConverter();
-        private IPrimitiveTypeHelper primitiveTypeHelper = new PrimitiveTypeHelper();
-        private readonly string dtoDataframeTemplatePath = Path.Combine("ClassesGenerator", "DtoDataframeTemplate.template");
-        private readonly string dtoNdarrayTemplatePath = Path.Combine("ClassesGenerator", "DtoNdarrayTemplate.template");
+        private readonly ILogger? _logger;
+        private CamelCaseConverter _camelCaseConverter = new CamelCaseConverter();
+        private IPrimitiveTypeHelper _primitiveTypeHelper = new PrimitiveTypeHelper();
+        private TemplatesProvider _templatesProvider = new TemplatesProvider();
 
-        private string dtoDataframeTemplateContent;
-        private string dtoNdarrayTemplateContent;
+        private string _dtoDataframeTemplateContent;
+        private string _dtoNdarrayTemplateContent;
 
+        public ModelClassesGenerator(ILogger? logger = null)
+        {
+            this._logger = logger;
+        }
+
+        /// <summary>
+        /// Generates string representation of multi-dimensional list
+        /// </summary>
+        /// <param name="shape">Shape of list to be generated - list of sizes for each array dimension</param>
+        /// <param name="elementType">Type of element in list</param>
+        /// <returns>String representation of the list</returns>
         private string GetMultiDimentionalListTypeString(List<int?> shape, string elementType)
         {
             if (shape.Count == 0)
@@ -27,99 +42,158 @@ namespace MlemApi.ClassesGenerator
             return $"List<{GetMultiDimentionalListTypeString(shape.GetRange(1, shape.Count - 1), elementType)}>";
         }
 
-        private void WriteClassToFile(string outputPath, string classFileName, string fileContent)
+        /// <summary>
+        /// Writes classes to files
+        /// </summary>
+        /// <param name="outputDirectory">Output directory for generated classes</param>
+        /// <param name="classFileName">Name of the generated class</param>
+        /// <param name="fileContent">File content</param>
+        private void WriteClassToFile(string outputDirectory, string classFileName, string fileContent)
         {
+            _logger?.LogDebug($"Writing {classFileName} to {outputDirectory}");
             File.WriteAllText(
-                    Path.Combine(outputPath, $"{classFileName}.cs"),
+                    Path.Combine(outputDirectory, $"{classFileName}.cs"),
                     fileContent
                 );
+            _logger?.LogDebug($"Successfully written {classFileName} to file");
         }
 
-        private void GenerateRequestClasses(string camelCasedModelName, string classAccessModifier, string namespaceName, MethodDescription method, StubbleVisitorRenderer templateRenderer, string outputPath, RenderSettings renderSettings)
+        /// <summary>
+        /// Generates classes for request data
+        /// </summary>
+        /// <param name="camelCasedModelName">Name of the mlem model in camel case</param>
+        /// <param name="classAccessModifier">Access modifier of the class</param>
+        /// <param name="namespaceName">Namespace name</param>
+        /// <param name="method">Method description object</param>
+        /// <param name="templateRenderer">Template renderer</param>
+        /// <param name="outputDirectory">Output directory for generated classes</param>
+        /// <param name="renderSettings">Renderer settings</param>
+        private void GenerateRequestClasses(string camelCasedModelName, string classAccessModifier, string namespaceName, MethodDescription method, StubbleVisitorRenderer templateRenderer, string outputDirectory, RenderSettings renderSettings)
         {
-            var typeAlias = camelCaseConverter.ConvertToCamelCase($"{camelCasedModelName}{camelCaseConverter.ConvertToCamelCase(method.MethodName)}RequestType");
+            _logger?.LogDebug($"Generating classes for request type");
+            var typeAlias = _camelCaseConverter.ConvertToCamelCase($"{camelCasedModelName}{_camelCaseConverter.ConvertToCamelCase(method.MethodName)}RequestType");
 
             if (method.ArgsData is DataFrameData)
             {
+                _logger?.LogDebug($"Generating for dataframe type...");
                 GenerateDataframeClass(
                     classAccessModifier,
                     namespaceName,
                     method.ArgsData as DataFrameData,
                     templateRenderer,
-                    outputPath,
+                    outputDirectory,
                     typeAlias,
                     renderSettings
                 );
             }
             else if (method.ArgsData is NdarrayData)
             {
+                _logger?.LogDebug($"Generating for ndarray type...");
                 GenerateNdArrayClass(
                     classAccessModifier,
                     namespaceName,
                     method.ArgsData as NdarrayData,
                     templateRenderer,
-                    outputPath,
+                    outputDirectory,
                     typeAlias,
                     renderSettings
                 );
             }
         }
 
-        private void GenerateResponseClasses(string camelCasedModelName, string classAccessModifier, string namespaceName, MethodDescription method, StubbleVisitorRenderer templateRenderer, string outputPath, RenderSettings renderSettings)
+        /// <summary>
+        /// Generates classes for response
+        /// </summary>
+        /// <param name="camelCasedModelName">Name of the mlem model in camel case</param>
+        /// <param name="classAccessModifier">Access modifier of the class</param>
+        /// <param name="namespaceName">Namespace name</param>
+        /// <param name="method">Method description object</param>
+        /// <param name="templateRenderer">Template renderer</param>
+        /// <param name="outputDirectory">Output directory for generated classes</param>
+        /// <param name="renderSettings">Renderer settings</param>
+        private void GenerateResponseClasses(string camelCasedModelName, string classAccessModifier, string namespaceName, MethodDescription method, StubbleVisitorRenderer templateRenderer, string outputDirectory, RenderSettings renderSettings)
         {
+            _logger?.LogDebug($"Generating classes for response type");
             GenerateNdArrayClass(
                 classAccessModifier,
                 namespaceName,
                 method.ReturnData as NdarrayData,
                 templateRenderer,
-                outputPath,
-                $"{camelCasedModelName}{camelCaseConverter.ConvertToCamelCase(method.MethodName)}ResponseType",
+                outputDirectory,
+                $"{camelCasedModelName}{_camelCaseConverter.ConvertToCamelCase(method.MethodName)}ResponseType",
                 renderSettings
             );
         }
 
-        public void GenerateClasses(string modelName, string outputPath, MlemApiClient mlemApiClient, string namespaceName, string classAccessModifier = "internal")
+        /// <summary>
+        /// Generates classes in static files - for request and response data
+        /// 
+        /// </summary>
+        /// <param name="modelName">Some descriptive name for relevant mlem model. Will be coerced to camel case and used for naming</param>
+        /// <param name="outputDirectory">Output directory for generated files</param>
+        /// <param name="mlemApiClient">Mlem client - to get schema</param>
+        /// <param name="namespaceName">Namespace name for classes to be generated</param>
+        /// <param name="classAccessModifier">Access modifier for generated class</param>
+        public void GenerateClasses(string modelName, string outputDirectory, MlemApiClient mlemApiClient, string namespaceName, string classAccessModifier = "internal")
         {
-            Directory.CreateDirectory(outputPath);
+            _logger?.LogInformation($"Started classes generating for model {modelName}, output path - {outputDirectory}");
+            _logger?.LogDebug($"Namespace name: {namespaceName}");
+            _logger?.LogDebug($"Namespace name: {classAccessModifier}");
+
+            Directory.CreateDirectory(outputDirectory);
 
             var apiDescription = mlemApiClient.GetDescription();
-            var camelCasedModelName = camelCaseConverter.ConvertToCamelCase(modelName);
+            var camelCasedModelName = _camelCaseConverter.ConvertToCamelCase(modelName);
 
-            dtoDataframeTemplateContent = File.ReadAllText(dtoDataframeTemplatePath);
-            dtoNdarrayTemplateContent = File.ReadAllText(dtoNdarrayTemplatePath);
+            _dtoDataframeTemplateContent = _templatesProvider.DtoDataframeTemplate;
+            _dtoNdarrayTemplateContent = _templatesProvider.DtoNdarrayTemplate;
 
             foreach (var method in apiDescription.Methods)
             {
+                _logger?.LogDebug($"Generating classes for method {method.MethodName}");
                 var templateRenderer = new StubbleBuilder().Build();
                 var renderSettings = new RenderSettings
                 {
                     SkipHtmlEncoding = true
                 };
 
+                _logger?.LogDebug($"Generating request type classes...");
                 GenerateRequestClasses(
                      camelCasedModelName,
                      classAccessModifier,
                      namespaceName,
                      method,
                      templateRenderer,
-                     outputPath,
+                     outputDirectory,
                      renderSettings
                  );
 
+                _logger?.LogDebug($"Generating response type classes...");
                 GenerateResponseClasses(
                      camelCasedModelName,
                      classAccessModifier,
                      namespaceName,
                      method,
                      templateRenderer,
-                     outputPath,
+                     outputDirectory,
                      renderSettings
                  );
             }
         }
 
-        private void GenerateNdArrayClass(string classAccessModifier, string namespaceName, NdarrayData ndArrayData, StubbleVisitorRenderer templateRenderer, string outputPath, string typeAlias, RenderSettings renderSettings)
+        /// <summary>
+        /// Generates classes for Ndarray type
+        /// </summary>
+        /// <param name="classAccessModifier">Access modifier of the class</param>
+        /// <param name="namespaceName">Namespace name</param>
+        /// <param name="ndArrayData">Scheme data for ndarray</param>
+        /// <param name="templateRenderer">Template renderer</param>
+        /// <param name="outputDirectory">Output directory for generated files</param>
+        /// <param name="typeAlias">Type alias for ndarray type</param>
+        /// <param name="renderSettings">Renderer settings</param>
+        private void GenerateNdArrayClass(string classAccessModifier, string namespaceName, NdarrayData ndArrayData, StubbleVisitorRenderer templateRenderer, string outputDirectory, string typeAlias, RenderSettings renderSettings)
         {
+            _logger?.LogDebug($"Generating class for ndarray type");
             var stringifiedNdArrayDimensions = ndArrayData.Shape
                .Select(dimensionSize => dimensionSize == null ? "" : dimensionSize.ToString());
 
@@ -130,23 +204,34 @@ namespace MlemApi.ClassesGenerator
                 TypeAlias = typeAlias,
                 DataStructureType = GetMultiDimentionalListTypeString(
                     ndArrayData.Shape.ToList(),
-                    primitiveTypeHelper.GetMappedDtype(ndArrayData.Dtype)
+                    _primitiveTypeHelper.GetMappedDtype(ndArrayData.Dtype)
                 ),
             };
 
-            string renderedClassContent = templateRenderer.Render(dtoNdarrayTemplateContent, templateResponseInputData, renderSettings);
+            string renderedClassContent = templateRenderer.Render(_dtoNdarrayTemplateContent, templateResponseInputData, renderSettings);
 
-            WriteClassToFile(outputPath, templateResponseInputData.TypeAlias, renderedClassContent);
+            WriteClassToFile(outputDirectory, templateResponseInputData.TypeAlias, renderedClassContent);
         }
 
-        private void GenerateDataframeClass(string classAccessModifier, string namespaceName, DataFrameData dataFrameData, StubbleVisitorRenderer templateRenderer, string outputPath, string typeAlias, RenderSettings renderSettings)
+        /// <summary>
+        /// Generates classes for dataframe type
+        /// </summary>
+        /// <param name="classAccessModifier">Access modifier of the class</param>
+        /// <param name="namespaceName">Namespace name</param>
+        /// <param name="dataFrameData">Scheme data for dataframe</param>
+        /// <param name="templateRenderer">Template renderer</param>
+        /// <param name="outputDirectory">Output directory for generated files</param>
+        /// <param name="typeAlias">Type alias for dataframe type</param>
+        /// <param name="renderSettings">Renderer settings</param>
+        private void GenerateDataframeClass(string classAccessModifier, string namespaceName, DataFrameData dataFrameData, StubbleVisitorRenderer templateRenderer, string outputDirectory, string typeAlias, RenderSettings renderSettings)
         {
+            _logger?.LogDebug($"Generating class for dataframe type");
             var columnsData = from columnData in dataFrameData.ColumnsData
                               select new ColumnData
                               {
                                   NameInModel = columnData.Name,
-                                  NameInClass = camelCaseConverter.ConvertToCamelCase(columnData.Name),
-                                  TypeInClass = primitiveTypeHelper.GetMappedDtype(columnData.Dtype)
+                                  NameInClass = _camelCaseConverter.ConvertToCamelCase(columnData.Name),
+                                  TypeInClass = _primitiveTypeHelper.GetMappedDtype(columnData.Dtype)
                               };
 
             var templateInputData = new
@@ -157,9 +242,9 @@ namespace MlemApi.ClassesGenerator
                 ColumnsData = columnsData.ToList(),
             };
 
-            var renderedClassContent = templateRenderer.Render(dtoDataframeTemplateContent, templateInputData, renderSettings);
+            var renderedClassContent = templateRenderer.Render(_dtoDataframeTemplateContent, templateInputData, renderSettings);
 
-            WriteClassToFile(outputPath, templateInputData.ClassName, renderedClassContent);
+            WriteClassToFile(outputDirectory, templateInputData.ClassName, renderedClassContent);
         }
     }
 }

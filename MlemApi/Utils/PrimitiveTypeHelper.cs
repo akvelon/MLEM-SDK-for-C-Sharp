@@ -1,9 +1,17 @@
-﻿using MlemApi.Validation.Exceptions;
+﻿﻿using MlemApi.MessageResources;
+﻿using System.ComponentModel;
+using MlemApi.Validation.Exceptions;
 
 namespace MlemApi.Utils
 {
+    /// <summary>
+    /// Provides operation over primitive data types supported by mlem
+    /// </summary>
     internal class PrimitiveTypeHelper : IPrimitiveTypeHelper
     {
+        /// <summary>
+        /// List of types supported (.NET types)
+        /// </summary>
         public enum SupportedTypes {
             Single,
             Double,
@@ -16,13 +24,16 @@ namespace MlemApi.Utils
             UInt32,
             UInt64,
             Boolean,
+            String,
         };
 
         /// <summary>
         /// Map of Numpy types (used in sklearn) to C# primitive types
         /// See https://gist.github.com/robbmcleod/73ca42da5984e6d0e5b6ad28bc4a504efor for the referenced list of types
+        /// Please note that .NET types mentioned here should support Parse method (except for String type) and be System types
+        /// (See ValidateType method implementation)
         /// </summary>
-        private readonly Dictionary<string, SupportedTypes> typesMap = new Dictionary<string, SupportedTypes>()
+        private readonly Dictionary<string, SupportedTypes> _typesMap = new Dictionary<string, SupportedTypes>()
         {
             { "float32", SupportedTypes.Single },
             { "float64", SupportedTypes.Double },
@@ -35,6 +46,7 @@ namespace MlemApi.Utils
             { "uint32", SupportedTypes.UInt32 },
             { "uint64", SupportedTypes.UInt64 },
             { "bool", SupportedTypes.Boolean },
+            { "str", SupportedTypes.String },
         };
 
         /// <summary>
@@ -46,93 +58,59 @@ namespace MlemApi.Utils
         {
             try
             {
-                return typesMap[dType].ToString();
+                return _typesMap[dType].ToString();
             }
             catch (KeyNotFoundException)
             {
-                throw new KeyNotFoundException($"Unknown value type - {dType}");
+                throw new KeyNotFoundException(string.Format(EM.UnknownValueType, dType));
             }
         }
+
         /// <summary>
         /// Validates if value is of expected dtype
         /// </summary>
         /// <param name="value">value to be validated</param>
         /// <param name="expectedDtype">expected dtype from model</param>
+        /// <param name="parseStringValue">If true - parses value as string, otherwise - tries to assess it's type</param>
         /// <exception cref="Exception"></exception>
         /// <exception cref="FormatException"></exception>
-        public void ValidateType(string value, string expectedDtype)
+        public void ValidateType<T>(T value, string expectedDtype, bool parseStringValue)
         {
-            var expectedNetType = GetMappedDtype(expectedDtype);
+            var expectedNetTypeStr = GetMappedDtype(expectedDtype);
 
-            try
+            var expectedNetType = Type.GetType($"System.{expectedNetTypeStr}");
+            if (parseStringValue)
             {
-                switch (expectedNetType)
+                try
                 {
-                    case "Double":
-                        {
-                            Double.Parse(value);
-                            break;
-                        }
-                    case "Single":
-                        {
-                            Single.Parse(value);
-                            break;
-                        }
-                    case "SByte":
-                        {
-                            SByte.Parse(value);
-                            break;
-                        }
-                    case "Int16":
-                        {
-                            Int16.Parse(value);
-                            break;
-                        }
-                    case "Int32":
-                        {
-                            Int32.Parse(value);
-                            break;
-                        }
-                    case "Int64":
-                        {
-                            Int64.Parse(value);
-                            break;
-                        }
-                    case "Byte":
-                        {
-                            Byte.Parse(value);
-                            break;
-                        }
-                    case "UInt16":
-                        {
-                            UInt16.Parse(value);
-                            break;
-                        }
-                    case "UInt32":
-                        {
-                            UInt32.Parse(value);
-                            break;
-                        }
-                    case "UInt64":
-                        {
-                            UInt64.Parse(value);
-                            break;
-                        }
-                    case "Boolean":
-                        {
-                            Boolean.Parse(value);
-                            break;
-                        }
-                    default:
-                        {
-                            throw new Exception($"No validation logic for type {expectedNetType}");
-                            break;
-                        }
+                    if (expectedNetType != typeof(String))
+                    {
+                        var typeConverter = TypeDescriptor.GetConverter(expectedNetType);
+                        typeConverter.ConvertFrom(value.ToString());
+                    }
+                }
+                catch (Exception e)
+                {
+                    throw new InvalidTypeException($"Value '{value}' is not compatible with expected type - {expectedNetType}", e);
                 }
             }
-            catch (FormatException)
+            else
             {
-                throw new InvalidTypeException($"Value '{value}' is not compatible with expected type - {expectedNetType}");
+                Type valueType = null;
+
+                try
+                {
+                    valueType = value.GetType();
+                }
+                catch (Exception e)
+                {
+                    throw new InvalidTypeException($"Can't retrieve runtime type for value {value} and validate", e);
+                }
+
+                if (valueType != expectedNetType)
+                {
+                    throw new InvalidTypeException($"Incorrect type - current is {valueType.Name}, but {expectedNetTypeStr} expected");
+                }
             }
         }
     }

@@ -1,10 +1,6 @@
-﻿using System.Net;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using MlemApi;
 using ModelRepository.SampleRequestObjects;
-using Moq;
-using Moq.Protected;
-using NUnit.Framework;
 
 namespace MlemApiClientTests.IntegrationTests.IrisTests
 {
@@ -24,7 +20,7 @@ namespace MlemApiClientTests.IntegrationTests.IrisTests
         [TearDown]
         public void TearDown()
         {
-            _client.ArgumentTypesValidationIsOn = false;
+            _client.ArgumentsValidationIsOn = false;
         }
 
         public MlemApiClient GetClientWithMockedHttpClient(string responseToSet)

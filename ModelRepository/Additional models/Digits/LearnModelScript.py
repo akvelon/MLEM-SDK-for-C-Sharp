@@ -6,7 +6,7 @@ from mlem.api import save
 
 
 def main():
-    data, y = load_digits(return_X_y=True, as_frame=True)
+    data, y = load_digits(return_X_y=True, as_frame=False)
     rf = RandomForestClassifier(
         n_jobs=2,
         random_state=42,

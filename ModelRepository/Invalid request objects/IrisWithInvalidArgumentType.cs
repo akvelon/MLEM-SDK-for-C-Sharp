@@ -2,7 +2,7 @@
 
 namespace ModelRepository.InvalidRequestObjects
 {
-    internal class IrisWithInvalidArgumentType
+    public class IrisWithInvalidArgumentType
     {
         [JsonProperty("sepal length (cm)")]
         public byte SepalLength { get; set; }

@@ -1,12 +1,18 @@
 ﻿namespace MlemApi.Dto
 {
-    internal class ApiDescription
+    /// <summary>
+    /// Represens api schema of mlem model
+    /// </summary>
+    public class ApiDescription
     {
-        internal ApiDescription()
+        public ApiDescription()
         {
             Methods = new List<MethodDescription>();
         }
 
-        internal List<MethodDescription> Methods { get; set; }
+        /// <summary>
+        /// Methods list - provided by api schema
+        /// </summary>
+        public List<MethodDescription> Methods { get; set; }
     }
 }

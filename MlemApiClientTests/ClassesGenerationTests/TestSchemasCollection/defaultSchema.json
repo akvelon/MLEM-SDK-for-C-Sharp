@@ -5,7 +5,7 @@
       "args": [
         {
           "name": "data",
-          "type_": {
+          "data_type": {
             "columns": [
               "arg1",
               "arg2"
@@ -23,14 +23,14 @@
         }
       ],
       "returns": {
-        "shape": [
-          null
-        ],
-        "dtype": "int64",
-        "type": "ndarray"
-      },
-      "varargs": null,
-      "varkw": null
-    }
+        "data_type": {
+          "shape": [
+            null
+          ],
+          "dtype": "int64",
+          "type": "ndarray"
+        }
+      }
+     }
   }
 }

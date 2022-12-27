@@ -6,7 +6,7 @@
       "args": [
         {
           "name": "data",
-          "type_": {
+          "data_type": {
             "items": [
               {
                 "ptype": "str",
@@ -21,8 +21,10 @@
         }
       ],
       "returns": {
-        "ptype": "int64",
-        "type": "primitive"
+        "data_type": {
+          "ptype": "int64",
+          "type": "primitive"
+        }
       },
       "varargs": null,
       "varkw": null
@@ -31,8 +33,10 @@
       "name": "_call_impl",
       "args": [],
       "returns": {
-        "ptype": "str",
-        "type": "primitive"
+        "data_type": {
+          "ptype": "str",
+          "type": "primitive"
+        }
       },
       "varargs": "input",
       "varkw": "kwargs"

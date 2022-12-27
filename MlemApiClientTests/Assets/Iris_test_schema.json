@@ -6,7 +6,7 @@
       "args": [
         {
           "name": "data",
-          "type_": {
+          "data_type": {
             "columns": [
               "sepal length (cm)",
               "sepal width (cm)",
@@ -28,11 +28,13 @@
         }
       ],
       "returns": {
-        "shape": [
-          null
-        ],
-        "dtype": "int64",
-        "type": "ndarray"
+        "data_type": {
+          "shape": [
+            null
+          ],
+          "dtype": "int64",
+          "type": "ndarray"
+        }
       },
       "varargs": null,
       "varkw": null
@@ -42,7 +44,7 @@
       "args": [
         {
           "name": "data",
-          "type_": {
+          "data_type": {
             "columns": [
               "sepal length (cm)",
               "sepal width (cm)",
@@ -64,12 +66,14 @@
         }
       ],
       "returns": {
-        "shape": [
-          null,
-          3
-        ],
-        "dtype": "float64",
-        "type": "ndarray"
+        "data_type": {
+          "shape": [
+            null,
+            3
+          ],
+          "dtype": "float64",
+          "type": "ndarray"
+        }
       },
       "varargs": null,
       "varkw": null
@@ -79,7 +83,7 @@
       "args": [
         {
           "name": "X",
-          "type_": {
+          "X_type": {
             "columns": [
               "sepal length (cm)",
               "sepal width (cm)",
@@ -101,11 +105,13 @@
         }
       ],
       "returns": {
-        "shape": [
-          null
-        ],
-        "dtype": "int64",
-        "type": "ndarray"
+        "data_type": {
+          "shape": [
+            null
+          ],
+          "dtype": "int64",
+          "type": "ndarray"
+        }
       },
       "varargs": null,
       "varkw": null
@@ -115,7 +121,7 @@
       "args": [
         {
           "name": "X",
-          "type_": {
+          "X_type": {
             "columns": [
               "sepal length (cm)",
               "sepal width (cm)",
@@ -137,12 +143,14 @@
         }
       ],
       "returns": {
-        "shape": [
-          null,
-          3
-        ],
-        "dtype": "float64",
-        "type": "ndarray"
+        "data_type": {
+          "shape": [
+            null,
+            3
+          ],
+          "dtype": "float64",
+          "type": "ndarray"
+        }
       },
       "varargs": null,
       "varkw": null

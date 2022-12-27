@@ -1,3 +1,4 @@
+using MlemApi.Dto;
 using MlemApi.Dto.DataFrameData;
 using MlemApi.MessageResources;
 
@@ -6,7 +7,7 @@ namespace MlemApi.Serializing
     public class DefaultRequestValueSerializer : IRequestValuesSerializer
     {
         private readonly DataFrameSerializer _dataFrameSerializer = new();
-        private readonly NdarraySerializer _ndArraySerializer = new();
+        private readonly ArraySerializer _arraySerializer = new();
 
         private string GetRequestBody(string argsName, string argValue)
             => $"{{\"{argsName}\": {argValue}}}";
@@ -23,11 +24,17 @@ namespace MlemApi.Serializing
                     $"}}"
                 );
             }
-            else
+            else if (argsType == typeof(DataFrameData) || argsType == typeof(ListData))
             {
                 return GetRequestBody(
                     argsName,
-                    _ndArraySerializer.Serialize(values.First())
+                    _arraySerializer.Serialize(values.First())
+                );
+            } else
+            {
+                return GetRequestBody(
+                    argsName,
+                    values.First().ToString()
                 );
             }
         }

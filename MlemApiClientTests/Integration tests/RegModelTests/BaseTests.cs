@@ -14,8 +14,8 @@ namespace MlemApiClientTests.RegModelTests
         protected const string interface_json =
             "{\"version\": \"0.2.7\"," +
                 "\"methods\": {" +
-                    "\"predict\": {\"name\": \"predict\",\"args\": [{\"name\": \"data\",\"type_\": {\"columns\": [\"0\"],\"dtypes\": [\"float64\"],\"index_cols\": [],\"type\": \"dataframe\"},\"required\": true,\"default\": null,\"kw_only\": false}],\"returns\": {\"shape\": [null],\"dtype\": \"float64\",\"type\": \"ndarray\"},\"varargs\": null,\"varkw\": null}," +
-                    "\"sklearn_predict\": {\"name\": \"predict\",\"args\": [{\"name\": \"X\",\"type_\": {\"columns\": [\"0\"],\"dtypes\": [\"float64\"],\"index_cols\": [],\"type\": \"dataframe\"},\"required\": true,\"default\": null,\"kw_only\": false}],\"returns\": {\"shape\": [null],\"dtype\": \"float64\",\"type\": \"ndarray\"},\"varargs\": null,\"varkw\": null}}}";
+                    "\"predict\": {\"name\": \"predict\",\"args\": [{\"name\": \"data\",\"data_type\": {\"columns\": [\"0\"],\"dtypes\": [\"float64\"],\"index_cols\": [],\"type\": \"dataframe\"},\"required\": true,\"default\": null,\"kw_only\": false}],\"returns\": {\"shape\": [null],\"dtype\": \"float64\",\"type\": \"ndarray\"},\"varargs\": null,\"varkw\": null}," +
+                    "\"sklearn_predict\": {\"name\": \"predict\",\"args\": [{\"name\": \"X\",\"data_type\": {\"columns\": [\"0\"],\"dtypes\": [\"float64\"],\"index_cols\": [],\"type\": \"dataframe\"},\"required\": true,\"default\": null,\"kw_only\": false}],\"returns\": {\"shape\": [null],\"dtype\": \"float64\",\"type\": \"ndarray\"},\"varargs\": null,\"varkw\": null}}}";
 
         [SetUp]
         public void Setup()

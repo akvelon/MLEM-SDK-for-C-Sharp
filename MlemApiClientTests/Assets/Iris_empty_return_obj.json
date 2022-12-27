@@ -6,7 +6,7 @@
       "args": [
         {
           "name": "data",
-          "type_": {
+          "data_type": {
             "columns": [
               "sepal length (cm)",
               "sepal width (cm)",
@@ -36,7 +36,7 @@
       "args": [
         {
           "name": "data",
-          "type_": {
+          "data_type": {
             "columns": [
               "sepal length (cm)",
               "sepal width (cm)",
@@ -58,12 +58,14 @@
         }
       ],
       "returns": {
-        "shape": [
-          null,
-          3
-        ],
-        "dtype": "float64",
-        "type": "ndarray"
+        "data_type": {
+          "shape": [
+            null,
+            3
+          ],
+          "dtype": "float64",
+          "type": "ndarray"
+        }
       },
       "varargs": null,
       "varkw": null

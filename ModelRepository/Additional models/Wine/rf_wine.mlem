@@ -3,178 +3,104 @@ artifacts:
     hash: 8e03ff1a80d895251b18ed654a0c4326
     size: 201870
     uri: rf_wine
-model_type:
-  methods:
-    predict:
-      args:
-      - name: data
-        type_:
-          columns:
-          - alcohol
-          - malic_acid
-          - ash
-          - alcalinity_of_ash
-          - magnesium
-          - total_phenols
-          - flavanoids
-          - nonflavanoid_phenols
-          - proanthocyanins
-          - color_intensity
-          - hue
-          - od280/od315_of_diluted_wines
-          - proline
-          dtypes:
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          index_cols: []
-          type: dataframe
-      name: predict
-      returns:
-        dtype: int32
-        shape:
-        - null
-        type: ndarray
-    predict_proba:
-      args:
-      - name: data
-        type_:
-          columns:
-          - alcohol
-          - malic_acid
-          - ash
-          - alcalinity_of_ash
-          - magnesium
-          - total_phenols
-          - flavanoids
-          - nonflavanoid_phenols
-          - proanthocyanins
-          - color_intensity
-          - hue
-          - od280/od315_of_diluted_wines
-          - proline
-          dtypes:
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          index_cols: []
-          type: dataframe
-      name: predict_proba
-      returns:
-        dtype: float64
-        shape:
-        - null
-        - 3
-        type: ndarray
-    sklearn_predict:
-      args:
-      - name: X
-        type_:
-          columns:
-          - alcohol
-          - malic_acid
-          - ash
-          - alcalinity_of_ash
-          - magnesium
-          - total_phenols
-          - flavanoids
-          - nonflavanoid_phenols
-          - proanthocyanins
-          - color_intensity
-          - hue
-          - od280/od315_of_diluted_wines
-          - proline
-          dtypes:
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          index_cols: []
-          type: dataframe
-      name: predict
-      returns:
-        dtype: int32
-        shape:
-        - null
-        type: ndarray
-    sklearn_predict_proba:
-      args:
-      - name: X
-        type_:
-          columns:
-          - alcohol
-          - malic_acid
-          - ash
-          - alcalinity_of_ash
-          - magnesium
-          - total_phenols
-          - flavanoids
-          - nonflavanoid_phenols
-          - proanthocyanins
-          - color_intensity
-          - hue
-          - od280/od315_of_diluted_wines
-          - proline
-          dtypes:
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          - float64
-          index_cols: []
-          type: dataframe
-      name: predict_proba
-      returns:
-        dtype: float64
-        shape:
-        - null
-        - 3
-        type: ndarray
-  type: sklearn
+call_orders:
+  predict:
+  - - model
+    - predict
+  predict_proba:
+  - - model
+    - predict_proba
 object_type: model
+processors:
+  model:
+    methods:
+      predict:
+        args:
+        - name: X
+          type_:
+            columns:
+            - alcohol
+            - malic_acid
+            - ash
+            - alcalinity_of_ash
+            - magnesium
+            - total_phenols
+            - flavanoids
+            - nonflavanoid_phenols
+            - proanthocyanins
+            - color_intensity
+            - hue
+            - od280/od315_of_diluted_wines
+            - proline
+            dtypes:
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            index_cols: []
+            type: dataframe
+        name: predict
+        returns:
+          dtype: int32
+          shape:
+          - null
+          type: ndarray
+      predict_proba:
+        args:
+        - name: X
+          type_:
+            columns:
+            - alcohol
+            - malic_acid
+            - ash
+            - alcalinity_of_ash
+            - magnesium
+            - total_phenols
+            - flavanoids
+            - nonflavanoid_phenols
+            - proanthocyanins
+            - color_intensity
+            - hue
+            - od280/od315_of_diluted_wines
+            - proline
+            dtypes:
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            index_cols: []
+            type: dataframe
+        name: predict_proba
+        returns:
+          dtype: float64
+          shape:
+          - null
+          - 3
+          type: ndarray
+    type: sklearn
 requirements:
 - module: sklearn
+  package_name: scikit-learn
   version: 1.1.2
 - module: pandas
   version: 1.5.0
 - module: numpy
   version: 1.23.3
-- module: dateutil
-  version: 2.8.2

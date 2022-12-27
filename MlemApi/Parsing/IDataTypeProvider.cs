@@ -14,9 +14,9 @@ namespace MlemApi.Parsing
         /// <returns></returns>
         List<string> GetSupportedTypes();
         /// <summary>
-        /// Returns parsed type for data schema provided (content of 'type_' field)
+        /// Returns parsed type for data schema provided (content of 'data_type' field)
         /// </summary>
-        /// <param name="argsObjectEnumerator">Json content of 'type_' field in schema</param>
+        /// <param name="argsObjectEnumerator">Json content of 'data_type' field in schema</param>
         /// <param name="childDataTypeProvider">Child data provider </param>
         /// <returns>Parsed type</returns>
         IApiDescriptionDataStructure GetTypeFromSchema(JsonElement.ObjectEnumerator argsObjectEnumerator, IDataTypeProvider childDataTypeProvider);

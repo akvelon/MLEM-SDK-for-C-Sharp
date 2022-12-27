@@ -6,7 +6,7 @@
       "args": [
         {
           "name": "data",
-          "type_": {
+          "data_type": {
             "items": [
               {
                 "ptype": "int16",

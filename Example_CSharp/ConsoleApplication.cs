@@ -71,6 +71,9 @@ namespace Example
                 case TestCases.CustomConsoleLoggerCase:
                     await RunCustomConsoleLoggerCase();
                     break;
+                case TestCases.ApiSchemaUsage:
+                    RunApiSchemaUsage();
+                    break;
                 default:
                     throw new NotImplementedException();
             }
@@ -435,6 +438,20 @@ namespace Example
             Console.WriteLine(res);
         }
 
+        public void RunApiSchemaUsage()
+        {
+            string url = "http://127.0.0.1:8080/";
+            HttpClient httpClient = _httpClientFactory.CreateClient("MlemApiClient");
+            MlemApiClient mlemClient = new(url, null, httpClient, _requestSerializer);
+            mlemClient.ResponseValidationIsOn = false;
+            var schema = mlemClient.GetDescription();
+
+            Console.WriteLine("\nMethods:");
+            foreach (var method in schema.Methods)
+            {
+                Console.WriteLine(" - "+ method.MethodName);
+            }
+        }
 
         private MlemApiClient GetIrisClient()
         {

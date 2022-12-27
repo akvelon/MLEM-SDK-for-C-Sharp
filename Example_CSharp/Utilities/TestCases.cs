@@ -16,6 +16,7 @@
         DigitsRandomForest,
         ClassGeneration,
         TextModel,
-        CustomConsoleLoggerCase
+        CustomConsoleLoggerCase,
+        ApiSchemaUsage,
     }
 }

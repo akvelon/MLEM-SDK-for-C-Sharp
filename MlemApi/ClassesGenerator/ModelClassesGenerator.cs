@@ -73,26 +73,26 @@ namespace MlemApi.ClassesGenerator
             _logger?.LogDebug($"Generating classes for request type");
             var typeAlias = _camelCaseConverter.ConvertToCamelCase($"{camelCasedModelName}{_camelCaseConverter.ConvertToCamelCase(method.MethodName)}RequestType");
 
-            if (method.ArgsData is DataFrameData)
+            if (method.ArgsData.DataType is DataFrameData)
             {
                 _logger?.LogDebug($"Generating for dataframe type...");
                 GenerateDataframeClass(
                     classAccessModifier,
                     namespaceName,
-                    method.ArgsData as DataFrameData,
+                    method.ArgsData.DataType as DataFrameData,
                     templateRenderer,
                     outputDirectory,
                     typeAlias,
                     renderSettings
                 );
             }
-            else if (method.ArgsData is NdarrayData)
+            else if (method.ArgsData.DataType is NdarrayData)
             {
                 _logger?.LogDebug($"Generating for ndarray type...");
                 GenerateNdArrayClass(
                     classAccessModifier,
                     namespaceName,
-                    method.ArgsData as NdarrayData,
+                    method.ArgsData.DataType as NdarrayData,
                     templateRenderer,
                     outputDirectory,
                     typeAlias,

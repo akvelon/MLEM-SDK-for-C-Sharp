@@ -81,7 +81,7 @@ namespace Example
 
         private async Task RunSingleIrisCase()
         {
-            string url = "https://example-mlem-get-started-app.herokuapp.com";
+            string url = "http://localhost:8080";
             HttpClient httpClient = _httpClientFactory.CreateClient(nameof(MlemApiClient));
             MlemApiClient mlemClient = new(url, null, httpClient, _requestSerializer);
 

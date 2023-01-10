@@ -24,16 +24,7 @@ ConsoleApplication consoleService = services.GetRequiredService<ConsoleApplicati
 // Configure necessary console test cases running one by one
 List<TestCases> cases = new()
 {
-    TestCases.SingleIris,
-    TestCases.MultipleIris,
-    TestCases.IrisFileLogger,
-    TestCases.IrisRequestCheckInvalidArgument,
-    TestCases.IrisRequestCheckMissingColumn,
-    TestCases.IrisRequestCheckUnknownColumn,
-    TestCases.ClassGeneration,
-    TestCases.CustomConsoleLoggerCase,
-    TestCases.TextModel,
-    TestCases.Wine
+    TestCases.SingleIris
 };
 
 // Run one or several test cases

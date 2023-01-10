@@ -17,7 +17,7 @@ namespace MlemApi.Parsing.DataTypeParsers
         public IApiDescriptionDataStructure GetTypeFromSchema(JsonElement.ObjectEnumerator objectEnumerator, IDataTypeProvider childDataTypeProvider)
         {
             var shapeArray = objectEnumerator.First(e => e.Name == "shape")
-            .Value.EnumerateArray();
+                .Value.EnumerateArray();
 
             var dType = objectEnumerator.First(e => e.Name == "dtype")
                 .Value.GetString();

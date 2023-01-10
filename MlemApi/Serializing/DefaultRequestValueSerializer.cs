@@ -1,6 +1,5 @@
 using MlemApi.Dto;
 using MlemApi.Dto.DataFrameData;
-using MlemApi.MessageResources;
 
 namespace MlemApi.Serializing
 {
@@ -37,6 +36,11 @@ namespace MlemApi.Serializing
                     values.First().ToString()
                 );
             }
+        }
+
+        public HttpResponseMessage BuildRequest<T>(IEnumerable<T> values, string command)
+        {
+            throw new NotImplementedException();
         }
     }
 }

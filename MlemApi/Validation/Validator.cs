@@ -127,7 +127,7 @@ namespace MlemApi.Validation
         private void ValidateArgument<incomeT>(incomeT value, string methodName, Dictionary<string, string>? modelColumnToPropNamesMap = null)
         {
             _logger?.LogDebug($"Validating argument for method {methodName}");
-            var argsData = GetMethodDescriptionFromSchema(methodName)?.ArgsData;
+            var argsData = GetMethodDescriptionFromSchema(methodName)?.ArgsData.DataType;
             if (argsData == null)
             {
                 throw new InvalidApiSchemaException($"Empty arguments scheme data for method {methodName}.");

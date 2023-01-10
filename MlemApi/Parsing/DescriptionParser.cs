@@ -44,7 +44,7 @@ namespace MlemApi.Parsing
                 try
                 {
                     string? argsName = null;
-                    IApiDescriptionDataStructure? argsData = null;
+                    ArgsData? argsData = null;
                     IApiDescriptionDataStructure? returnData = null;
                     var methodElement = jsonMethodElement.Value
                         .EnumerateObject();
@@ -100,7 +100,7 @@ namespace MlemApi.Parsing
         /// </summary>
         /// <param name="argsObjectEnumerator">json object enumerator for args data in api schema</param>
         /// <returns>Parsed schema for args data</returns>
-        private IApiDescriptionDataStructure? GetArgsData(JsonElement.ObjectEnumerator? argsObjectEnumerator, string argName)
+        private ArgsData? GetArgsData(JsonElement.ObjectEnumerator? argsObjectEnumerator, string argName)
         {
             if (argsObjectEnumerator is not JsonElement.ObjectEnumerator notNullableArgsObjectEnumerator)
             {
@@ -111,9 +111,11 @@ namespace MlemApi.Parsing
             var typesDataObject = notNullableArgsObjectEnumerator.First(e => e.Name == $"{argName}_type")
                 .Value.EnumerateObject();
 
-            IApiDescriptionDataStructure dataType = _dataTypeProvider.GetTypeFromSchema(typesDataObject, _dataTypeProvider);
-
-            return dataType;
+            return new ArgsData
+            {
+                DataType = _dataTypeProvider.GetTypeFromSchema(typesDataObject, _dataTypeProvider),
+                Serializer = null
+            };
         }
 
         /// <summary>

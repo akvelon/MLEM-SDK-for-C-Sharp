@@ -120,7 +120,7 @@ namespace MlemApi
 
             string argsName = methodDescription.ArgsName;
 
-            var jsonRequest = _requestBuilder.BuildRequest(argsName, values, methodDescription.ArgsData.GetType());
+            var jsonRequest = _requestBuilder.BuildRequest(argsName, values, methodDescription.ArgsData.DataType.GetType());
 
             return await SendPostRequestAsync<ResultType?>(methodName, jsonRequest);
         }

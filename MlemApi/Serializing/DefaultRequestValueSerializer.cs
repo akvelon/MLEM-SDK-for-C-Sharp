@@ -1,5 +1,7 @@
 using MlemApi.Dto;
 using MlemApi.Dto.DataFrameData;
+using System.Net.Mime;
+using System.Text;
 
 namespace MlemApi.Serializing
 {
@@ -38,9 +40,10 @@ namespace MlemApi.Serializing
             }
         }
 
-        public HttpResponseMessage BuildRequest<T>(IEnumerable<T> values, string command)
+        HttpContent IRequestValuesSerializer.BuildRequest<T>(string argsName, IEnumerable<T> values, Type argsType)
         {
-            throw new NotImplementedException();
+            var serializedObject = Serialize(values, argsName, argsType);
+            return new StringContent(serializedObject, Encoding.UTF8, MediaTypeNames.Application.Json);
         }
     }
 }

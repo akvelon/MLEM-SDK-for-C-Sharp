@@ -120,9 +120,10 @@ namespace MlemApi
 
             string argsName = methodDescription.ArgsName;
 
-            var jsonRequest = _requestBuilder.BuildRequest(argsName, values, methodDescription.ArgsData.DataType.GetType());
+            var serializedObject = methodDescription.ArgsData.Serializer
+                .BuildRequest(argsName, values, methodDescription.ArgsData.DataType.GetType());
 
-            return await SendPostRequestAsync<ResultType?>(methodName, jsonRequest);
+            return await SendPostRequestAsync<ResultType?>(methodName, serializedObject);
         }
 
         /// <summary>
@@ -147,16 +148,14 @@ namespace MlemApi
             }
         }
 
-        private async Task<T?> SendPostRequestAsync<T>(string command, string requestJsonString)
+        private async Task<T?> SendPostRequestAsync<T>(string command, HttpContent content)
         {
             _logger?.LogInformation(string.Format(LM.LogRequestCommand, command));
-            _logger?.LogInformation(string.Format(LM.LogRequestJson,requestJsonString));
+            _logger?.LogInformation(string.Format(LM.LogRequestJson, content));
 
             try
             {
-                HttpResponseMessage httpResponse = await _httpClient.PostAsync(
-                    command,
-                    new StringContent(requestJsonString, Encoding.UTF8, MediaTypeNames.Application.Json));
+                HttpResponseMessage httpResponse = await _httpClient.PostAsync(command, content);
 
                 _logger?.LogInformation(string.Format(LM.LogResponseStatus, httpResponse.StatusCode));
 

@@ -13,6 +13,6 @@
         /// <param name="values">request object type - ndarray or dataframe</param>
         /// <returns></returns>
         string Serialize<T>(IEnumerable<T> values, string argsName, Type argsType);
-        HttpResponseMessage BuildRequest<T>(IEnumerable<T> values, string command);
+        HttpContent BuildRequest<T>(string argsName, IEnumerable<T> values, Type argsType);
     }
 }

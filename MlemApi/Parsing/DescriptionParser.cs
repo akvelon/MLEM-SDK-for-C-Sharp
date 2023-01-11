@@ -3,7 +3,9 @@ using Microsoft.Extensions.Logging;
 using MlemApi.Dto;
 using MlemApi.MessageResources;
 using MlemApi.Parsing.DataTypeParsers;
+using MlemApi.Serializing;
 using MlemApi.Validation.Exceptions;
+using static System.Text.Json.JsonElement;
 
 namespace MlemApi.Parsing
 {
@@ -59,6 +61,10 @@ namespace MlemApi.Parsing
 
                         argsName = argsObject.First(e => e.Name == "name").Value.GetString();
                         argsData = GetArgsData(argsObject, argsName);
+
+                        var requestSerializerData = argsObject.First(e => e.Name == "serializer").Value.EnumerateObject();
+                        var requestSerializerObject = GetRequestSerizlizeObject(requestSerializerData);
+                        argsData.Serializer = requestSerializerObject;
                     }
                     catch (Exception e)
                     {
@@ -95,12 +101,27 @@ namespace MlemApi.Parsing
             return description;
         }
 
+        private IRequestValuesSerializer GetRequestSerizlizeObject(JsonElement.ObjectEnumerator? requestSerializeObjectEnumerator)
+        {
+            if (requestSerializeObjectEnumerator is not JsonElement.ObjectEnumerator notNullableArgsObjectEnumerator)
+            {
+                return new DefaultRequestValueSerializer();
+            }
+
+            _logger?.LogDebug("Parsing serializer...");
+
+            var serializerType = notNullableArgsObjectEnumerator.First(e => e.Name == "type")
+               .Value.ToString();
+
+            return new DefaultRequestValueSerializer();
+        }
+
         /// <summary>
         /// Parses schema for args data from relevant json object
         /// </summary>
         /// <param name="argsObjectEnumerator">json object enumerator for args data in api schema</param>
         /// <returns>Parsed schema for args data</returns>
-        private ArgsData? GetArgsData(JsonElement.ObjectEnumerator? argsObjectEnumerator, string argName)
+        private ArgsData GetArgsData(JsonElement.ObjectEnumerator? argsObjectEnumerator, string argName)
         {
             if (argsObjectEnumerator is not JsonElement.ObjectEnumerator notNullableArgsObjectEnumerator)
             {
@@ -113,8 +134,7 @@ namespace MlemApi.Parsing
 
             return new ArgsData
             {
-                DataType = _dataTypeProvider.GetTypeFromSchema(typesDataObject, _dataTypeProvider),
-                Serializer = null
+                DataType = _dataTypeProvider.GetTypeFromSchema(typesDataObject, _dataTypeProvider)
             };
         }
 

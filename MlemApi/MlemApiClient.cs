@@ -1,6 +1,4 @@
-﻿using System.Text;
-using System.Text.Json;
-using System.Net.Mime;
+﻿using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using MlemApi.Dto;
 using MlemApi.Serializing;
@@ -123,7 +121,7 @@ namespace MlemApi
             var serializedObject = methodDescription.ArgsData.Serializer
                 .BuildRequest(argsName, values, methodDescription.ArgsData.DataType.GetType());
 
-            return await SendPostRequestAsync<ResultType?>(methodName, serializedObject);
+            return await SendPostRequestAsync<ResultType?>(methodName, serializedObject, methodDescription.ReturnData.Serializer);
         }
 
         /// <summary>
@@ -148,7 +146,7 @@ namespace MlemApi
             }
         }
 
-        private async Task<T?> SendPostRequestAsync<T>(string command, HttpContent content)
+        private async Task<T?> SendPostRequestAsync<T>(string command, HttpContent content, IResponseSerializer responseSerializer)
         {
             _logger?.LogInformation(string.Format(LM.LogRequestCommand, command));
             _logger?.LogInformation(string.Format(LM.LogRequestJson, content));
@@ -168,30 +166,7 @@ namespace MlemApi
                     throw new HttpRequestException(response, null, httpResponse.StatusCode);
                 }
 
-                if (ResponseValidationIsOn)
-                {
-                    _logger?.LogDebug("Response validation is on - started validation");
-                    _validator?.ValidateJsonResponse(response, command);
-                }
-
-                try
-                {
-                    T? result = JsonSerializer.Deserialize<T>(response);
-
-                    if (result == null)
-                    {
-                        _logger?.LogWarning(LM.LogResponseDeserializationNull);
-                    }
-
-                    return result;
-                }
-                catch
-                {
-                    _logger?.LogInformation($"Response deserialization from json failed - considering responce as plain text");
-                    TypeConverter converter = TypeDescriptor.GetConverter(typeof(T));
-                    
-                    return (T) converter.ConvertFromString(null, CultureInfo.InvariantCulture, response);
-                }
+                return responseSerializer.Serialize<T>(httpResponse);
             }
             catch (Exception ex)
             {

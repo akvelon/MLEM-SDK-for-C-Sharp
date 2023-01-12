@@ -7,7 +7,7 @@ namespace MlemApi.Dto
     /// </summary>
     public class MethodDescription
     {
-        public MethodDescription(string methodName, string argsName, ArgsData? argsData, IApiDescriptionDataStructure returnData)
+        public MethodDescription(string methodName, string argsName, ArgsData? argsData, ReturnData returnData)
         {
             MethodName = methodName;
             ArgsName = argsName;
@@ -20,6 +20,6 @@ namespace MlemApi.Dto
         public string? ArgsName { get; set; }
         public ArgsData? ArgsData { get; set; }
 
-        public IApiDescriptionDataStructure ReturnData {get; set;}
+        public ReturnData ReturnData {get; set;}
     }
 }

@@ -84,7 +84,7 @@ namespace MlemApi.Validation
         {
             _logger?.LogDebug($"Validating response for method {methodName}.");
             _logger?.LogDebug($"Response content: {response}");
-            var methodReturnDataSchema = GetMethodDescriptionFromSchema(methodName)?.ReturnData;
+            var methodReturnDataSchema = GetMethodDescriptionFromSchema(methodName)?.ReturnData.DataType;
 
             if (methodReturnDataSchema == null)
             {

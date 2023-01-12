@@ -47,7 +47,7 @@ namespace MlemApi.Parsing
                 {
                     string? argsName = null;
                     ArgsData? argsData = null;
-                    IApiDescriptionDataStructure? returnData = null;
+                    ReturnData? returnData = null;
                     var methodElement = jsonMethodElement.Value
                         .EnumerateObject();
 
@@ -62,9 +62,13 @@ namespace MlemApi.Parsing
                         argsName = argsObject.First(e => e.Name == "name").Value.GetString();
                         argsData = GetArgsData(argsObject, argsName);
 
-                        var requestSerializerData = argsObject.First(e => e.Name == "serializer").Value.EnumerateObject();
-                        var requestSerializerObject = GetRequestSerizlizeObject(requestSerializerData);
-                        argsData.Serializer = requestSerializerObject;
+
+                        if (argsData != null)
+                        {
+                            var requestSerializerData = argsObject.First(e => e.Name == "serializer").Value.EnumerateObject();
+                            var requestSerializerObject = GetRequestSerizlizeObject(requestSerializerData);
+                            argsData.Serializer = requestSerializerObject;
+                        }
                     }
                     catch (Exception e)
                     {
@@ -77,6 +81,13 @@ namespace MlemApi.Parsing
                         var returnDataObject = jsonMethodElement.Value
                                 .EnumerateObject().First(e => e.Name == "returns").Value.EnumerateObject();
                         returnData = GetReturnData(returnDataObject, argsName);
+
+                        if (returnData != null)
+                        {
+                            var responseSerializerData = returnDataObject.First(e => e.Name == "serializer").Value.EnumerateObject();
+                            var responseSerializerObject = GetResponseSerializer(responseSerializerData);
+                            returnData.Serializer = responseSerializerObject;
+                        }
                     }
                     catch (Exception e)
                     {
@@ -101,6 +112,21 @@ namespace MlemApi.Parsing
             return description;
         }
 
+        private IResponseSerializer GetResponseSerializer(JsonElement.ObjectEnumerator? responseSerializeObjectEnumerator)
+        {
+            if (responseSerializeObjectEnumerator is not JsonElement.ObjectEnumerator notNullableArgsObjectEnumerator)
+            {
+                return new StringResponseSerializer();
+            }
+
+            _logger?.LogDebug("Parsing response serializer...");
+
+            var serializerType = notNullableArgsObjectEnumerator.First(e => e.Name == "type")
+               .Value.ToString();
+
+            return new StringResponseSerializer();
+        }
+
         private IRequestValuesSerializer GetRequestSerizlizeObject(JsonElement.ObjectEnumerator? requestSerializeObjectEnumerator)
         {
             if (requestSerializeObjectEnumerator is not JsonElement.ObjectEnumerator notNullableArgsObjectEnumerator)
@@ -108,7 +134,7 @@ namespace MlemApi.Parsing
                 return new DefaultRequestValueSerializer();
             }
 
-            _logger?.LogDebug("Parsing serializer...");
+            _logger?.LogDebug("Parsing request serializer...");
 
             var serializerType = notNullableArgsObjectEnumerator.First(e => e.Name == "type")
                .Value.ToString();
@@ -121,7 +147,7 @@ namespace MlemApi.Parsing
         /// </summary>
         /// <param name="argsObjectEnumerator">json object enumerator for args data in api schema</param>
         /// <returns>Parsed schema for args data</returns>
-        private ArgsData GetArgsData(JsonElement.ObjectEnumerator? argsObjectEnumerator, string argName)
+        private ArgsData? GetArgsData(JsonElement.ObjectEnumerator? argsObjectEnumerator, string argName)
         {
             if (argsObjectEnumerator is not JsonElement.ObjectEnumerator notNullableArgsObjectEnumerator)
             {
@@ -129,6 +155,7 @@ namespace MlemApi.Parsing
             }
 
             _logger?.LogDebug("Parsing args data...");
+
             var typesDataObject = notNullableArgsObjectEnumerator.First(e => e.Name == $"{argName}_type")
                 .Value.EnumerateObject();
 
@@ -143,7 +170,7 @@ namespace MlemApi.Parsing
         /// </summary>
         /// <param name="returnObjectEnumerator">json object enumerator for return data in api schema</param>
         /// <returns>Parsed schema for return data</returns>
-        private IApiDescriptionDataStructure? GetReturnData(JsonElement.ObjectEnumerator? returnObjectEnumerator, string argName)
+        private ReturnData? GetReturnData(JsonElement.ObjectEnumerator? returnObjectEnumerator, string argName)
         {
             if (returnObjectEnumerator is not JsonElement.ObjectEnumerator notNullableReturnObjectEnumerator)
             {
@@ -154,7 +181,11 @@ namespace MlemApi.Parsing
                 .Value.EnumerateObject();
 
             _logger?.LogDebug("Parsing return data...");
-            return _dataTypeProvider.GetTypeFromSchema(typesDataObject, _dataTypeProvider);
+
+            return new ReturnData
+            {
+                DataType = _dataTypeProvider.GetTypeFromSchema(typesDataObject, _dataTypeProvider)
+            };
         }
     }
 }

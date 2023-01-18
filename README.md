@@ -1,4 +1,4 @@
-# MLEM API Client
+# MLEM API Client (version 1.0.0, mlem version 0.4.0)
 
 ## What is MLEM?
 

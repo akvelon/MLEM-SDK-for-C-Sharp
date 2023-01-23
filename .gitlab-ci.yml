@@ -1,0 +1,17 @@
+image: mcr.microsoft.com/dotnet/sdk:6.0
+
+stages:
+  - build
+  - test
+
+build:
+  stage: build
+  script: 
+    - echo "Compiling the code..."
+    - dotnet build -c Release
+
+test:
+  stage: test
+  script:
+    - dotnet test -c Release /p:CollectCoverage=true
+  coverage: /\|\s*Total\s*\|\s*(\d+[,.]\d+%)/

@@ -1,0 +1,136 @@
+﻿{
+  "version": "0.2.9.dev11+g5a6790d",
+  "methods": {
+    "predict": {
+      "name": "predict",
+      "args": [],
+      "returns": {
+        "data_type": {
+          "shape": [
+            null
+          ],
+          "dtype": "int64",
+          "type": "ndarray"
+        }
+      },
+      "varargs": null,
+      "varkw": null
+    },
+    "predict_proba": {
+      "name": "predict_proba",
+      "args": [
+        {
+          "name": "data",
+          "data_type": {
+            "columns": [
+              "sepal length (cm)",
+              "sepal width (cm)",
+              "petal length (cm)",
+              "petal width (cm)"
+            ],
+            "dtypes": [
+              "float64",
+              "float64",
+              "float64",
+              "float64"
+            ],
+            "index_cols": [],
+            "type": "dataframe"
+          },
+          "required": true,
+          "default": null,
+          "kw_only": false
+        }
+      ],
+      "returns": {
+        "data_type": {
+          "shape": [
+            null,
+            3
+          ],
+          "dtype": "float64",
+          "type": "ndarray"
+        }
+      },
+      "varargs": null,
+      "varkw": null
+    },
+    "sklearn_predict": {
+      "name": "predict",
+      "args": [
+        {
+          "name": "X",
+          "X_type": {
+            "columns": [
+              "sepal length (cm)",
+              "sepal width (cm)",
+              "petal length (cm)",
+              "petal width (cm)"
+            ],
+            "dtypes": [
+              "float64",
+              "float64",
+              "float64",
+              "float64"
+            ],
+            "index_cols": [],
+            "type": "dataframe"
+          },
+          "required": true,
+          "default": null,
+          "kw_only": false
+        }
+      ],
+      "returns": {
+        "data_type": {
+          "shape": [
+            null
+          ],
+          "dtype": "int64",
+          "type": "ndarray"
+        }
+      },
+      "varargs": null,
+      "varkw": null
+    },
+    "sklearn_predict_proba": {
+      "name": "predict_proba",
+      "args": [
+        {
+          "name": "X",
+          "X_type": {
+            "columns": [
+              "sepal length (cm)",
+              "sepal width (cm)",
+              "petal length (cm)",
+              "petal width (cm)"
+            ],
+            "dtypes": [
+              "float64",
+              "float64",
+              "float64",
+              "float64"
+            ],
+            "index_cols": [],
+            "type": "dataframe"
+          },
+          "required": true,
+          "default": null,
+          "kw_only": false
+        }
+      ],
+      "returns": {
+        "data_type": {
+          "shape": [
+            null,
+            3
+          ],
+          "dtype": "float64",
+          "type": "ndarray"
+        }
+      },
+      "varargs": null,
+      "varkw": null
+    }
+  }
+}

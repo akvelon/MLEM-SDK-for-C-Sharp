@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -9,6 +9,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Integration tests\IrisTests\TestData\**" />
+    <EmbeddedResource Remove="Integration tests\IrisTests\TestData\**" />
+    <None Remove="Integration tests\IrisTests\TestData\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="ClassesGenerationTests\ClassSamplesForAssertion\GeneratedClasses_SimplePositiveCase.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.2" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
     <PackageReference Include="Moq" Version="4.18.1" />
@@ -21,6 +32,48 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MlemApi\MlemApi.csproj" />
+    <ProjectReference Include="..\ModelRepository\ModelRepository.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Assets\Iris_empty_args.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\Iris_empty_return_obj.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\Iris_test_schema.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\list_int_elems_and_result.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\t5_text_int_result.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\t5_text_test_schema.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="ClassesGenerationTests\ClassSamplesForAssertion\GeneratedClasses_NdArrayAsArgument\TestModelPredictRequestType.cs.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="ClassesGenerationTests\ClassSamplesForAssertion\GeneratedClasses_NdArrayAsArgument\TestModelPredictResponseType.cs.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="ClassesGenerationTests\ClassSamplesForAssertion\GeneratedClasses_DataframeAsArgument\TestModelTest1RequestType.cs.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="ClassesGenerationTests\ClassSamplesForAssertion\GeneratedClasses_DataframeAsArgument\TestModelTest1ResponseType.cs.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="ClassesGenerationTests\TestSchemasCollection\defaultSchema.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="ClassesGenerationTests\TestSchemasCollection\ndArrayArgsSchema.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ProjectExtensions><VisualStudio><UserProperties classesgenerationtests_4testschemascollection_4defaultschema_1json__JsonSchema="https://docs.renovatebot.com/renovate-schema.json" /></VisualStudio></ProjectExtensions>
 
 </Project>

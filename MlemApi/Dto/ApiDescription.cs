@@ -1,13 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MlemApi.Dto
+﻿namespace MlemApi.Dto
 {
-    internal class ApiDescription
+    /// <summary>
+    /// Represens api schema of mlem model
+    /// </summary>
+    public class ApiDescription
     {
+        public ApiDescription()
+        {
+            Methods = new List<MethodDescription>();
+        }
+
+        /// <summary>
+        /// Methods list - provided by api schema
+        /// </summary>
         public List<MethodDescription> Methods { get; set; }
     }
 }

@@ -1,0 +1,41 @@
+﻿{
+  "version": "0.2.8",
+  "methods": {
+    "predict": {
+      "name": "predict",
+      "args": [
+        {
+          "name": "data",
+          "data_type": {
+            "items": [
+              {
+                "ptype": "str",
+                "type": "primitive"
+              }
+            ],
+            "type": "list"
+          },
+          "required": true,
+          "default": null,
+          "kw_only": false
+        }
+      ],
+      "returns": {
+        "ptype": "str",
+        "type": "primitive"
+      },
+      "varargs": null,
+      "varkw": null
+    },
+    "torch_predict": {
+      "name": "_call_impl",
+      "args": [],
+      "returns": {
+        "ptype": "str",
+        "type": "primitive"
+      },
+      "varargs": "input",
+      "varkw": "kwargs"
+    }
+  }
+}

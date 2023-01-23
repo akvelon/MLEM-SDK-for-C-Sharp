@@ -3,6 +3,13 @@ using System.Text.Json;
 using System.Net.Mime;
 using Microsoft.Extensions.Logging;
 using MlemApi.Dto;
+using MlemApi.Serializing;
+using MlemApi.Validation;
+using MlemApi.Parsing;
+using MlemApi.Logging;
+using MlemApi.MessageResources;
+using System.ComponentModel;
+using System.Globalization;
 
 namespace MlemApi
 {
@@ -14,26 +21,47 @@ namespace MlemApi
         private const string PREDICT_METHOD = "predict";
 
         private readonly HttpClient _httpClient;
-        private readonly ILogger _logger;
+        private readonly ILogger? _logger;
+        private readonly IValidator? _validator;
         private readonly RequestBuilder _requestBuilder;
-
-        private ApiDescription _apiDescription;
+        private readonly ApiDescription _apiDescription;
+        private readonly DescriptionParser _descriptionParser;
 
         /// <summary>
-        /// Constructor
+        /// If true - turns arguments validation on
         /// </summary>
-        /// <param name="httpClient"></param>
-        /// <param name="configuraion"></param>
-        public MlemApiClient(string url, ILogger<MlemApiClient> logger = null, HttpClient httpClient = null, IRequestValueSerializer requestSerializer = null)
+        public bool ArgumentsValidationIsOn { get; set; }
+        /// <summary>
+        /// If true - turns response validation on
+        /// </summary>
+        public bool ResponseValidationIsOn { get; set; } = false;
+
+        /// <summary>
+        /// Constructs mlem client
+        /// </summary>
+        /// <param name="url">url of the deployed mlem model</param>
+        /// <param name="logger">logger to be used by mlem client</param>
+        /// <param name="httpClient">http client used to send requests to mlem model</param>
+        /// <param name="requestSerializer">request serializer used to serialize request to model</param>
+        /// <param name="validator">validator - to provide validation for request data, method name and response</param>
+        /// <param name="argumentTypesValidationIsOn">if true - turns arguments validation on</param>
+        public MlemApiClient(string url, ILogger<MlemApiClient>? logger = null, HttpClient? httpClient = null,
+            IRequestValuesSerializer? requestSerializer = null, IValidator? validator = null, bool argumentTypesValidationIsOn = false)
         {
             _httpClient = httpClient ?? new HttpClient();
-            _logger = logger;
-
+            _logger = logger ?? new DefaultLogger();
+            
             _httpClient.BaseAddress = new Uri(url);
 
             _requestBuilder = new RequestBuilder(requestSerializer ?? new DefaultRequestValueSerializer());
 
+            _descriptionParser = new DescriptionParser(logger);
+
             _apiDescription = GetDescription();
+
+            _validator = validator ?? new Validator(_apiDescription, null, _logger);
+
+            ArgumentsValidationIsOn = argumentTypesValidationIsOn;
         }
 
         /// <summary>
@@ -43,9 +71,21 @@ namespace MlemApi
         /// <typeparam name="outcomeT"></typeparam>
         /// <param name="values"></param>
         /// <returns></returns>
-        public async Task<outcomeT> PredictAsync<incomeT, outcomeT>(IEnumerable<incomeT> values)
+        public async Task<ResultType?> PredictAsync<ResultType, RequestType>(RequestType value, Dictionary<string, string>? modelColumnNamesMap = null)
         {
-            return await CallAsync<incomeT, outcomeT>(PREDICT_METHOD, values);
+            return await CallAsync<ResultType, RequestType>(PREDICT_METHOD, new List<RequestType> { value }, modelColumnNamesMap);
+        }
+
+        /// <summary>
+        /// Call predict API method
+        /// </summary>
+        /// <typeparam name="incomeT"></typeparam>
+        /// <typeparam name="outcomeT"></typeparam>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        public async Task<ResultType?> PredictAsync<ResultType, RequestType>(IEnumerable<RequestType> values, Dictionary<string, string>? modelColumnNamesMap = null)
+        {
+            return await CallAsync<ResultType, RequestType>(PREDICT_METHOD, values, modelColumnNamesMap);
         }
 
         /// <summary>
@@ -55,120 +95,110 @@ namespace MlemApi
         /// <typeparam name="outcomeT"></typeparam>
         /// <param name="methodName"></param>
         /// <param name="values"></param>
-        /// <returns></returns>
-        public async Task<outcomeT> CallAsync<incomeT, outcomeT>(string methodName, IEnumerable<incomeT> values)
+        /// <returns>Response data from mlem model</returns>
+        public async Task<ResultType?> CallAsync<ResultType, RequestType>(string methodName, RequestType value, Dictionary<string, string>? modelColumnNamesMap = null)
         {
-            return await DoMlemRequest<incomeT, outcomeT>(methodName, values);
+            return await CallAsync<ResultType, RequestType>(methodName, new List<RequestType> { value }, modelColumnNamesMap);
         }
 
-        private async Task<outcomeT> DoMlemRequest<incomeT, outcomeT>(string methodName, IEnumerable<incomeT> values)
+        /// <summary>
+        /// Call methodName API method
+        /// </summary>
+        /// <typeparam name="ResultType">Type of data being returned from model</typeparam>
+        /// <typeparam name="RequestType">Type of input data</typeparam>
+        /// <param name="methodName">Method name (like "predict")</param>
+        /// <param name="values">Data values</param>
+        /// <param name="modelColumnNamesMap">Map from model column names to field names of the RequestType - used for validation only</param>
+        /// <returns>Response data from mlem model</returns>
+        public async Task<ResultType?> CallAsync<ResultType, RequestType>(string methodName, IEnumerable<RequestType> values, Dictionary<string, string>? modelColumnNamesMap = null)
         {
-            ValidateMethod(methodName);
+            _validator?.ValidateMethod(methodName);
 
-            ValidateValues(values);
+            MethodDescription methodDescription = _apiDescription.Methods.First(m => m.MethodName == methodName);
 
-            var argsName = _apiDescription.Methods.First(m => m.MethodName == methodName).ArgsName;
+            _validator?.ValidateValues(values, methodName, ArgumentsValidationIsOn, modelColumnNamesMap);
 
-            var jsonRequest = _requestBuilder.BuildRequest(argsName, values);
+            string argsName = methodDescription.ArgsName;
 
-            return await DoPostRequest<outcomeT>(methodName, jsonRequest);
+            var jsonRequest = _requestBuilder.BuildRequest(argsName, values, methodDescription.ArgsData.GetType());
+
+            return await SendPostRequestAsync<ResultType?>(methodName, jsonRequest);
         }
 
-        private async Task<T> DoPostRequest<T>(string command, string requestJsonString)
+        /// <summary>
+        /// Returns api schema desciption retrieved from deployed mlem model
+        /// </summary>
+        /// <returns>api schema description for deployed mlem model</returns>
+        public ApiDescription GetDescription()
         {
+            _logger?.LogInformation(string.Format(LM.LogRequestCommand, "interface.json"));
 
-            _logger?.LogInformation($"Request command: {command}");
-
-            string responseMessage;
             try
             {
-                var response = await _httpClient.PostAsync(
+                string response = _httpClient.GetStringAsync("interface.json").Result;
+
+                return _descriptionParser.GetApiDescription(response);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(EM.ExceptionGettingApiDescription, ex);
+
+                throw;
+            }
+        }
+
+        private async Task<T?> SendPostRequestAsync<T>(string command, string requestJsonString)
+        {
+            _logger?.LogInformation(string.Format(LM.LogRequestCommand, command));
+            _logger?.LogInformation(string.Format(LM.LogRequestJson,requestJsonString));
+
+            try
+            {
+                HttpResponseMessage httpResponse = await _httpClient.PostAsync(
                     command,
                     new StringContent(requestJsonString, Encoding.UTF8, MediaTypeNames.Application.Json));
 
-                _logger?.LogInformation($"Response status: {response.StatusCode}.");
+                _logger?.LogInformation(string.Format(LM.LogResponseStatus, httpResponse.StatusCode));
 
-                responseMessage = await response.Content.ReadAsStringAsync();
+                string response = await httpResponse.Content.ReadAsStringAsync();
 
-                if (response.StatusCode != System.Net.HttpStatusCode.OK)
+                // MLEM server sends 500 Internal Server Error for any exception case
+                // so handle only 200 OK responses
+                if (httpResponse.StatusCode != System.Net.HttpStatusCode.OK)
                 {
-                    throw new HttpRequestException(responseMessage, null, response.StatusCode);
+                    throw new HttpRequestException(response, null, httpResponse.StatusCode);
+                }
+
+                if (ResponseValidationIsOn)
+                {
+                    _logger?.LogDebug("Response validation is on - started validation");
+                    _validator?.ValidateJsonResponse(response, command);
                 }
 
                 try
                 {
-                    var result = JsonSerializer.Deserialize<T>(responseMessage);
+                    T? result = JsonSerializer.Deserialize<T>(response);
 
                     if (result == null)
                     {
-
-                        _logger?.LogWarning($"Response deserialization result is null.");
+                        _logger?.LogWarning(LM.LogResponseDeserializationNull);
                     }
 
                     return result;
                 }
                 catch
                 {
-                    _logger?.LogError($"Response deserialization error.");
-
-                    throw;
+                    _logger?.LogInformation($"Response deserialization from json failed - considering responce as plain text");
+                    TypeConverter converter = TypeDescriptor.GetConverter(typeof(T));
+                    
+                    return (T) converter.ConvertFromString(null, CultureInfo.InvariantCulture, response);
                 }
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex, $"API request error.");
+                _logger?.LogError(ex, EM.ApiRequestError);
 
                 throw;
-            }
-        }
-
-        private ApiDescription GetDescription()
-        {
-            _logger?.LogInformation("Request command: interface.json");
-
-            try
-            {
-                var requestTask = _httpClient.GetStringAsync("interface.json");
-                requestTask.Wait();
-
-                var response = requestTask.Result;
-
-                return DescriptionParser.GetApiDescription(response);
-            }
-            catch (Exception ex)
-            {
-                _logger?.LogError("Exception of getting API description", ex);
-
-                throw;
-            }
-        }
-
-        private void ValidateMethod(string methodName)
-        {
-            if (!_apiDescription.Methods.Any(m => m.MethodName == methodName))
-            {
-                var message = $"No method {methodName} in API.";
-
-                _logger?.LogError(message);
-
-                throw new InvalidOperationException(message);
-            }
-        }
-
-        private void ValidateValues<incomeT>(IEnumerable<incomeT> values)
-        {
-            if (values == null)
-            {
-                _logger?.LogError($"Input value is null: {nameof(values)}.");
-
-                throw new ArgumentNullException(nameof(values));
-            }
-
-            if (!values.Any())
-            {
-                _logger?.LogError($"Input value is empty: {nameof(values)}.");
-
-                throw new ArgumentException($"{nameof(values)} cannot be empty.");
             }
         }
     }

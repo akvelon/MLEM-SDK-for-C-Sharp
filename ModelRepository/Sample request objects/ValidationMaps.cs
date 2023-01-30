@@ -2,6 +2,12 @@
 {
     public class ValidationMaps
     {
+        public static Dictionary<string, string> scikitModelMap = new Dictionary<string, string>()
+        {
+            { "pclass", "Pclass" },
+            { "parch", "Parch" },
+        };
+
         public static Dictionary<string, string> irisColumnsMap = new Dictionary<string, string>()
         {
             { "sepal length (cm)", "SepalLength" },

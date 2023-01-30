@@ -18,5 +18,6 @@
         TextModel,
         CustomConsoleLoggerCase,
         ApiSchemaUsage,
+        Scikit,
     }
 }

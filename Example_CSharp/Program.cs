@@ -33,7 +33,8 @@ List<TestCases> cases = new()
     TestCases.ClassGeneration,
     TestCases.CustomConsoleLoggerCase,
     TestCases.TextModel,
-    TestCases.Wine
+    TestCases.Wine,
+    TestCases.Scikit
 };
 
 // Run one or several test cases

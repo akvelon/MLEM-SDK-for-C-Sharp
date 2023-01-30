@@ -74,9 +74,29 @@ namespace Example
                 case TestCases.ApiSchemaUsage:
                     RunApiSchemaUsage();
                     break;
+                case TestCases.Scikit:
+                    await RunScikitCase();
+                    break;
                 default:
                     throw new NotImplementedException();
             }
+        }
+        private async Task RunScikitCase()
+        {
+            string url = "https://example-mlem-get-started-app.herokuapp.com";
+            HttpClient httpClient = _httpClientFactory.CreateClient(nameof(MlemApiClient));
+            MlemApiClient mlemClient = new(url, null, httpClient, _requestSerializer);
+
+            Scikit input = new()
+            {
+                Pclass = 1,
+                Parch = 2,
+            };
+
+            ShowResult<long>(await mlemClient.PredictAsync<List<long>, Scikit>(
+                input,
+                ValidationMaps.scikitModelMap
+            ));
         }
 
         private async Task RunSingleIrisCase()

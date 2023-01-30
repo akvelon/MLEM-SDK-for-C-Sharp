@@ -4,10 +4,10 @@ namespace ModelRepository.SampleRequestObjects
 {
     public class Scikit
     {
-        [JsonProperty("pclass")]
+        [JsonProperty("Pclass")]
         public long Pclass { get; set; }
 
-        [JsonProperty("parch")]
+        [JsonProperty("Parch")]
         public long Parch { get; set; }
     }
 }

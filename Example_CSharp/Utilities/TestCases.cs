@@ -19,5 +19,6 @@
         CustomConsoleLoggerCase,
         ApiSchemaUsage,
         TorchTensor
+        LightGbm,
     }
 }

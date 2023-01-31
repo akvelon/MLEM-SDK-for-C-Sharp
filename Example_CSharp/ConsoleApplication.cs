@@ -76,6 +76,9 @@ namespace Example
                 case TestCases.ApiSchemaUsage:
                     RunApiSchemaUsage();
                     break;
+                case TestCases.LightGbm:
+                    RunLightGbmCase();
+                    break;
                 case TestCases.TorchTensor:
                     await RunTorchTensorCase();
                     break;
@@ -461,6 +464,50 @@ namespace Example
         {
             HttpClient httpClient = _httpClientFactory.CreateClient(nameof(MlemApiClient));
             return new(HEROKU_APP_URL, logger, httpClient, requestSerializer, null, argumentTypesValidationIsOn, throwErrorIfUnsupportedSchemaVersion);
+        }
+
+        private async Task RunLightGbmCase()
+        {
+            string url = "https://example-mlem-get-started-app.herokuapp.com";
+            HttpClient httpClient = _httpClientFactory.CreateClient(nameof(MlemApiClient));
+            MlemApiClient mlemClient = new(url, null, httpClient, _requestSerializer);
+
+            LightGbm input = new()
+            {
+                One = 5.1,
+                Two = 3.5,
+                Three = 1.4,
+                Four = 0.2,
+                Five = 1.4,
+                Six = 3.1,
+                Seven = 2.7,
+                Eight = 6.1,
+                Nine = 5.2,
+                Ten = 3.8,
+                Eleven = 1.1,
+                Twelve = 1.5,
+                Thirteen = 0.4,
+                Fourteen = 6.2,
+                Fifteen = 4.4,
+                Sixteen = 1.1,
+                Seventeen = 5.7,
+                Eighteen = 2.1,
+                Nineteen = 3.2,
+                Twenty = 2.8,
+                TwentyOne = 2.1,
+                TwentyTwo = 2.5,
+                TwentyThree = 3.4,
+                TwentyFour = 5.2,
+                TwentyFive = 4.4,
+                TwentySix = 1.1,
+                TwentySeven = 6.7,
+                TwentyEight = 1.1,
+            };
+
+            ShowResult<long>(await mlemClient.PredictAsync<List<long>, LightGbm>(
+                input,
+                ValidationMaps.irisColumnsMap
+            ));
         }
 
         private static void ShowResult<T>(IEnumerable? result)

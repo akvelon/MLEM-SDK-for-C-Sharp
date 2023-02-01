@@ -504,7 +504,7 @@ namespace Example
                 TwentyEight = 1.1,
             };
 
-            ShowResult<long>(await mlemClient.PredictAsync<List<long>, LightGbm>(
+            ShowResult<double>(await mlemClient.PredictAsync<List<double>, LightGbm>(
                 input,
                 ValidationMaps.irisColumnsMap
             ));

@@ -77,7 +77,7 @@ namespace Example
                     RunApiSchemaUsage();
                     break;
                 case TestCases.LightGbm:
-                    RunLightGbmCase();
+                    await RunLightGbmCase();
                     break;
                 case TestCases.TorchTensor:
                     await RunTorchTensorCase();
@@ -468,7 +468,7 @@ namespace Example
 
         private async Task RunLightGbmCase()
         {
-            string url = "https://example-mlem-get-started-app.herokuapp.com";
+            string url = "http://localhost:8080";
             HttpClient httpClient = _httpClientFactory.CreateClient(nameof(MlemApiClient));
             MlemApiClient mlemClient = new(url, null, httpClient, _requestSerializer);
 
@@ -505,8 +505,7 @@ namespace Example
             };
 
             ShowResult<double>(await mlemClient.PredictAsync<List<double>, LightGbm>(
-                input,
-                ValidationMaps.irisColumnsMap
+                input
             ));
         }
 

@@ -25,6 +25,7 @@ ConsoleApplication consoleService = services.GetRequiredService<ConsoleApplicati
 List<TestCases> cases = new()
 {
     TestCases.SingleIris,
+    TestCases.XGBoost,
     TestCases.MultipleIris,
     TestCases.IrisFileLogger,
     TestCases.IrisRequestCheckInvalidArgument,

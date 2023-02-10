@@ -74,6 +74,9 @@ namespace Example
                 case TestCases.ApiSchemaUsage:
                     RunApiSchemaUsage();
                     break;
+                case TestCases.XGBoost:
+                    await RunXGBoostCase();
+                    break;
                 default:
                     throw new NotImplementedException();
             }
@@ -309,6 +312,30 @@ namespace Example
             ShowResult<double>(await mlemClient.PredictAsync<List<double>, SvmModel>(
                 inputData,
                 ValidationMaps.svmModelMap
+            ));
+        }
+
+        private async Task RunXGBoostCase()
+        {
+            string url = "http://127.0.0.1:8080";
+            HttpClient httpClient = _httpClientFactory.CreateClient(nameof(MlemApiClient));
+            MlemApiClient mlemClient = new(url, null, httpClient, _requestSerializer);
+
+            Titanik input = new()
+            {
+                Id = 0,
+                PClass = 0,
+                Sex = 0,
+                Age = 0.0,
+                Sibsp = 0,
+                Parch = 0,
+                Fare = 0.0,
+                Embarked = 0
+            };
+
+            ShowResult<double>(await mlemClient.PredictAsync<List<double>, Titanik>(
+                input,
+                ValidationMaps.titanikColumnsMap
             ));
         }
 

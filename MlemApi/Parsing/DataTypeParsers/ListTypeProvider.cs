@@ -11,7 +11,7 @@ namespace MlemApi.Parsing.DataTypeParsers
     {
         public List<string> GetSupportedTypes()
         {
-            return new List<string>() { "list"};
+            return new List<string>() { "list" };
         }
 
         public IApiDescriptionDataStructure GetTypeFromSchema(JsonElement.ObjectEnumerator objectEnumerator, IDataTypeProvider childDataTypeProvider)

@@ -2,6 +2,18 @@
 {
     public class ValidationMaps
     {
+        public static Dictionary<string, string> titanikColumnsMap = new Dictionary<string, string>()
+        {
+            { "", "Id" },
+            { "Pclass", "PClass" },
+            { "Sex", "Sex" },
+            { "Age", "Age" },
+            { "SibSp", "Sibsp" },
+            { "Parch", "Parch" },
+            { "Fare", "Fare" },
+            { "Embarked", "Embarked" }
+        };
+            
         public static Dictionary<string, string> irisColumnsMap = new Dictionary<string, string>()
         {
             { "sepal length (cm)", "SepalLength" },

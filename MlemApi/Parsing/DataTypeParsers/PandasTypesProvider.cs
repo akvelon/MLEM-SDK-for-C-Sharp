@@ -13,7 +13,7 @@ namespace MlemApi.DataTypeParsers
     {
         public List<string> GetSupportedTypes()
         {
-            return new List<string>() { "dataframe" };
+            return new List<string>() { "dataframe", "series" };
         }
 
         public IApiDescriptionDataStructure GetTypeFromSchema(JsonElement.ObjectEnumerator objectEnumerator, IDataTypeProvider childDataTypeProvider)

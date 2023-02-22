@@ -17,6 +17,8 @@ This is the core functionality of MLEM client for .NET apps. Having a stable app
 
 ⚠️ There is a [Java client](https://github.com/akvelon/MLEM-SDK-for-Java) that does the same for Java projects.
 
+⚠️ There is a [technology article](https://akvelon.com/akvelon-enables-non-python-apps-to-integrate-machine-learning-models-with-mlem/) about Java and .NET clients.
+
 ## Getting Started
 Before using the client make sure that you have a deployed mlem model (local or remote). Read [MLEM docs](https://mlem.ai/doc/get-started) to know how to deploy a model. A list of sample models you can find below. Also, clone the repository and build the `MlemApi` project.
 

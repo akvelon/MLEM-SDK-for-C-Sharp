@@ -28,14 +28,19 @@ namespace MlemApi.Parsing
         /// <exception cref="InvalidApiSchemaException">Throws if schema is invalid</exception>
         public ApiDescription GetApiDescription(string jsonStringDescription)
         {
-            using JsonDocument jsonDocument = JsonDocument.Parse(jsonStringDescription);
-            JsonElement jsonMethodElements = jsonDocument.RootElement.GetProperty("methods");
             _logger?.LogDebug("Parsing api description...");
 
+            using JsonDocument jsonDocument = JsonDocument.Parse(jsonStringDescription);
+            JsonElement jsonMethodElements = jsonDocument.RootElement.GetProperty("methods");
+
+            string mlemSchemaVersion = jsonDocument.RootElement.GetProperty("version").GetString()
+                ?? throw new ArgumentNullException("MLEM schema version can't be null");
+            
             JsonElement.ObjectEnumerator jsonMethodElementsEnumerator = jsonMethodElements.EnumerateObject();
             ApiDescription description = new ApiDescription
             {
-                Methods = new List<MethodDescription>(jsonMethodElementsEnumerator.Count())
+                Methods = new List<MethodDescription>(jsonMethodElementsEnumerator.Count()),
+                SchemaVersion = mlemSchemaVersion
             };
 
             _logger?.LogDebug("Trying to parse methods");

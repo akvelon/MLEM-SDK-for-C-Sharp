@@ -53,7 +53,7 @@ namespace MlemApiClientTests.RegModelTests
 
             var httpClient = new HttpClient(_msgHandler.Object);
 
-            _client = new MlemApiClient(_baseAddress, logger, httpClient);
+            _client = new MlemApiClient(_baseAddress, logger, httpClient, null, null, false, false);
         }
     }
 }

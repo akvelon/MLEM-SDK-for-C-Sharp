@@ -1,7 +1,7 @@
 ﻿namespace MlemApi.Dto
 {
     /// <summary>
-    /// Interface for list data type in mlem model api schema
+    /// Interface for list and array data type in mlem model api schema
     /// </summary>
     internal class ListData : IApiDescriptionDataStructure
     {

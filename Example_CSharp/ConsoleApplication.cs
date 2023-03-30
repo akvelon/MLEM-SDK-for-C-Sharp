@@ -11,6 +11,8 @@ namespace Example
 {
     internal class ConsoleApplication
     {
+        private readonly string HEROKU_APP_URL = "https://example-mlem-get-started-app.herokuapp.com";
+        private readonly string LOCAL_URL = "http://127.0.0.1:8080";
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IRequestValuesSerializer _requestSerializer;
         private readonly ILogger<MlemApiClient> _logger;
@@ -74,6 +76,9 @@ namespace Example
                 case TestCases.ApiSchemaUsage:
                     RunApiSchemaUsage();
                     break;
+                case TestCases.TorchTensor:
+                    await RunTorchTensorCase();
+                    break;
                 default:
                     throw new NotImplementedException();
             }
@@ -81,9 +86,7 @@ namespace Example
 
         private async Task RunSingleIrisCase()
         {
-            string url = "https://example-mlem-get-started-app.herokuapp.com";
-            HttpClient httpClient = _httpClientFactory.CreateClient(nameof(MlemApiClient));
-            MlemApiClient mlemClient = new(url, null, httpClient, _requestSerializer);
+            MlemApiClient mlemClient = GetMlemClient(HEROKU_APP_URL, logger: _logger, throwErrorIfUnsupportedSchemaVersion: false, requestSerializer: _requestSerializer);
 
             Iris input = new()
             {
@@ -101,9 +104,7 @@ namespace Example
 
         private async Task RunCustomConsoleLoggerCase()
         {
-            string url = "https://example-mlem-get-started-app.herokuapp.com";
-            HttpClient httpClient = _httpClientFactory.CreateClient(nameof(MlemApiClient));
-            MlemApiClient mlemClient = new(url, _logger, httpClient, _requestSerializer);
+            MlemApiClient mlemClient = GetMlemClient(HEROKU_APP_URL, logger: _logger, requestSerializer: _requestSerializer);
 
             Iris input = new()
             {
@@ -121,9 +122,7 @@ namespace Example
 
         private async Task RunMultipleIrisCase()
         {
-            string url = "https://example-mlem-get-started-app.herokuapp.com";
-            HttpClient httpClient = _httpClientFactory.CreateClient(nameof(MlemApiClient));
-            MlemApiClient mlemClient = new(url, null, httpClient, _requestSerializer, null, true);
+            MlemApiClient mlemClient = GetMlemClient(HEROKU_APP_URL, requestSerializer: _requestSerializer);
 
             List<Iris> inputData = new()
             {
@@ -151,10 +150,8 @@ namespace Example
 
         private async Task RunIrisFileLoggerCase()
         {
-            string url = "https://example-mlem-get-started-app.herokuapp.com";
-            HttpClient httpClient = _httpClientFactory.CreateClient(nameof(MlemApiClient));
             var fileLogger = new FileLogger("./iris-log.txt");
-            MlemApiClient mlemClient = new(url, fileLogger, httpClient, _requestSerializer);
+            MlemApiClient mlemClient = GetMlemClient(HEROKU_APP_URL, logger: fileLogger, requestSerializer: _requestSerializer);
 
             Iris input = new()
             {
@@ -172,9 +169,8 @@ namespace Example
 
         private async Task RunMultipleIrisPredictProbaCase()
         {
-            string url = "https://example-mlem-get-started-app.herokuapp.com";
             HttpClient httpClient = _httpClientFactory.CreateClient(nameof(MlemApiClient));
-            MlemApiClient mlemClient = new(url, null, httpClient, _requestSerializer, null, true);
+            MlemApiClient mlemClient = GetMlemClient(HEROKU_APP_URL, requestSerializer: _requestSerializer);
 
             List<Iris> inputData = new()
             {
@@ -203,9 +199,7 @@ namespace Example
 
         private async Task RunMultipleIrisSkLearnPredictCase()
         {
-            string url = "https://example-mlem-get-started-app.herokuapp.com";
-            HttpClient httpClient = _httpClientFactory.CreateClient(nameof(MlemApiClient));
-            MlemApiClient mlemClient = new(url, null, httpClient, _requestSerializer, null, true);
+            MlemApiClient mlemClient = GetMlemClient(HEROKU_APP_URL, requestSerializer: _requestSerializer);
 
             List<Iris> inputData = new()
             {
@@ -234,9 +228,8 @@ namespace Example
 
         private async Task RunMultipleIrisSkLearnPredictProbaCase()
         {
-            string url = "https://example-mlem-get-started-app.herokuapp.com";
             HttpClient httpClient = _httpClientFactory.CreateClient(nameof(MlemApiClient));
-            MlemApiClient mlemClient = new(url, null, httpClient, _requestSerializer, null, true);
+            MlemApiClient mlemClient = GetMlemClient(HEROKU_APP_URL, requestSerializer: _requestSerializer);
 
             List<Iris> inputData = new()
             {
@@ -265,9 +258,7 @@ namespace Example
 
         private async Task RunSingleWineCase()
         {
-            string url = "http://127.0.0.1:8080/";
-            MlemApiClient mlemClient = new(url, _logger);
-            mlemClient.ArgumentsValidationIsOn = true;
+            MlemApiClient mlemClient = GetMlemClient(LOCAL_URL, logger: _logger, argumentTypesValidationIsOn: true);
             mlemClient.ResponseValidationIsOn = true;
 
             Wine input = new()
@@ -295,8 +286,7 @@ namespace Example
 
         private async Task RunSvmCase()
         {
-            string url = "http://127.0.0.1:8080/";
-            MlemApiClient mlemClient = new(url, null);
+            MlemApiClient mlemClient = GetMlemClient(LOCAL_URL);
 
             List<SvmModel> inputData = new()
             {
@@ -314,8 +304,7 @@ namespace Example
 
         private async Task RunIrisRequestCheckInvalidArgumentCase()
         {
-            MlemApiClient client = GetIrisClient();
-            client.ArgumentsValidationIsOn = true;
+            MlemApiClient client = GetMlemClient(HEROKU_APP_URL, argumentTypesValidationIsOn: true);
             client.ResponseValidationIsOn = true;
 
             await client.CallAsync<List<List<double>>, IrisWithInvalidArgumentType>("predict_proba", new List<IrisWithInvalidArgumentType>
@@ -341,8 +330,7 @@ namespace Example
 
         private async Task RunIrisRequestCheckMissingColumnCase()
         {
-            MlemApiClient client = GetIrisClient();
-            client.ArgumentsValidationIsOn = true;
+            MlemApiClient client = GetMlemClient(HEROKU_APP_URL, argumentTypesValidationIsOn: true);
             client.ResponseValidationIsOn = true;
 
             await client.CallAsync<List<List<double>>, IrisWithMissingColumn>("predict_proba", new List<IrisWithMissingColumn>
@@ -366,8 +354,7 @@ namespace Example
 
         private async Task RunIrisRequestCheckUnknownColumnCase()
         {
-            MlemApiClient client = GetIrisClient();
-            client.ArgumentsValidationIsOn = true;
+            MlemApiClient client = GetMlemClient(HEROKU_APP_URL, argumentTypesValidationIsOn: true );
             client.ResponseValidationIsOn = true;
 
             await client.CallAsync<List<List<double>>, IrisWithUnknownColumnName>("predict_proba", new List<IrisWithUnknownColumnName>
@@ -393,9 +380,7 @@ namespace Example
 
         private async Task RunDigitsCase()
         {
-            string url = "http://127.0.0.1:8080/";
-            MlemApiClient mlemClient = new(url, null);
-            mlemClient.ArgumentsValidationIsOn = true;
+            MlemApiClient mlemClient = GetMlemClient(LOCAL_URL, argumentTypesValidationIsOn: true);
             mlemClient.ResponseValidationIsOn = true;
 
             Random rand = new Random();
@@ -415,18 +400,33 @@ namespace Example
             ));
         }
 
+        private async Task RunTorchTensorCase()
+        {
+            HttpClient httpClient = _httpClientFactory.CreateClient(nameof(MlemApiClient));
+            MlemApiClient mlemClient = GetMlemClient(LOCAL_URL);
+            Random rand = new();
+
+            List<float> input = new();
+            for (var i = 0; i < 100; ++i)
+            {
+                input.Add(rand.NextSingle());
+            }
+
+            var predict = await mlemClient.PredictAsync<List<List<float>>, List<float>>(input);
+
+            ShowResult<float>(predict);
+        }
+
         public void RunClassGeneration()
         {
             var modelGenerator = new ModelClassesGenerator(_logger);
-            var client = new MlemApiClient("http://localhost:8080/");
+            var client = GetMlemClient(LOCAL_URL);
             modelGenerator.GenerateClasses("digits", "generatedClassesFolder", client, "CustomNamespace");
         }
 
         public async Task RunTextModelCase()
         {
-            string url = "http://127.0.0.1:8080/";
-            HttpClient httpClient = _httpClientFactory.CreateClient("MlemApiClient");
-            MlemApiClient mlemClient = new(url, null, httpClient, _requestSerializer);
+            MlemApiClient mlemClient = GetMlemClient(LOCAL_URL, requestSerializer: _requestSerializer);
             mlemClient.ResponseValidationIsOn = false;
             List<string> input = new List<string>(){
                 "Hugging Face is a technology company based in New York and Paris",
@@ -440,9 +440,7 @@ namespace Example
 
         public void RunApiSchemaUsage()
         {
-            string url = "http://127.0.0.1:8080/";
-            HttpClient httpClient = _httpClientFactory.CreateClient("MlemApiClient");
-            MlemApiClient mlemClient = new(url, null, httpClient, _requestSerializer);
+            MlemApiClient mlemClient = GetMlemClient(LOCAL_URL, requestSerializer: _requestSerializer);
             mlemClient.ResponseValidationIsOn = false;
             var schema = mlemClient.GetDescription();
 
@@ -453,11 +451,16 @@ namespace Example
             }
         }
 
-        private MlemApiClient GetIrisClient()
+        private MlemApiClient GetMlemClient(
+            string Url,
+            ILogger<MlemApiClient>? logger = null,
+            IRequestValuesSerializer? requestSerializer = null,
+            bool argumentTypesValidationIsOn = false,
+            bool throwErrorIfUnsupportedSchemaVersion = false
+        )
         {
-            string url = "https://example-mlem-get-started-app.herokuapp.com";
             HttpClient httpClient = _httpClientFactory.CreateClient(nameof(MlemApiClient));
-            return new(url, null, httpClient, _requestSerializer);
+            return new(HEROKU_APP_URL, logger, httpClient, requestSerializer, null, argumentTypesValidationIsOn, throwErrorIfUnsupportedSchemaVersion);
         }
 
         private static void ShowResult<T>(IEnumerable? result)
@@ -468,11 +471,13 @@ namespace Example
                     Console.WriteLine("Result is null");
                     break;
                 case List<T> res:
-                    Console.Write("Result: ");
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine(string.Join(",", res));
-                    Console.ForegroundColor = ConsoleColor.White;
-                    break;
+                    {
+                        Console.Write("Result: ");
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine(string.Join(",", res));
+                        Console.ForegroundColor = ConsoleColor.White;
+                        break;
+                    }
                 case List<List<T>> listResult:
                     {
                         Console.WriteLine("Results:");

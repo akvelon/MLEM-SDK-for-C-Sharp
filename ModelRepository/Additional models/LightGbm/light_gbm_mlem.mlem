@@ -1,0 +1,135 @@
+artifacts:
+  data:
+    hash: cc7e8493c01c45c8a9f1eeda90fb6eac
+    size: 60696
+    uri: light_gbm_mlem/model.lgb
+call_orders:
+  predict:
+  - - model
+    - predict
+object_type: model
+processors:
+  model:
+    methods:
+      predict:
+        args:
+        - name: data
+          type_:
+            columns:
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+            - 6
+            - 7
+            - 8
+            - 9
+            - 10
+            - 11
+            - 12
+            - 13
+            - 14
+            - 15
+            - 16
+            - 17
+            - 18
+            - 19
+            - 20
+            - 21
+            - 22
+            - 23
+            - 24
+            - 25
+            - 26
+            - 27
+            - 28
+            dtypes:
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            - float64
+            index_cols: []
+            type: dataframe
+        - default: 0
+          name: start_iteration
+          required: false
+          type_:
+            ptype: int
+            type: primitive
+        - name: num_iteration
+          required: false
+          type_:
+            ptype: NoneType
+            type: primitive
+        - default: false
+          name: raw_score
+          required: false
+          type_:
+            ptype: bool
+            type: primitive
+        - default: false
+          name: pred_leaf
+          required: false
+          type_:
+            ptype: bool
+            type: primitive
+        - default: false
+          name: pred_contrib
+          required: false
+          type_:
+            ptype: bool
+            type: primitive
+        - default: false
+          name: data_has_header
+          required: false
+          type_:
+            ptype: bool
+            type: primitive
+        - default: true
+          name: is_reshape
+          required: false
+          type_:
+            ptype: bool
+            type: primitive
+        name: predict
+        returns:
+          dtype: float64
+          shape:
+          - null
+          type: ndarray
+        varkw: kwargs
+    type: lightgbm
+requirements:
+- module: numpy
+  version: 1.24.1
+- module: pandas
+  version: 1.5.2
+- package_name: libgomp1
+  type: unix
+- module: lightgbm
+  version: 3.3.5

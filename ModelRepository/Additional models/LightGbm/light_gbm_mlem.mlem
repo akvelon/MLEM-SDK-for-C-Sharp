@@ -1,6 +1,6 @@
 artifacts:
   data:
-    hash: cc7e8493c01c45c8a9f1eeda90fb6eac
+    hash: 89e09ef73e93e5ef3bb38c9af355fecd
     size: 60696
     uri: light_gbm_mlem/model.lgb
 call_orders:

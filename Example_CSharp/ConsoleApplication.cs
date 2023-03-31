@@ -468,9 +468,7 @@ namespace Example
 
         private async Task RunLightGbmCase()
         {
-            string url = "http://localhost:8080";
-            HttpClient httpClient = _httpClientFactory.CreateClient(nameof(MlemApiClient));
-            MlemApiClient mlemClient = new(url, null, httpClient, _requestSerializer);
+            MlemApiClient mlemClient = new(LOCAL_URL, requestSerializer: _requestSerializer);
 
             LightGbm input = new()
             {

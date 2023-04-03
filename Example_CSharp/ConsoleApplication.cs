@@ -463,7 +463,7 @@ namespace Example
         )
         {
             HttpClient httpClient = _httpClientFactory.CreateClient(nameof(MlemApiClient));
-            return new(HEROKU_APP_URL, logger, httpClient, requestSerializer, null, argumentTypesValidationIsOn, throwErrorIfUnsupportedSchemaVersion);
+            return new(Url, logger, httpClient, requestSerializer, null, argumentTypesValidationIsOn, throwErrorIfUnsupportedSchemaVersion);
         }
 
         private async Task RunLightGbmCase()

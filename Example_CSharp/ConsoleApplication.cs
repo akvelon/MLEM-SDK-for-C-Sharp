@@ -468,7 +468,7 @@ namespace Example
 
         private async Task RunLightGbmCase()
         {
-            MlemApiClient mlemClient = new(LOCAL_URL, requestSerializer: _requestSerializer);
+            var mlemClient = GetMlemClient(LOCAL_URL, requestSerializer: _requestSerializer);
 
             LightGbm input = new()
             {

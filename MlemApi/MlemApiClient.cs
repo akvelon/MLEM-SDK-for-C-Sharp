@@ -50,7 +50,7 @@ namespace MlemApi
         /// <param name="argumentTypesValidationIsOn">if true - turns arguments validation on</param>
         /// <param name="throwErrorIfUnsupportedSchemaVersion">if true - throw the exception if mlem server schema version is different than supported schema version, if false - we just write warning message into the console and continue work</param>
         public MlemApiClient(string url, ILogger<MlemApiClient>? logger = null, HttpClient? httpClient = null,
-            IRequestValuesSerializer? requestSerializer = null, IValidator? validator = null, bool argumentTypesValidationIsOn = false, bool throwErrorIfUnsupportedSchemaVersion = true)
+            IRequestValuesSerializer? requestSerializer = null, IValidator? validator = null, bool argumentTypesValidationIsOn = false, bool throwErrorIfUnsupportedSchemaVersion = false)
         {
             _httpClient = httpClient ?? new HttpClient();
             _logger = logger ?? new DefaultLogger();

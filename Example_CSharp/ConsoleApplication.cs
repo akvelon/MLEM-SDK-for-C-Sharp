@@ -76,6 +76,9 @@ namespace Example
                 case TestCases.ApiSchemaUsage:
                     RunApiSchemaUsage();
                     break;
+                case TestCases.LightGbm:
+                    await RunLightGbmCase();
+                    break;
                 case TestCases.TorchTensor:
                     await RunTorchTensorCase();
                     break;
@@ -460,7 +463,21 @@ namespace Example
         )
         {
             HttpClient httpClient = _httpClientFactory.CreateClient(nameof(MlemApiClient));
-            return new(HEROKU_APP_URL, logger, httpClient, requestSerializer, null, argumentTypesValidationIsOn, throwErrorIfUnsupportedSchemaVersion);
+            return new(Url, logger, httpClient, requestSerializer, null, argumentTypesValidationIsOn, throwErrorIfUnsupportedSchemaVersion);
+        }
+
+        private async Task RunLightGbmCase()
+        {
+            var mlemClient = GetMlemClient(LOCAL_URL, requestSerializer: _requestSerializer);
+
+            Random rand = new();
+
+            var input = Enumerable.Range(0, 28).Select((v, i) => new { v = rand.NextSingle() * 10, i })
+                            .ToDictionary(p => p.i + 1, p => p.v);
+
+            ShowResult<double>(await mlemClient.PredictAsync<List<double>, Dictionary<int, float>>(
+                input
+            ));
         }
 
         private static void ShowResult<T>(IEnumerable? result)

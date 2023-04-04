@@ -1,5 +1,5 @@
 ﻿{
-  "version": "0.2.9.dev11+g5a6790d",
+  "version": "0.2.9",
   "methods": {
     "predict": {
       "args": [

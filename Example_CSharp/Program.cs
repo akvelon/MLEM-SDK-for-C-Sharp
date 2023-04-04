@@ -24,6 +24,7 @@ ConsoleApplication consoleService = services.GetRequiredService<ConsoleApplicati
 // Configure necessary console test cases running one by one
 List<TestCases> cases = new()
 {
+    TestCases.LightGbm,
     TestCases.SingleIris,
     TestCases.MultipleIris,
     TestCases.IrisFileLogger,
@@ -33,7 +34,8 @@ List<TestCases> cases = new()
     TestCases.ClassGeneration,
     TestCases.CustomConsoleLoggerCase,
     TestCases.TextModel,
-    TestCases.Wine
+    TestCases.Wine,
+    TestCases.TorchTensor
 };
 
 // Run one or several test cases

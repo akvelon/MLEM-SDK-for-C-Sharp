@@ -14,5 +14,10 @@
         /// Methods list - provided by api schema
         /// </summary>
         public List<MethodDescription> Methods { get; set; }
+
+        /// <summary>
+        /// Version of the JSON schema
+        /// </summary>
+        public string SchemaVersion { get; set; }
     }
 }

@@ -1,6 +1,6 @@
 using MlemApi.Dto;
 using MlemApi.Dto.DataFrameData;
-using MlemApi.MessageResources;
+using Newtonsoft.Json;
 
 namespace MlemApi.Serializing
 {
@@ -24,7 +24,7 @@ namespace MlemApi.Serializing
                     $"}}"
                 );
             }
-            else if (argsType == typeof(DataFrameData) || argsType == typeof(ListData))
+            else if (argsType == typeof(ListData))
             {
                 return GetRequestBody(
                     argsName,
@@ -34,7 +34,7 @@ namespace MlemApi.Serializing
             {
                 return GetRequestBody(
                     argsName,
-                    values.First().ToString()
+                    JsonConvert.SerializeObject(values)
                 );
             }
         }

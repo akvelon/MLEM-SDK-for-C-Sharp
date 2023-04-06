@@ -10,6 +10,9 @@ using MlemApi.Logging;
 using MlemApi.MessageResources;
 using System.ComponentModel;
 using System.Globalization;
+using MlemApi.Utils;
+using Semver;
+using MlemApi.Validation.Exceptions;
 
 namespace MlemApi
 {
@@ -45,8 +48,9 @@ namespace MlemApi
         /// <param name="requestSerializer">request serializer used to serialize request to model</param>
         /// <param name="validator">validator - to provide validation for request data, method name and response</param>
         /// <param name="argumentTypesValidationIsOn">if true - turns arguments validation on</param>
+        /// <param name="throwErrorIfUnsupportedSchemaVersion">if true - throw the exception if mlem server schema version is different than supported schema version, if false - we just write warning message into the console and continue work</param>
         public MlemApiClient(string url, ILogger<MlemApiClient>? logger = null, HttpClient? httpClient = null,
-            IRequestValuesSerializer? requestSerializer = null, IValidator? validator = null, bool argumentTypesValidationIsOn = false)
+            IRequestValuesSerializer? requestSerializer = null, IValidator? validator = null, bool argumentTypesValidationIsOn = false, bool throwErrorIfUnsupportedSchemaVersion = false)
         {
             _httpClient = httpClient ?? new HttpClient();
             _logger = logger ?? new DefaultLogger();
@@ -58,6 +62,8 @@ namespace MlemApi
             _descriptionParser = new DescriptionParser(logger);
 
             _apiDescription = GetDescription();
+
+            CheckSupportedSchemaVersion(_apiDescription, throwErrorIfUnsupportedSchemaVersion);
 
             _validator = validator ?? new Validator(_apiDescription, null, _logger);
 
@@ -144,6 +150,21 @@ namespace MlemApi
                 _logger?.LogError(EM.ExceptionGettingApiDescription, ex);
 
                 throw;
+            }
+        }
+
+        private void CheckSupportedSchemaVersion(ApiDescription apiDescription, bool throwErrorIfUnsupportedSchemaVersion)
+        {
+            var mlemSchemaSemVersion = SemVersion.Parse(apiDescription.SchemaVersion, SemVersionStyles.Strict);
+            var supportedSchemaSemVersion = SemVersion.Parse(ApplicationRestriction.SupportedSchemaVersion, SemVersionStyles.Strict);
+
+            if ((mlemSchemaSemVersion.Major == 0 && mlemSchemaSemVersion.ComparePrecedenceTo(supportedSchemaSemVersion) != 0)
+                || mlemSchemaSemVersion.Major != supportedSchemaSemVersion.Major)
+            {
+                if (throwErrorIfUnsupportedSchemaVersion)
+                    throw new InvalidApiSchemaException($"ERROR! Current target mlem schema version - {ApplicationRestriction.SupportedSchemaVersion} is not backward-compatible with mlem server schema version - {_apiDescription.SchemaVersion}.");
+                else
+                    _logger?.LogWarning($"WARNING! Current target mlem schema version - {ApplicationRestriction.SupportedSchemaVersion} is not backward-compatible with mlem server schema version - {_apiDescription.SchemaVersion}. This may cause compatibility issues and unexpected results.");
             }
         }
 

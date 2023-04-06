@@ -48,7 +48,7 @@ namespace MlemApiClientTests
             using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
             var logger = loggerFactory.CreateLogger<MlemApiClient>();
 
-            return new MlemApiClient(TestMockUtils.baseAddress, logger, httpClient);
+            return new MlemApiClient(TestMockUtils.baseAddress, logger, httpClient, null, null, false, false);
         }
     }
 }

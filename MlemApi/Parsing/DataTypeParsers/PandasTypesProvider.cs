@@ -20,7 +20,7 @@ namespace MlemApi.DataTypeParsers
         {
             var argumentNames = objectEnumerator.First(e => e.Name == "columns")
              .Value.EnumerateArray()
-             .Select(element => element.GetString())
+             .Select(element => element.ToString())
              .ToList();
 
             var argumentTypes = objectEnumerator.First(e => e.Name == "dtypes")
